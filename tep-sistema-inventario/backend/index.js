@@ -2,11 +2,16 @@ const express = require('express');
 const cors = require('cors');
 const db = require('./database'); 
 
+const authRoutes = require('./routes/authRoutes');
+
 const app = express();
 const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
+
+// Rutas de la API
+app.use('/api/auth', authRoutes);
 
 // Una ruta de prueba para ver si el servidor responde
 app.get('/', (req, res) => {
