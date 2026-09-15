@@ -3,6 +3,7 @@ const cors = require('cors');
 const db = require('./database'); 
 
 const authRoutes = require('./routes/authRoutes');
+const sectoresRoutes = require('./routes/sectoresRoutes');
 
 const app = express();
 const PORT = 3000;
@@ -12,6 +13,7 @@ app.use(express.json());
 
 // Rutas de la API
 app.use('/api/auth', authRoutes);
+app.use('/api/sectores', sectoresRoutes);
 
 // Una ruta de prueba para ver si el servidor responde
 app.get('/', (req, res) => {
