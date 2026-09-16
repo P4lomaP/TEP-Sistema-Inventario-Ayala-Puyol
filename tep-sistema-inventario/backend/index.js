@@ -5,6 +5,7 @@ const db = require('./database');
 
 const authRoutes = require('./routes/authRoutes');
 const sectoresRoutes = require('./routes/sectoresRoutes');
+const insumosRoutes = require('./routes/insumosRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +16,7 @@ app.use(express.json());
 // Rutas de la API
 app.use('/api/auth', authRoutes);
 app.use('/api/sectores', sectoresRoutes);
+app.use('/api/insumos', insumosRoutes);
 
 // Una ruta de prueba para ver si el servidor responde
 app.get('/', (req, res) => {
