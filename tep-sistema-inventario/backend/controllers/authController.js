@@ -2,8 +2,8 @@ const db = require('../database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Clave secreta para firmar el JWT (se puede configurar en variables de entorno)
-const JWT_SECRET = process.env.JWT_SECRET || 'tep_inventario_secret_key_2026';
+// Clave secreta para firmar el JWT obtenida desde variables de entorno (.env)
+const JWT_SECRET = process.env.JWT_SECRET;
 
 /**
  * Controlador para el inicio de sesión (Login)
