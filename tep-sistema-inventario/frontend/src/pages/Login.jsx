@@ -1,45 +1,59 @@
 import { useState } from 'react';
-import { X, Eye, EyeOff } from 'lucide-react';
+import { X, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { loginService } from '../services/authService';
 
-export default function Login({ onSwitchToRegister }) {
-  // 1. ZONA JAVASCRIPT: Estados para capturar datos y visibilidad
+export default function Login({ onSwitchToRegister, onLoginSuccess }) {
+  // 1. ZONA JAVASCRIPT: Estados para capturar datos, visibilidad y carga
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  // 2. FUNCIÓN DE ENVÍO: Se ejecuta al presionar "Ingresar"
-  const handleSubmit = (e) => {
+  // 2. FUNCIÓN DE ENVÍO: Petición real al backend POST /api/auth/login
+  const handleSubmit = async (e) => {
     e.preventDefault(); // Evita recargar la página
+    setError('');
 
-    // Validación básica en frontend
-    if (password.length < 8) {
-      setError('La contraseña debe tener al menos 8 caracteres.');
+    if (!username.trim() || !password) {
+      setError('Por favor, ingrese usuario y contraseña.');
       return;
     }
 
-    setError('');
-    console.log('Datos capturados listos para enviar:', { username, password });
-    alert(`Intento de ingreso: ${username}`);
+    try {
+      setIsLoading(true);
+      // Petición al backend que además guarda token y usuario en localStorage
+      const data = await loginService(username.trim(), password);
+
+      // Redirigir al dashboard si fue exitoso
+      if (onLoginSuccess) {
+        onLoginSuccess(data);
+      }
+    } catch (err) {
+      // Captura y muestra el mensaje exacto devuelto por la API (400, 401, 403, 500)
+      setError(err.message || 'Error al conectar con el servidor.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // 3. ZONA VISUAL (HTML + Tailwind reproduciendo la imagen)
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center bg-slate-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.25),rgba(255,255,255,0))] p-4">
+    <div className="relative min-h-screen w-full flex items-center justify-center bg-slate-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.25),rgba(255,255,255,0))] p-4 sm:p-6">
       {/* Tarjeta Modal Blanca */}
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 sm:p-10">
+      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-xl sm:shadow-2xl p-6 sm:p-10 my-4 sm:my-0">
         
         {/* Botón de cerrar superior */}
         <button
           type="button"
           onClick={() => console.log('Cerrar modal')}
-          className="absolute -top-3 -right-3 bg-white text-gray-600 hover:text-gray-900 border border-gray-200 rounded-full p-1.5 shadow-md transition hover:scale-105"
+          className="absolute top-4 right-4 sm:-top-3 sm:-right-3 bg-white text-gray-600 hover:text-gray-900 border border-gray-200 rounded-full p-1.5 shadow-md transition hover:scale-105"
         >
           <X size={18} />
         </button>
 
         {/* Título Principal */}
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-8 tracking-tight">
+        <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 mb-6 sm:mb-8 tracking-tight">
           Inicia Sesión
         </h2>
 
@@ -95,9 +109,17 @@ export default function Login({ onSwitchToRegister }) {
           {/* Botón Ingresar */}
           <button
             type="submit"
-            className="w-full mt-4 bg-[#5764E8] hover:bg-[#4653D4] text-white text-sm font-semibold py-3 px-4 rounded-xl shadow-md transition duration-200"
+            disabled={isLoading}
+            className="w-full mt-4 bg-[#5764E8] hover:bg-[#4653D4] disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold py-3 px-4 rounded-xl shadow-md transition duration-200 flex items-center justify-center gap-2 cursor-pointer"
           >
-            Ingresar
+            {isLoading ? (
+              <>
+                <Loader2 size={16} className="animate-spin" />
+                <span>Ingresando...</span>
+              </>
+            ) : (
+              <span>Ingresar</span>
+            )}
           </button>
         </form>
 
