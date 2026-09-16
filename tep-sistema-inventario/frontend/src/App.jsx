@@ -1,17 +1,47 @@
-import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+
+// Envoltorio para Login con navegación por URL
+function LoginPage() {
+  const navigate = useNavigate();
+  return (
+    <Login
+      onSwitchToRegister={() => navigate('/registro')}
+      onLoginSuccess={() => navigate('/dashboard')}
+    />
+  );
+}
+
+// Envoltorio para Register con navegación por URL
+function RegisterPage() {
+  const navigate = useNavigate();
+  return (
+    <Register
+      onSwitchToLogin={() => navigate('/login')}
+    />
+  );
+}
 
 export default function App() {
-  const [currentView, setCurrentView] = useState('login');
-
   return (
-    <main>
-      {currentView === 'login' ? (
-        <Login onSwitchToRegister={() => setCurrentView('register')} />
-      ) : (
-        <Register onSwitchToLogin={() => setCurrentView('login')} />
-      )}
-    </main>
+    <BrowserRouter>
+      <Routes>
+        {/* Ruta principal: por defecto va al Dashboard */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        
+        {/* Rutas de las 3 pantallas */}
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/registro" element={<RegisterPage />} />
+        
+        {/* Alias en inglés por si escribes /register */}
+        <Route path="/register" element={<Navigate to="/registro" replace />} />
+
+        {/* Cualquier otra ruta inexistente redirige al dashboard */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
