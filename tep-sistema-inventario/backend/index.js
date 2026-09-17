@@ -7,6 +7,7 @@ const authRoutes = require('./routes/authRoutes');
 const sectoresRoutes = require('./routes/sectoresRoutes');
 const insumosRoutes = require('./routes/insumosRoutes');
 const equiposRoutes = require('./routes/equiposRoutes');
+const movimientosRoutes = require('./routes/movimientosRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,6 +20,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/sectores', sectoresRoutes);
 app.use('/api/insumos', insumosRoutes);
 app.use('/api/equipos', equiposRoutes);
+app.use('/api/movimientos', movimientosRoutes);
 
 // Una ruta de prueba para ver si el servidor responde
 app.get('/', (req, res) => {
