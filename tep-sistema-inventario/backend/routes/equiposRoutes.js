@@ -5,6 +5,9 @@ const equiposController = require('../controllers/equiposController');
 // GET /api/equipos - Listar todos los equipos (incluye nombre de sector mediante JOIN)
 router.get('/', equiposController.obtenerEquipos);
 
+// GET /api/equipos/:id/historial - Consultar el historial y trazabilidad del equipo
+router.get('/:id/historial', equiposController.obtenerHistorialEquipo);
+
 // POST /api/equipos - Crear un nuevo equipo informático
 router.post('/', equiposController.crearEquipo);
 
