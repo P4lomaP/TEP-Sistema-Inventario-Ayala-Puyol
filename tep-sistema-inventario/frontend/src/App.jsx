@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-route
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import Insumos from './pages/Insumos';
+import Equipos from './pages/Equipos';
 
 // Envoltorio para Login con navegación por URL
 function LoginPage() {
@@ -31,12 +33,15 @@ export default function App() {
         {/* Ruta principal: por defecto va al Dashboard */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         
-        {/* Rutas de las 3 pantallas */}
+        {/* Rutas principales del sistema */}
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/equipos" element={<Equipos />} />
+        <Route path="/insumos" element={<Insumos />} />
+        <Route path="/catalogo-insumos" element={<Navigate to="/insumos" replace />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registro" element={<RegisterPage />} />
         
-        {/* Alias en inglés por si escribes /register */}
+        {/* Alias en inglés */}
         <Route path="/register" element={<Navigate to="/registro" replace />} />
 
         {/* Cualquier otra ruta inexistente redirige al dashboard */}
