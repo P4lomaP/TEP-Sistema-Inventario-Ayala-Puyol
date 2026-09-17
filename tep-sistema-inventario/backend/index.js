@@ -6,6 +6,7 @@ const db = require('./database');
 const authRoutes = require('./routes/authRoutes');
 const sectoresRoutes = require('./routes/sectoresRoutes');
 const insumosRoutes = require('./routes/insumosRoutes');
+const equiposRoutes = require('./routes/equiposRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/sectores', sectoresRoutes);
 app.use('/api/insumos', insumosRoutes);
+app.use('/api/equipos', equiposRoutes);
 
 // Una ruta de prueba para ver si el servidor responde
 app.get('/', (req, res) => {
