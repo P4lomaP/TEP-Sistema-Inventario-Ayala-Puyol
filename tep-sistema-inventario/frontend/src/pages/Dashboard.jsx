@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { 
   Package, 
   Activity, 
@@ -7,46 +8,49 @@ import {
   ArrowUpRight, 
   ArrowLeftRight, 
   MoreHorizontal,
-  ChevronRight
+  ChevronRight,
+  RefreshCw,
+  Clock,
+  User,
+  CheckCircle2,
+  Inbox
 } from 'lucide-react';
 import MainLayout from '../components/MainLayout';
+import { getDashboardData } from '../services/dashboardService';
 
 export default function Dashboard() {
-  // Datos simulados para los últimos 5 movimientos
-  const movimientos = [
-    {
-      id: 'MOV-8842',
-      hora: '14:25',
-      tipo: 'Entrada',
-      colorTipo: 'text-emerald-600 bg-emerald-50',
-      iconoTipo: ArrowDownLeft,
-      articulo: 'Monitor Dell UltraSharp 27"',
-      destino: 'Almacén Central',
-      usuario: 'Carlos Ruiz',
-    },
-    {
-      id: 'MOV-8841',
-      hora: '13:10',
-      tipo: 'Salida',
-      colorTipo: 'text-amber-600 bg-amber-50',
-      iconoTipo: ArrowUpRight,
-      articulo: 'Laptop HP EliteBook G8',
-      destino: 'Depto. IT',
-      usuario: 'Lucía Méndez',
-    },
-    {
-      id: 'MOV-8840',
-      hora: '11:45',
-      tipo: 'Transferencia',
-      colorTipo: 'text-blue-600 bg-blue-50',
-      iconoTipo: ArrowLeftRight,
-      articulo: 'Teclado Mecánico RGB',
-      destino: 'Sede Norte',
-      usuario: 'Marco Polo',
-    },
-  ];
+  // 1. Estados de datos reales desde el Backend
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [dashboardData, setDashboardData] = useState({
+    equiposActivos: 0,
+    totalEquipos: 0,
+    totalInsumos: 0,
+    totalStockUnidades: 0,
+    insumosCriticos: 0,
+    ultimosMovimientos: []
+  });
 
-  // Alturas porcentuales simuladas para las 12 barras mensuales
+  // Función para cargar los datos desde los 3 endpoints reales
+  const cargarDatos = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getDashboardData();
+      setDashboardData(data);
+    } catch (err) {
+      console.error('Error al conectar con la API:', err);
+      setError('No se pudo conectar con el servidor backend (http://localhost:3000). Verifique que esté encendido.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    cargarDatos();
+  }, []);
+
+  // Alturas porcentuales representativas para las 12 barras mensuales
   const barrasGrafico = [
     { mes: 'Ene', valor: 42 },
     { mes: 'Feb', valor: 38 },
@@ -62,6 +66,32 @@ export default function Dashboard() {
     { mes: 'Dic', valor: 95 },
   ];
 
+  // Helper para renderizar badge del tipo de movimiento
+  const renderTipoBadge = (tipo) => {
+    if (tipo === 'Ingreso') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <ArrowDownLeft size={13} />
+          Ingreso
+        </span>
+      );
+    }
+    if (tipo === 'Egreso') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+          <ArrowUpRight size={13} />
+          Egreso
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+        <ArrowLeftRight size={13} />
+        {tipo || 'Movimiento'}
+      </span>
+    );
+  };
+
   return (
     <MainLayout activePage="dashboard" pageTitle="Dashboard">
       <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto">
@@ -74,45 +104,99 @@ export default function Dashboard() {
             className="absolute inset-0 w-full h-full object-cover object-center opacity-30 mix-blend-luminosity"
           />
           <div className="relative z-10 max-w-2xl">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                Datos en tiempo real (API REST)
+              </span>
+            </div>
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight mb-1.5 sm:mb-2">Panel de Control Institucional</h2>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-light">
-              Bienvenido al sistema centralizado de gestión. Supervise activos críticos, rastree movimientos de suministros y mantenga la eficiencia operativa de su institución en tiempo real.
+              Bienvenido al sistema centralizado de gestión del Tribunal Electoral Permanente. Monitoreo en vivo de inventario, flota patrimonial y trazabilidad de movimientos.
             </p>
           </div>
         </div>
 
-        {/* Bloque de 3 KPIs */}
+        {/* Notificación de Error con botón de reintentar */}
+        {error && (
+          <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl text-xs flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertTriangle size={18} className="text-rose-500 shrink-0" />
+              <span>{error}</span>
+            </div>
+            <button
+              onClick={cargarDatos}
+              type="button"
+              className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+            >
+              <RefreshCw size={13} />
+              <span>Reintentar</span>
+            </button>
+          </div>
+        )}
+
+        {/* Bloque de 3 KPIs conectados a endpoints reales */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {/* KPI 1: Equipos Activos */}
+          {/* KPI 1: Equipos Activos (GET /api/equipos -> estadoOperativo === 'Operativo') */}
           <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-100 shadow-sm flex justify-between items-center">
             <div>
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Equipos Activos</p>
-              <h3 className="text-2xl sm:text-3xl font-bold text-slate-800">30</h3>
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-2xl sm:text-3xl font-black text-slate-800">
+                  {loading ? '...' : dashboardData.equiposActivos}
+                </h3>
+                <span className="text-xs text-slate-400 font-medium">
+                  {loading ? '' : `de ${dashboardData.totalEquipos} registrados`}
+                </span>
+              </div>
+              <p className="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                <CheckCircle2 size={12} />
+                <span>En operación física</span>
+              </p>
             </div>
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
               <Package size={22} />
             </div>
           </div>
 
-          {/* KPI 2: Usuarios */}
+          {/* KPI 2: Total Insumos en Catálogo (GET /api/insumos) */}
           <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-100 shadow-sm flex justify-between items-center">
             <div>
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Usuarios</p>
-              <h3 className="text-2xl sm:text-3xl font-bold text-slate-800">10</h3>
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Catálogo de Insumos</p>
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-2xl sm:text-3xl font-black text-slate-800">
+                  {loading ? '...' : dashboardData.totalInsumos}
+                </h3>
+                <span className="text-xs text-slate-400 font-medium">
+                  {loading ? '' : `ítems activos`}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 font-medium mt-1">
+                {loading ? '' : `${dashboardData.totalStockUnidades} unidades en depósito`}
+              </p>
             </div>
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600">
+            <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600">
               <Activity size={22} />
             </div>
           </div>
 
-          {/* KPI 3: Alertas Críticas */}
+          {/* KPI 3: Alertas Críticas (GET /api/insumos -> stockActual <= stockSeguridad) */}
           <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-100 border-l-4 border-l-rose-500 shadow-sm flex justify-between items-center sm:col-span-2 lg:col-span-1">
             <div>
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Alertas Críticas</p>
-              <h3 className="text-2xl sm:text-3xl font-bold text-slate-800">3</h3>
-              <p className="text-xs text-rose-600 font-medium mt-0.5">Insumos bajo umbral</p>
+              <div className="flex items-baseline gap-2">
+                <h3 className={`text-2xl sm:text-3xl font-black ${dashboardData.insumosCriticos > 0 ? 'text-rose-600' : 'text-slate-800'}`}>
+                  {loading ? '...' : dashboardData.insumosCriticos}
+                </h3>
+                <span className="text-xs text-slate-400 font-medium">
+                  {dashboardData.insumosCriticos === 1 ? 'insumo' : 'insumos'}
+                </span>
+              </div>
+              <p className="text-xs text-rose-600 font-semibold mt-1">
+                {dashboardData.insumosCriticos > 0 ? 'Por debajo del umbral mínimo' : 'Inventario equilibrado'}
+              </p>
             </div>
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500">
+            <div className="w-12 h-12 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500">
               <AlertTriangle size={22} />
             </div>
           </div>
@@ -125,13 +209,24 @@ export default function Dashboard() {
               <h4 className="text-sm sm:text-base font-bold text-slate-800 tracking-tight">Distribución Mensual de Insumos</h4>
               <p className="text-xs text-slate-400">Histórico de suministros despachados durante el año actual</p>
             </div>
-            <button
-              type="button"
-              className="flex items-center self-start sm:self-auto gap-2 text-xs font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3.5 py-2 rounded-xl transition"
-            >
-              <span>Últimos 12 meses</span>
-              <Filter size={14} className="text-slate-400" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={cargarDatos}
+                title="Actualizar datos del servidor"
+                className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-2 rounded-xl transition cursor-pointer"
+              >
+                <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
+                <span>Refrescar</span>
+              </button>
+              <button
+                type="button"
+                className="flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3.5 py-2 rounded-xl transition"
+              >
+                <span>Año 2026</span>
+                <Filter size={14} className="text-slate-400" />
+              </button>
+            </div>
           </div>
 
           {/* Visualización de las 12 barras con scroll horizontal táctil para móviles */}
@@ -150,64 +245,114 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Sección: Últimos 5 Movimientos */}
+        {/* Sección: Últimos 5 Movimientos (GET /api/movimientos -> slice(0, 5)) */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <div className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 gap-3">
             <div>
-              <h4 className="text-sm sm:text-base font-bold text-slate-800 tracking-tight">Últimos 5 Movimientos</h4>
-              <p className="text-xs text-slate-400">Registro detallado de transacciones recientes de activos</p>
+              <div className="flex items-center gap-2">
+                <h4 className="text-sm sm:text-base font-bold text-slate-800 tracking-tight">Últimos 5 Movimientos</h4>
+                <span className="text-[10px] font-mono font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-100">
+                  API Transaccional
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Registro de altas y bajas transaccionales de almacén (GET /api/movimientos)
+              </p>
             </div>
             <button
               type="button"
-              className="flex items-center self-start sm:self-auto gap-1.5 text-xs font-semibold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-2 rounded-xl transition"
+              onClick={cargarDatos}
+              className="flex items-center self-start sm:self-auto gap-1.5 text-xs font-semibold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-2 rounded-xl transition cursor-pointer"
             >
-              <span>Ver Todo</span>
-              <ChevronRight size={14} />
+              <span>Actualizar lista</span>
+              <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
             </button>
           </div>
 
           {/* Tabla de Registros responsive con scroll horizontal asegurado */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs min-w-[620px]">
-              <thead className="bg-slate-50/60 text-slate-400 uppercase font-semibold border-b border-slate-100">
+            <table className="w-full text-left text-xs min-w-[680px]">
+              <thead className="bg-slate-50/60 text-slate-400 uppercase font-semibold border-b border-slate-100 select-none">
                 <tr>
-                  <th className="py-3.5 px-6">ID</th>
-                  <th className="py-3.5 px-6">Hora</th>
+                  <th className="py-3.5 px-6">Comprobante / Ref</th>
+                  <th className="py-3.5 px-6">Fecha y Hora</th>
                   <th className="py-3.5 px-6">Tipo</th>
-                  <th className="py-3.5 px-6">Artículo</th>
-                  <th className="py-3.5 px-6">Destino</th>
-                  <th className="py-3.5 px-6">Usuario</th>
-                  <th className="py-3.5 px-6 text-right">Acciones</th>
+                  <th className="py-3.5 px-6">Receptor / Destino</th>
+                  <th className="py-3.5 px-6">Operador Responsable</th>
+                  <th className="py-3.5 px-6 text-right">Rol</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
-                {movimientos.map((mov) => {
-                  const Icono = mov.iconoTipo;
-                  return (
-                    <tr key={mov.id} className="hover:bg-slate-50/50 transition">
-                      <td className="py-4 px-6 font-medium text-slate-600">{mov.id}</td>
-                      <td className="py-4 px-6 text-slate-500">{mov.hora}</td>
-                      <td className="py-4 px-6">
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium ${mov.colorTipo}`}>
-                          <Icono size={13} />
-                          {mov.tipo}
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="py-10 text-center text-slate-400">
+                      <div className="flex items-center justify-center gap-2 text-xs">
+                        <RefreshCw size={16} className="animate-spin text-blue-600" />
+                        <span>Consultando movimientos al servidor...</span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : dashboardData.ultimosMovimientos.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-12 text-center text-slate-400">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <div className="p-3 bg-slate-50 rounded-2xl text-slate-300">
+                          <Inbox size={28} />
+                        </div>
+                        <p className="text-xs font-semibold text-slate-500">No hay movimientos registrados recientemente.</p>
+                        <p className="text-[11px] text-slate-400 max-w-sm">
+                          Las transacciones de ingreso y egreso registradas aparecerán automáticamente aquí.
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  dashboardData.ultimosMovimientos.map((mov) => (
+                    <tr key={mov.idMovimiento} className="hover:bg-slate-50/60 transition">
+                      {/* Comprobante */}
+                      <td className="py-4 px-6 font-mono font-medium">
+                        <span className="bg-slate-100 text-slate-700 px-2 py-1 rounded text-[11px] font-bold">
+                          {mov.comprobanteRef || `MOV-#${mov.idMovimiento}`}
                         </span>
                       </td>
-                      <td className="py-4 px-6 font-semibold text-slate-800">{mov.articulo}</td>
-                      <td className="py-4 px-6 text-slate-500">{mov.destino}</td>
-                      <td className="py-4 px-6">
-                        <span className="bg-slate-100 text-slate-600 font-medium px-2.5 py-1 rounded-full text-[11px]">
-                          {mov.usuario}
-                        </span>
+
+                      {/* Fecha y Hora */}
+                      <td className="py-4 px-6 text-slate-500 font-medium">
+                        <div className="flex items-center gap-1.5">
+                          <Clock size={13} className="text-slate-400" />
+                          <span>{mov.fechaHora}</span>
+                        </div>
                       </td>
+
+                      {/* Tipo con pill */}
+                      <td className="py-4 px-6">
+                        {renderTipoBadge(mov.tipoMovimiento)}
+                      </td>
+
+                      {/* Receptor / Destino */}
+                      <td className="py-4 px-6 font-semibold text-slate-800">
+                        {mov.agenteReceptor || (
+                          <span className="text-slate-400 font-normal italic">Depósito Central (Ingreso)</span>
+                        )}
+                      </td>
+
+                      {/* Operador */}
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-1.5 text-slate-700">
+                          <User size={13} className="text-slate-400" />
+                          <span className="font-medium">{mov.usuarioNombre || 'Sistema'}</span>
+                        </div>
+                      </td>
+
+                      {/* Rol */}
                       <td className="py-4 px-6 text-right">
-                        <button type="button" className="text-slate-400 hover:text-slate-600 p-1">
-                          <MoreHorizontal size={16} />
-                        </button>
+                        <span className="bg-slate-100 text-slate-600 font-medium px-2.5 py-1 rounded-full text-[11px]">
+                          {mov.usuarioRol || 'Operador'}
+                        </span>
                       </td>
                     </tr>
-                  );
-                })}
+                  ))
+                )}
               </tbody>
             </table>
           </div>

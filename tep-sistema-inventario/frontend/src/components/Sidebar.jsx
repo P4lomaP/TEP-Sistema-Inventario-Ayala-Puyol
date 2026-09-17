@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { 
   LayoutGrid, 
   Package, 
@@ -10,15 +11,26 @@ import {
 } from 'lucide-react';
 
 export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClose }) {
+  const navigate = useNavigate();
+
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
-    { id: 'equipos', label: 'Equipos Patrimoniales', icon: Package },
-    { id: 'insumos', label: 'Catálogos de Insumos', icon: Layers },
-    { id: 'movimientos', label: 'Movimientos', icon: ArrowLeftRight },
-    { id: 'compatibilidad', label: 'Matriz de Compatibilidad', icon: Workflow },
-    { id: 'auditorias', label: 'Auditorias y Reportes', icon: FileText },
-    { id: 'usuarios', label: 'Usuarios y Roles', icon: ShieldCheck },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid, path: '/dashboard' },
+    { id: 'equipos', label: 'Equipos Patrimoniales', icon: Package, path: '/equipos' },
+    { id: 'insumos', label: 'Catálogos de Insumos', icon: Layers, path: '/insumos' },
+    { id: 'movimientos', label: 'Movimientos', icon: ArrowLeftRight, path: '/movimientos' },
+    { id: 'compatibilidad', label: 'Matriz de Compatibilidad', icon: Workflow, path: '/compatibilidad' },
+    { id: 'auditorias', label: 'Auditorias y Reportes', icon: FileText, path: '/auditorias' },
+    { id: 'usuarios', label: 'Usuarios y Roles', icon: ShieldCheck, path: '/usuarios' },
   ];
+
+  const handleNavigate = (path) => {
+    if (path) {
+      navigate(path);
+    }
+    if (onClose && window.innerWidth < 1024) {
+      onClose();
+    }
+  };
 
   return (
     <aside
@@ -35,7 +47,10 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
       {/* Contenedor interno rígido (256px) para evitar deformación durante la transición */}
       <div className="w-64 flex flex-col min-h-screen flex-shrink-0">
         {/* Logotipo y Título Institucional */}
-        <div className="h-16 sm:h-20 flex items-center justify-between px-6 border-b border-slate-800/60">
+        <div 
+          onClick={() => handleNavigate('/dashboard')}
+          className="h-16 sm:h-20 flex items-center justify-between px-6 border-b border-slate-800/60 cursor-pointer"
+        >
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-600/20 border border-blue-500/30 rounded-xl text-blue-400">
               <LayoutGrid size={22} />
@@ -49,7 +64,10 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
           {/* Botón cerrar visible solo en móvil */}
           <button
             type="button"
-            onClick={onClose}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onClose) onClose();
+            }}
             className="lg:hidden text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer"
             aria-label="Cerrar menú"
           >
@@ -66,9 +84,7 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
               <button
                 key={item.id}
                 type="button"
-                onClick={() => {
-                  if (onClose && window.innerWidth < 1024) onClose();
-                }}
+                onClick={() => handleNavigate(item.path)}
                 className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-medium transition-all cursor-pointer ${
                   isActive
                     ? 'bg-[#1b2d45] text-white shadow-sm font-semibold'
