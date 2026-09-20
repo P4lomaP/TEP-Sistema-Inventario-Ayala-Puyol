@@ -212,64 +212,139 @@ const crearEquipo = (req, res) => {
         insumoComp
     ];
 
-    db.query(query, values, async (err, result) => {
-        if (err) {
-            console.error('Error al registrar equipo:', err);
+    const ejecutarInsercion = () => {
+        db.query(query, values, async (err, result) => {
+            if (err) {
+                console.error('Error al registrar equipo:', err);
 
-            if (err.code === 'ER_NO_REFERENCED_ROW_2' || err.code === 'ER_NO_REFERENCED_ROW') {
-                return res.status(400).json({ 
-                    message: `El sector ID ${idSector} o el insumo compatible ID ${idInsumoCompatible} no existe en la base de datos.` 
+                if (err.code === 'ER_NO_REFERENCED_ROW_2' || err.code === 'ER_NO_REFERENCED_ROW') {
+                    return res.status(400).json({ 
+                        message: `El sector ID ${idSector} o el insumo compatible ID ${idInsumoCompatible} no existe en la base de datos.` 
+                    });
+                }
+
+                return res.status(500).json({ 
+                    message: 'Error interno al registrar el nuevo equipo.' 
                 });
             }
 
-            return res.status(500).json({ 
-                message: 'Error interno al registrar el nuevo equipo.' 
-            });
-        }
+            const idNuevo = result.insertId;
 
-        const idNuevo = result.insertId;
-
-        // Side-effects de Auditoría e Historial
-        try {
-            await registrarHistorialEquipo(
-                idNuevo, 
-                null, 
-                sector, 
-                `Alta inicial de ${tipo} en sistema`
-            );
-            await registrarAuditoria(
-                idUsuario, 
-                `Alta de equipo ID ${idNuevo} [${tipo}]: ${marca} (S/N: ${serie})`, 
-                'Equipos'
-            );
-        } catch (sideErr) {
-            console.error('Advertencia en registro de side-effects de creación:', sideErr);
-        }
-
-        return res.status(201).json({
-            message: `${tipo} registrada exitosamente.`,
-            equipo: {
-                idEquipo: idNuevo,
-                codPatrimonial: codPat,
-                tipoEquipo: tipo,
-                marcaModelo: marca,
-                numeroSerie: serie,
-                ipFija: ip,
-                mascaraSubred: mascara,
-                workgroup: grupo,
-                estadoOperativo: estado,
-                idSector: sector,
-                procesador: proc,
-                memoriaRAM: ram,
-                almacenamiento: alm,
-                sistemaOperativo: so,
-                tecnologiaImpresion: tecImp,
-                tipoConexion: conImp,
-                formatoPapel: formPap,
-                idInsumoCompatible: insumoComp
+            // Side-effects de Auditoría e Historial
+            try {
+                await registrarHistorialEquipo(
+                    idNuevo, 
+                    null, 
+                    sector, 
+                    `Alta inicial de ${tipo} en sistema`
+                );
+                await registrarAuditoria(
+                    idUsuario, 
+                    `Alta de equipo ID ${idNuevo} [${tipo}]: ${marca} (S/N: ${serie})`, 
+                    'Equipos'
+                );
+            } catch (sideErr) {
+                console.error('Advertencia en registro de side-effects de creación:', sideErr);
             }
+
+            return res.status(201).json({
+                message: `${tipo} registrada exitosamente.`,
+                equipo: {
+                    idEquipo: idNuevo,
+                    codPatrimonial: codPat,
+                    tipoEquipo: tipo,
+                    marcaModelo: marca,
+                    numeroSerie: serie,
+                    ipFija: ip,
+                    mascaraSubred: mascara,
+                    workgroup: grupo,
+                    estadoOperativo: estado,
+                    idSector: sector,
+                    procesador: proc,
+                    memoriaRAM: ram,
+                    almacenamiento: alm,
+                    sistemaOperativo: so,
+                    tecnologiaImpresion: tecImp,
+                    tipoConexion: conImp,
+                    formatoPapel: formPap,
+                    idInsumoCompatible: insumoComp
+                }
+            });
         });
-    });
+    };
+
+    // 1. Validación de Número de Serie Único (S/N de fábrica)
+    db.query(
+        "SELECT idEquipo, marcaModelo, codPatrimonial FROM Equipos WHERE LOWER(numeroSerie) = LOWER(?) LIMIT 1",
+        [serie],
+        (errSerie, rowsSerie) => {
+            if (errSerie) {
+                console.error('Error al verificar número de serie:', errSerie);
+                return res.status(500).json({ message: 'Error interno al validar número de serie.' });
+            }
+            if (rowsSerie && rowsSerie.length > 0) {
+                return res.status(409).json({
+                    message: `El número de serie "${serie}" ya pertenece al equipo "${rowsSerie[0].marcaModelo}" (ID: ${rowsSerie[0].idEquipo}). Cada dispositivo físico debe tener un número de serie único.`
+                });
+            }
+
+            // 2. Validación de Código Patrimonial Único (si se suministró)
+            const validarCodPatrimonial = () => {
+                if (!codPat) {
+                    return validarIp();
+                }
+                db.query(
+                    "SELECT idEquipo, marcaModelo, numeroSerie FROM Equipos WHERE LOWER(codPatrimonial) = LOWER(?) LIMIT 1",
+                    [codPat],
+                    (errPat, rowsPat) => {
+                        if (errPat) {
+                            console.error('Error al verificar código patrimonial:', errPat);
+                            return res.status(500).json({ message: 'Error interno al validar código patrimonial.' });
+                        }
+                        if (rowsPat && rowsPat.length > 0) {
+                            return res.status(409).json({
+                                message: `El código patrimonial "${codPat}" ya está asignado al equipo "${rowsPat[0].marcaModelo}" (ID: ${rowsPat[0].idEquipo}). Cada bien patrimonial del TEP debe tener un código único.`
+                            });
+                        }
+                        validarIp();
+                    }
+                );
+            };
+
+            // 3. Validación de Conflicto de IP Fija (dos dispositivos activos no pueden tener la misma IP en red)
+            const validarIp = () => {
+                const esIpMonitoreada = ip !== '0.0.0.0' && 
+                                       ip.toLowerCase() !== 'dhcp' && 
+                                       !ip.toLowerCase().includes('no aplica');
+
+                if (esIpMonitoreada && estado.toLowerCase() !== 'baja') {
+                    db.query(
+                        "SELECT idEquipo, marcaModelo, tipoEquipo FROM Equipos WHERE ipFija = ? AND LOWER(estadoOperativo) != 'baja' LIMIT 1",
+                        [ip],
+                        (checkErr, checkResults) => {
+                            if (checkErr) {
+                                console.error('Error al validar unicidad de IP:', checkErr);
+                                return res.status(500).json({ message: 'Error interno al validar dirección IP.' });
+                            }
+
+                            if (checkResults.length > 0) {
+                                const existente = checkResults[0];
+                                return res.status(409).json({
+                                    message: `Conflicto de red: La dirección IP ${ip} ya está asignada al equipo "${existente.marcaModelo}" (${existente.tipoEquipo}). Dos dispositivos activos no pueden compartir la misma IP.`
+                                });
+                            }
+
+                            ejecutarInsercion();
+                        }
+                    );
+                } else {
+                    ejecutarInsercion();
+                }
+            };
+
+            validarCodPatrimonial();
+        }
+    );
 };
 
 /**
@@ -400,65 +475,147 @@ const actualizarEquipo = (req, res) => {
             return res.status(400).json({ message: 'No se enviaron campos para actualizar.' });
         }
 
-        const query = `UPDATE Equipos SET ${campos.join(', ')} WHERE idEquipo = ?`;
-        values.push(id);
+        const ejecutarActualizacion = () => {
+            const query = `UPDATE Equipos SET ${campos.join(', ')} WHERE idEquipo = ?`;
+            values.push(id);
 
-        db.query(query, values, async (err, result) => {
-            if (err) {
-                console.error('Error al actualizar equipo:', err);
+            db.query(query, values, async (err, result) => {
+                if (err) {
+                    console.error('Error al actualizar equipo:', err);
 
-                if (err.code === 'ER_NO_REFERENCED_ROW_2' || err.code === 'ER_NO_REFERENCED_ROW') {
-                    return res.status(400).json({ 
-                        message: 'El nuevo sector o insumo compatible especificado no existe.' 
+                    if (err.code === 'ER_NO_REFERENCED_ROW_2' || err.code === 'ER_NO_REFERENCED_ROW') {
+                        return res.status(400).json({ 
+                            message: 'El nuevo sector o insumo compatible especificado no existe.' 
+                        });
+                    }
+
+                    return res.status(500).json({ 
+                        message: 'Error interno al actualizar el equipo.' 
                     });
                 }
 
-                return res.status(500).json({ 
-                    message: 'Error interno al actualizar el equipo.' 
+                // 3. Side-effects: Disparar Historial de traslado o baja si hubo cambio
+                try {
+                    const nuevoSectorId = idSector !== undefined ? parseInt(idSector, 10) : equipoPrevio.idSector;
+                    const nuevoEstado = estadoOperativo !== undefined ? estadoOperativo.trim() : equipoPrevio.estadoOperativo;
+
+                    // Caso A: Cambio de Sector físico (Traslado)
+                    if (idSector !== undefined && nuevoSectorId !== equipoPrevio.idSector) {
+                        await registrarHistorialEquipo(
+                            id,
+                            equipoPrevio.idSector,
+                            nuevoSectorId,
+                            motivoBaja || 'Traslado de sector'
+                        );
+                    }
+
+                    // Caso B: El estado cambió a 'Baja'
+                    if (estadoOperativo !== undefined && nuevoEstado.toLowerCase() === 'baja' && equipoPrevio.estadoOperativo.toLowerCase() !== 'baja') {
+                        await registrarHistorialEquipo(
+                            id,
+                            equipoPrevio.idSector,
+                            null,
+                            motivoBaja || 'Baja definitiva del equipo (RN-02)'
+                        );
+                    }
+
+                    // Registro en Log_Auditoria
+                    await registrarAuditoria(
+                        idUsuario,
+                        `Actualización de equipo ID ${id} [${tipoEquipo || equipoPrevio.tipoEquipo}]: ${marcaModelo || equipoPrevio.marcaModelo}`,
+                        'Equipos'
+                    );
+
+                } catch (sideErr) {
+                    console.error('Advertencia en side-effects de actualización:', sideErr);
+                }
+
+                return res.status(200).json({
+                    message: 'Equipo actualizado exitosamente.',
+                    idEquipo: Number(id)
                 });
-            }
-
-            // 3. Side-effects: Disparar Historial de traslado o baja si hubo cambio
-            try {
-                const nuevoSectorId = idSector !== undefined ? parseInt(idSector, 10) : equipoPrevio.idSector;
-                const nuevoEstado = estadoOperativo !== undefined ? estadoOperativo.trim() : equipoPrevio.estadoOperativo;
-
-                // Caso A: Cambio de Sector físico (Traslado)
-                if (idSector !== undefined && nuevoSectorId !== equipoPrevio.idSector) {
-                    await registrarHistorialEquipo(
-                        id,
-                        equipoPrevio.idSector,
-                        nuevoSectorId,
-                        motivoBaja || 'Traslado de sector'
-                    );
-                }
-
-                // Caso B: El estado cambió a 'Baja'
-                if (estadoOperativo !== undefined && nuevoEstado.toLowerCase() === 'baja' && equipoPrevio.estadoOperativo.toLowerCase() !== 'baja') {
-                    await registrarHistorialEquipo(
-                        id,
-                        equipoPrevio.idSector,
-                        null,
-                        motivoBaja || 'Baja definitiva del equipo (RN-02)'
-                    );
-                }
-
-                // Registro en Log_Auditoria
-                await registrarAuditoria(
-                    idUsuario,
-                    `Actualización de equipo ID ${id} [${tipoEquipo || equipoPrevio.tipoEquipo}]: ${marcaModelo || equipoPrevio.marcaModelo}`,
-                    'Equipos'
-                );
-
-            } catch (sideErr) {
-                console.error('Advertencia en side-effects de actualización:', sideErr);
-            }
-
-            return res.status(200).json({
-                message: 'Equipo actualizado exitosamente.',
-                idEquipo: Number(id)
             });
-        });
+        };
+
+        // 1. Validar unicidad de número de serie si se actualizó
+        const validarSerie = (callback) => {
+            if (numeroSerie === undefined || !numeroSerie.trim()) return callback();
+            const serieTarget = numeroSerie.trim();
+            db.query(
+                "SELECT idEquipo, marcaModelo FROM Equipos WHERE LOWER(numeroSerie) = LOWER(?) AND idEquipo != ? LIMIT 1",
+                [serieTarget, id],
+                (errS, rowsS) => {
+                    if (errS) {
+                        console.error('Error al validar número de serie:', errS);
+                        return res.status(500).json({ message: 'Error interno al validar número de serie.' });
+                    }
+                    if (rowsS && rowsS.length > 0) {
+                        return res.status(409).json({
+                            message: `El número de serie "${serieTarget}" ya está registrado en el equipo "${rowsS[0].marcaModelo}" (ID: ${rowsS[0].idEquipo}). Cada dispositivo debe tener un número de serie único.`
+                        });
+                    }
+                    callback();
+                }
+            );
+        };
+
+        // 2. Validar unicidad de código patrimonial si se actualizó
+        const validarCodPatrimonial = (callback) => {
+            if (codPatrimonial === undefined || !codPatrimonial || !codPatrimonial.trim()) return callback();
+            const patTarget = codPatrimonial.trim();
+            db.query(
+                "SELECT idEquipo, marcaModelo FROM Equipos WHERE LOWER(codPatrimonial) = LOWER(?) AND idEquipo != ? LIMIT 1",
+                [patTarget, id],
+                (errP, rowsP) => {
+                    if (errP) {
+                        console.error('Error al validar código patrimonial:', errP);
+                        return res.status(500).json({ message: 'Error interno al validar código patrimonial.' });
+                    }
+                    if (rowsP && rowsP.length > 0) {
+                        return res.status(409).json({
+                            message: `El código patrimonial "${patTarget}" ya está asignado al equipo "${rowsP[0].marcaModelo}" (ID: ${rowsP[0].idEquipo}). Los códigos patrimoniales son únicos en el Tribunal.`
+                        });
+                    }
+                    callback();
+                }
+            );
+        };
+
+        // 3. Validación de duplicidad de IP en actualización
+        const validarIp = () => {
+            const ipAValidar = ipFija !== undefined ? ipFija.trim() : null;
+            const estadoAValidar = estadoOperativo !== undefined ? estadoOperativo.trim() : equipoPrevio.estadoOperativo;
+            const esIpMonitoreada = ipAValidar && 
+                                   ipAValidar !== '0.0.0.0' && 
+                                   ipAValidar.toLowerCase() !== 'dhcp' && 
+                                   !ipAValidar.toLowerCase().includes('no aplica');
+
+            if (esIpMonitoreada && estadoAValidar.toLowerCase() !== 'baja') {
+                db.query(
+                    "SELECT idEquipo, marcaModelo, tipoEquipo FROM Equipos WHERE ipFija = ? AND LOWER(estadoOperativo) != 'baja' AND idEquipo != ? LIMIT 1",
+                    [ipAValidar, id],
+                    (checkErr, checkResults) => {
+                        if (checkErr) {
+                            console.error('Error al validar unicidad de IP en actualización:', checkErr);
+                            return res.status(500).json({ message: 'Error interno al validar IP.' });
+                        }
+
+                        if (checkResults.length > 0) {
+                            const eq = checkResults[0];
+                            return res.status(409).json({
+                                message: `Conflicto de red: La dirección IP ${ipAValidar} ya está asignada al equipo "${eq.marcaModelo}" (${eq.tipoEquipo}). Dos dispositivos activos no pueden compartir la misma IP.`
+                            });
+                        }
+
+                        ejecutarActualizacion();
+                    }
+                );
+            } else {
+                ejecutarActualizacion();
+            }
+        };
+
+        validarSerie(() => validarCodPatrimonial(validarIp));
     });
 };
 

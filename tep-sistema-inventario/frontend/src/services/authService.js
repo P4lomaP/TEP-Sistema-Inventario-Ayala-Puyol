@@ -7,15 +7,20 @@ const API_URL = 'http://localhost:3000/api/auth';
  * @returns {Promise<Object>} Datos del usuario y token JWT
  */
 export async function loginService(username, password) {
-  const response = await fetch(`${API_URL}/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ username, password }),
-  });
+  let response;
+  try {
+    response = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+    });
+  } catch (networkError) {
+    throw new Error('No se pudo conectar con el servidor backend (http://localhost:3000). Verifique que el servicio esté iniciado ejecutando "npm start" en la carpeta backend.');
+  }
 
-  const data = await response.json();
+  const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
     // Si la respuesta no es exitosa (400, 401, 403, 500)
@@ -39,15 +44,20 @@ export async function loginService(username, password) {
  * @returns {Promise<Object>} Confirmación de registro
  */
 export async function registerService({ username, password, rolAcceso }) {
-  const response = await fetch(`${API_URL}/register`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ username, password, rolAcceso }),
-  });
+  let response;
+  try {
+    response = await fetch(`${API_URL}/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password, rolAcceso }),
+    });
+  } catch (networkError) {
+    throw new Error('No se pudo conectar con el servidor backend (http://localhost:3000). Verifique que el servicio esté iniciado ejecutando "npm start" en la carpeta backend.');
+  }
 
-  const data = await response.json();
+  const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
     throw new Error(data.message || 'Error al registrar la cuenta.');

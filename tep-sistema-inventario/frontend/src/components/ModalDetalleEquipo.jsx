@@ -16,33 +16,71 @@ import {
   RotateCcw,
   ArrowRightLeft,
   Building2,
-  ShieldCheck
+  ShieldCheck,
+  History
 } from 'lucide-react';
+import { obtenerHistorialEquipo } from '../services/equiposService';
 
 export default function ModalDetalleEquipo({ 
   isOpen, 
   equipo, 
   sectores = [], 
+  insumos = [],
+  equipos = [],
   onClose, 
   onUpdate, 
   onDelete 
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [showBajaConfirm, setShowBajaConfirm] = useState(false);
+  const [motivoBajaInput, setMotivoBajaInput] = useState('');
   const [formData, setFormData] = useState(null);
+  const [historial, setHistorial] = useState([]);
+  const [cargandoHistorial, setCargandoHistorial] = useState(false);
 
   useEffect(() => {
     if (equipo) {
       setFormData({ ...equipo });
       setIsEditing(false);
       setShowBajaConfirm(false);
+      setMotivoBajaInput('');
+
+      if (equipo.idEquipo) {
+        setCargandoHistorial(true);
+        obtenerHistorialEquipo(equipo.idEquipo)
+          .then((data) => setHistorial(Array.isArray(data) ? data : []))
+          .catch(() => setHistorial([]))
+          .finally(() => setCargandoHistorial(false));
+      }
     }
   }, [equipo, isOpen]);
 
   if (!isOpen || !equipo || !formData) return null;
 
+  // Validación preventiva de conflictos de unicidad (S/N, Código Patrimonial, IP)
+  const codPatEnUso = equipos.find(
+    (eq) => Number(eq.idEquipo) !== Number(equipo.idEquipo) &&
+            formData.codPatrimonial?.trim() &&
+            eq.codPatrimonial?.toLowerCase().trim() === formData.codPatrimonial.toLowerCase().trim()
+  );
+
+  const serieEnUso = equipos.find(
+    (eq) => Number(eq.idEquipo) !== Number(equipo.idEquipo) &&
+            formData.numeroSerie?.trim() &&
+            eq.numeroSerie?.toLowerCase().trim() === formData.numeroSerie.toLowerCase().trim()
+  );
+
+  const ipEnUso = equipos.find((eq) => {
+    const ip = formData.ipFija?.trim();
+    if (!ip || ip === '0.0.0.0' || ip.toLowerCase() === 'dhcp' || ip.toLowerCase().includes('no aplica')) {
+      return false;
+    }
+    return Number(eq.idEquipo) !== Number(equipo.idEquipo) && eq.ipFija?.trim() === ip && eq.estadoOperativo !== 'Baja';
+  });
+
   const esImpresora = 
     formData.tipoEquipo === 'impresora' || 
+    formData.tipoEquipo === 'Impresora' ||
     formData.marcaModelo.toLowerCase().includes('laserjet') || 
     formData.marcaModelo.toLowerCase().includes('impresora') || 
     formData.marcaModelo.toLowerCase().includes('brother') ||
@@ -71,6 +109,14 @@ export default function ModalDetalleEquipo({
   // Guardar cambios de edición
   const handleSaveEdit = (e) => {
     e.preventDefault();
+    if (codPatEnUso) {
+      alert(`Código patrimonial duplicado: El código "${formData.codPatrimonial}" ya pertenece al equipo "${codPatEnUso.marcaModelo}" (ID: ${codPatEnUso.idEquipo}). Cada bien patrimonial del TEP debe tener un código único.`);
+      return;
+    }
+    if (ipEnUso && formData.estadoOperativo !== 'Baja') {
+      alert(`Conflicto de red: La dirección IP "${formData.ipFija}" ya está asignada al equipo "${ipEnUso.marcaModelo}" (${ipEnUso.tipoEquipo}). Dos dispositivos activos en la red no pueden compartir la misma IP.`);
+      return;
+    }
     onUpdate(formData);
     setIsEditing(false);
   };
@@ -88,7 +134,7 @@ export default function ModalDetalleEquipo({
 
   // Confirmar baja patrimonial
   const handleConfirmBaja = () => {
-    onDelete(equipo.idEquipo || equipo.id);
+    onDelete(equipo.idEquipo || equipo.id, motivoBajaInput.trim() || 'Baja patrimonial / descarte definitivo');
     onClose();
   };
 
@@ -115,7 +161,7 @@ export default function ModalDetalleEquipo({
                   {isEditing ? 'Editar Equipo Patrimonial' : 'Ficha Técnica de Equipo'}
                 </h3>
                 <span className="bg-slate-200/80 text-slate-700 text-[10px] font-mono font-bold px-2 py-0.5 rounded">
-                  {formData.codPatrimonial}
+                  {formData.codPatrimonial || 'S/N Patrimonial'}
                 </span>
               </div>
               <p className="text-xs text-slate-400">
@@ -135,18 +181,30 @@ export default function ModalDetalleEquipo({
         {/* CONTENIDO SCROLLEABLE */}
         <div className="p-6 overflow-y-auto space-y-4">
           
-          {/* AVISO DE CONFIRMACIÓN DE BAJA */}
+          {/* AVISO DE CONFIRMACIÓN DE BAJA CON JUSTIFICACIÓN RN-02 */}
           {showBajaConfirm && (
             <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl space-y-3 animate-in fade-in">
               <div className="flex items-start gap-3">
-                <div className="p-2 bg-rose-100 text-rose-600 rounded-xl">
+                <div className="p-2 bg-rose-100 text-rose-600 rounded-xl shrink-0">
                   <AlertTriangle size={18} />
                 </div>
-                <div>
+                <div className="flex-1">
                   <h4 className="text-xs font-bold text-rose-800">¿Desea dar de baja este equipo?</h4>
                   <p className="text-xs text-rose-700 mt-0.5">
-                    El bien <strong>{formData.codPatrimonial} - {formData.marcaModelo}</strong> pasará a estado de <strong>Baja Patrimonial</strong>. Se mantendrá el historial de auditoría (RNF-03).
+                    El bien <strong>{formData.codPatrimonial || 'Sin Código'} - {formData.marcaModelo}</strong> pasará a estado de <strong>Baja Patrimonial</strong>. Se mantendrá el historial de auditoría inmutable (RNF-03).
                   </p>
+                  <div className="mt-2.5">
+                    <label className="block text-[11px] font-semibold text-rose-900 mb-1">
+                      Motivo o Justificación de la Baja (Requisito RN-02):
+                    </label>
+                    <input
+                      type="text"
+                      value={motivoBajaInput}
+                      onChange={(e) => setMotivoBajaInput(e.target.value)}
+                      placeholder="Ej. Obsolescencia técnica / Falla irreparable / Descarte"
+                      className="w-full px-2.5 py-1.5 text-xs bg-white border border-rose-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-rose-500"
+                    />
+                  </div>
                 </div>
               </div>
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-rose-200/60">
@@ -180,8 +238,18 @@ export default function ModalDetalleEquipo({
                     value={formData.codPatrimonial}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none"
+                    className={`w-full px-3 py-2 text-xs border rounded-xl font-mono focus:outline-none transition ${
+                      codPatEnUso 
+                        ? 'border-amber-400 bg-amber-50/50 text-amber-900 focus:border-amber-500' 
+                        : 'border-slate-200 focus:border-blue-600'
+                    }`}
                   />
+                  {codPatEnUso && (
+                    <p className="text-[10px] text-amber-700 font-semibold mt-1 flex items-center gap-1">
+                      <AlertTriangle size={12} className="shrink-0 text-amber-600" />
+                      <span>Conflicto: Ya asignado a {codPatEnUso.marcaModelo}</span>
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1">Marca y Modelo</label>
@@ -282,16 +350,34 @@ export default function ModalDetalleEquipo({
               {esImpresora && (
                 <div className="pt-2 border-t border-slate-100 space-y-3">
                   <span className="text-[11px] font-bold text-amber-700 uppercase">Configuración de Impresión</span>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1">Tóner / Insumo Compatible</label>
-                    <input
-                      type="text"
-                      name="tonerCompatible"
-                      value={formData.tonerCompatible || ''}
-                      onChange={handleChange}
-                      placeholder="Ej. Tóner Brother TN-1060"
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 mb-1">Insumo / Tóner Compatible</label>
+                      <select
+                        name="idInsumoCompatible"
+                        value={formData.idInsumoCompatible || ''}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-white"
+                      >
+                        <option value="">-- Sin insumo específico asignado --</option>
+                        {insumos.map((ins) => (
+                          <option key={ins.idInsumo} value={ins.idInsumo}>
+                            {ins.descripcion} ({ins.codigoInterno})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 mb-1">Tecnología de Impresión</label>
+                      <input
+                        type="text"
+                        name="tecnologiaImpresion"
+                        value={formData.tecnologiaImpresion || formData.tipoImpresion || ''}
+                        onChange={handleChange}
+                        placeholder="Ej. Láser Monocromática / Térmica"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
@@ -303,8 +389,19 @@ export default function ModalDetalleEquipo({
                   name="ipFija"
                   value={formData.ipFija || ''}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl font-mono"
+                  placeholder="Ej. 192.168.10.202"
+                  className={`w-full px-3 py-2 text-xs border rounded-xl font-mono focus:outline-none transition ${
+                    ipEnUso 
+                      ? 'border-amber-400 bg-amber-50/50 text-amber-900 focus:border-amber-500' 
+                      : 'border-slate-200 focus:border-blue-600'
+                  }`}
                 />
+                {ipEnUso && (
+                  <p className="text-[10px] text-amber-700 font-semibold mt-1 flex items-center gap-1">
+                    <AlertTriangle size={12} className="shrink-0 text-amber-600" />
+                    <span>Conflicto: Ya asignada a {ipEnUso.marcaModelo} ({ipEnUso.tipoEquipo})</span>
+                  </p>
+                )}
               </div>
             </form>
           ) : (
@@ -437,12 +534,14 @@ export default function ModalDetalleEquipo({
                   </div>
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div className="p-2.5 bg-white rounded-xl border border-amber-100/70">
-                      <span className="text-[10px] text-slate-400 font-semibold uppercase">Tóner Compatible</span>
-                      <p className="font-bold text-slate-800 mt-0.5">{formData.tonerCompatible || 'Tóner Láser Estándar'}</p>
+                      <span className="text-[10px] text-slate-400 font-semibold uppercase">Insumo Compatible</span>
+                      <p className="font-bold text-slate-800 mt-0.5">
+                        {formData.insumoCompatibleDescripcion || formData.tonerCompatible || 'Sin insumo asignado'}
+                      </p>
                     </div>
                     <div className="p-2.5 bg-white rounded-xl border border-amber-100/70">
                       <span className="text-[10px] text-slate-400 font-semibold uppercase">Tecnología</span>
-                      <p className="font-bold text-slate-800 mt-0.5">{formData.tipoImpresion || 'Láser Monocromática'}</p>
+                      <p className="font-bold text-slate-800 mt-0.5">{formData.tecnologiaImpresion || formData.tipoImpresion || 'Láser Monocromática'}</p>
                     </div>
                   </div>
                 </div>
@@ -454,6 +553,47 @@ export default function ModalDetalleEquipo({
                 <span className="font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded">
                   {formData.numeroSerie || 'SN-NO-REGISTRADO'}
                 </span>
+              </div>
+
+              {/* HISTORIAL Y TRAZABILIDAD (RN-02) */}
+              <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-2.5">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                  <div className="flex items-center gap-1.5">
+                    <History size={14} className="text-blue-600" />
+                    <span>Trazabilidad e Historial del Equipo (RN-02)</span>
+                  </div>
+                  <span className="text-[10px] bg-slate-200/70 text-slate-600 font-mono px-2 py-0.5 rounded-full font-bold">
+                    {historial.length} eventos
+                  </span>
+                </div>
+
+                {cargandoHistorial ? (
+                  <p className="text-xs text-slate-400 py-3 text-center">Consultando historial en base de datos...</p>
+                ) : historial.length === 0 ? (
+                  <p className="text-xs text-slate-400 py-2 text-center italic">Sin registros de traslados anteriores.</p>
+                ) : (
+                  <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                    {historial.map((h) => (
+                      <div key={h.idHistorial} className="p-2.5 bg-white border border-slate-100 rounded-xl text-xs space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                            <span className="text-slate-500">{h.sectorAnterior}</span>
+                            <ArrowRightLeft size={11} className="text-blue-500" />
+                            <span className="text-blue-700">{h.sectorNuevo}</span>
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-mono font-medium">
+                            {h.fechaCambio}
+                          </span>
+                        </div>
+                        {h.motivoBaja && (
+                          <p className="text-[11px] text-slate-600 italic">
+                            Motivo: {h.motivoBaja}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}

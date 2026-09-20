@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Laptop, 
   Printer, 
@@ -18,17 +18,36 @@ import {
   Info, 
   X,
   ShieldCheck,
-  AlertTriangle
+  AlertTriangle,
+  Loader2,
+  RefreshCw
 } from 'lucide-react';
 import MainLayout from '../components/MainLayout';
 import ModalNuevoEquipo from '../components/ModalNuevoEquipo';
 import ModalDetalleEquipo from '../components/ModalDetalleEquipo';
+import { 
+  listarEquipos, 
+  crearEquipo, 
+  actualizarEquipo, 
+  darDeBajaEquipo 
+} from '../services/equiposService';
+import { 
+  listarSectores, 
+  crearSector 
+} from '../services/sectoresService';
+import { listarInsumos } from '../services/insumosService';
 
 export default function Equipos() {
-  // 1. ZONA JAVASCRIPT: Estados para pestañas, filtros y modales
+  // 1. ZONA JAVASCRIPT: Estados para datos del Backend, pestañas, filtros y modales
+  const [equipos, setEquipos] = useState([]);
+  const [sectores, setSectores] = useState([]);
+  const [insumos, setInsumos] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [activeTab, setActiveTab] = useState('equipos'); // 'equipos' | 'sectores'
   const [searchTerm, setSearchTerm] = useState('');
-  const [filtroTipo, setFiltroTipo] = useState('todos'); // 'todos' | 'computadora' | 'impresora' | 'red'
+  const [filtroTipo, setFiltroTipo] = useState('todos'); // 'todos' | 'computadora' | 'impresora'
   const [filtroEstado, setFiltroEstado] = useState('todos');
 
   // Modales
@@ -47,181 +66,90 @@ export default function Equipos() {
     }, 3500);
   };
 
-  // Sectores Físicos del Tribunal Electoral
-  const [sectores, setSectores] = useState([
-    {
-      idSector: 1,
-      codigoSector: 'S-001',
-      nombreOficina: 'Mesa de Entradas',
-      ubicacion: 'Planta Baja - Hall Central',
-      responsable: 'Dra. Carmen Fernández',
-    },
-    {
-      idSector: 2,
-      codigoSector: 'S-002',
-      nombreOficina: 'Secretaría Electoral',
-      ubicacion: 'Piso 1 - Edificio Principal',
-      responsable: 'Dr. Alejandro Valdez',
-    },
-    {
-      idSector: 3,
-      codigoSector: 'S-003',
-      nombreOficina: 'Sala de Cómputos y Servidores',
-      ubicacion: 'Subsuelo B - Data Center',
-      responsable: 'Ing. Roberto Gómez (Jefe TI)',
-    },
-    {
-      idSector: 4,
-      codigoSector: 'S-004',
-      nombreOficina: 'Juzgado de Primera Instancia',
-      ubicacion: 'Piso 2 - Ala Norte',
-      responsable: 'Dra. Mariana Morales',
-    },
-  ]);
-
-  // Lista de Equipos con atributos técnicos diferenciados por tipo
-  const [equipos, setEquipos] = useState([
-    {
-      idEquipo: 1,
-      codPatrimonial: 'PAT-2026-001',
-      marcaModelo: 'Dell OptiPlex 3080 Desktop',
-      tipoEquipo: 'computadora',
-      numeroSerie: 'SN-78492019',
-      ipFija: '192.168.10.45',
-      mascaraSubred: '255.255.255.0',
-      workgroup: 'TRIBUNAL_SEC',
-      estadoOperativo: 'Operativo',
-      idSector: 1,
-      nombreSector: 'Mesa de Entradas',
-      procesador: 'Intel Core i5-10400',
-      memoriaRAM: '16GB DDR4',
-      almacenamiento: '512GB SSD NVMe',
-      sistemaOperativo: 'Windows 10 Pro 64-bit'
-    },
-    {
-      idEquipo: 2,
-      codPatrimonial: 'PAT-2026-002',
-      marcaModelo: 'HP LaserJet Pro M402dn',
-      tipoEquipo: 'impresora',
-      numeroSerie: 'SN-VND903182',
-      ipFija: '192.168.10.112',
-      mascaraSubred: '255.255.255.0',
-      workgroup: 'TRIBUNAL_SEC',
-      estadoOperativo: 'Operativo',
-      idSector: 2,
-      nombreSector: 'Secretaría Electoral',
-      tipoImpresion: 'Láser Monocromática',
-      tonerCompatible: 'HP 85A Negro / CF226A',
-      conexionImpresora: 'Red Ethernet (RJ-45)'
-    },
-    {
-      idEquipo: 3,
-      codPatrimonial: 'PAT-2026-003',
-      marcaModelo: 'Lenovo ThinkCentre M70',
-      tipoEquipo: 'computadora',
-      numeroSerie: 'SN-LN8823190',
-      ipFija: '192.168.10.48',
-      mascaraSubred: '255.255.255.0',
-      workgroup: 'TRIBUNAL_SEC',
-      estadoOperativo: 'En Mantenimiento',
-      idSector: 1,
-      nombreSector: 'Mesa de Entradas',
-      procesador: 'Intel Core i3-10100',
-      memoriaRAM: '8GB DDR4',
-      almacenamiento: '256GB SSD',
-      sistemaOperativo: 'Windows 10 Pro 64-bit'
-    },
-    {
-      idEquipo: 4,
-      codPatrimonial: 'PAT-2026-004',
-      marcaModelo: 'Brother HL-1212W',
-      tipoEquipo: 'impresora',
-      numeroSerie: 'SN-BR338190',
-      ipFija: 'No aplica (USB Local)',
-      mascaraSubred: 'N/A',
-      workgroup: 'N/A',
-      estadoOperativo: 'Operativo',
-      idSector: 4,
-      nombreSector: 'Juzgado de Primera Instancia',
-      tipoImpresion: 'Láser Monocromática',
-      tonerCompatible: 'Tóner Brother TN-1060',
-      conexionImpresora: 'USB Local Directo'
-    },
-    {
-      idEquipo: 5,
-      codPatrimonial: 'PAT-2026-005',
-      marcaModelo: 'Epson EcoTank L3250 Multifunción',
-      tipoEquipo: 'impresora',
-      numeroSerie: 'SN-EP994821',
-      ipFija: '192.168.10.115',
-      mascaraSubred: '255.255.255.0',
-      workgroup: 'TRIBUNAL_SEC',
-      estadoOperativo: 'Operativo',
-      idSector: 1,
-      nombreSector: 'Mesa de Entradas',
-      tipoImpresion: 'Inyección de Tinta Continua',
-      tonerCompatible: 'Botellas Tinta Epson 544',
-      conexionImpresora: 'Wi-Fi Inalámbrico'
-    },
-    {
-      idEquipo: 6,
-      codPatrimonial: 'PAT-2026-006',
-      marcaModelo: 'Laptop HP EliteBook G8',
-      tipoEquipo: 'computadora',
-      numeroSerie: 'SN-HP551920',
-      ipFija: 'DHCP (Wi-Fi)',
-      mascaraSubred: '255.255.255.0',
-      workgroup: 'TRIBUNAL_SEC',
-      estadoOperativo: 'En Depósito',
-      idSector: 3,
-      nombreSector: 'Sala de Cómputos y Servidores',
-      procesador: 'Intel Core i7-1165G7',
-      memoriaRAM: '16GB DDR4',
-      almacenamiento: '512GB SSD NVMe',
-      sistemaOperativo: 'Windows 11 Pro 64-bit'
+  // Carga inicial y reactiva desde el Backend
+  const cargarDatos = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const [dataEquipos, dataSectores, dataInsumos] = await Promise.all([
+        listarEquipos(),
+        listarSectores(),
+        listarInsumos().catch(() => [])
+      ]);
+      setEquipos(dataEquipos);
+      setSectores(dataSectores);
+      setInsumos(dataInsumos);
+    } catch (err) {
+      console.error('Error al cargar datos de inventario:', err);
+      setError(err.message || 'Error al conectar con el servidor.');
+    } finally {
+      setIsLoading(false);
     }
-  ]);
-
-  // Manejador para agregar nuevo equipo
-  const handleGuardarEquipo = (nuevo) => {
-    const itemConId = {
-      ...nuevo,
-      idEquipo: Date.now()
-    };
-    setEquipos([itemConId, ...equipos]);
-    mostrarToast(`Equipo ${nuevo.codPatrimonial} registrado exitosamente.`);
   };
 
-  // Manejador para actualizar equipo existente
-  const handleUpdateEquipo = (actualizado) => {
-    setEquipos((prev) =>
-      prev.map((item) =>
-        item.idEquipo === actualizado.idEquipo ? actualizado : item
-      )
-    );
-    mostrarToast(`Equipo ${actualizado.codPatrimonial} actualizado.`);
+  useEffect(() => {
+    cargarDatos();
+  }, []);
+
+  // Manejador para agregar nuevo equipo conectado al Backend POST /api/equipos
+  const handleGuardarEquipo = async (nuevo) => {
+    try {
+      const resp = await crearEquipo(nuevo);
+      mostrarToast(resp.message || 'Equipo registrado exitosamente.');
+      await cargarDatos();
+    } catch (err) {
+      mostrarToast(`Error: ${err.message}`);
+    }
   };
 
-  // Manejador para dar de baja o cambiar estado
-  const handleDeleteEquipo = (idEquipo) => {
-    setEquipos((prev) =>
-      prev.map((item) =>
-        item.idEquipo === idEquipo
-          ? { ...item, estadoOperativo: 'Baja' }
-          : item
-      )
-    );
-    mostrarToast('Equipo dado de baja patrimonial.');
+  // Manejador para actualizar equipo existente conectado al Backend PUT /api/equipos/:id
+  const handleUpdateEquipo = async (actualizado) => {
+    try {
+      const resp = await actualizarEquipo(actualizado.idEquipo, actualizado);
+      mostrarToast(resp.message || 'Equipo actualizado exitosamente.');
+      await cargarDatos();
+    } catch (err) {
+      mostrarToast(`Error: ${err.message}`);
+    }
+  };
+
+  // Manejador para dar de baja patrimonial conectado al Backend DELETE /api/equipos/:id
+  const handleDeleteEquipo = async (idEquipo, motivoBaja) => {
+    try {
+      const resp = await darDeBajaEquipo(idEquipo, motivoBaja);
+      mostrarToast(resp.message || 'Equipo dado de baja patrimonial.');
+      await cargarDatos();
+    } catch (err) {
+      mostrarToast(`Error: ${err.message}`);
+    }
   };
 
   // Acción rápida: Poner en Mantenimiento o Reactivar
-  const handleToggleMantenimiento = (e, item) => {
+  const handleToggleMantenimiento = async (e, item) => {
     e.stopPropagation();
     const nuevoEstado = item.estadoOperativo === 'En Mantenimiento' ? 'Operativo' : 'En Mantenimiento';
-    handleUpdateEquipo({
-      ...item,
-      estadoOperativo: nuevoEstado
-    });
+    try {
+      await actualizarEquipo(item.idEquipo, {
+        ...item,
+        estadoOperativo: nuevoEstado
+      });
+      mostrarToast(`Equipo ${item.codPatrimonial || item.marcaModelo} cambiado a: ${nuevoEstado}`);
+      await cargarDatos();
+    } catch (err) {
+      mostrarToast(`Error: ${err.message}`);
+    }
+  };
+
+  // Manejador para registrar un nuevo sector conectado al Backend POST /api/sectores
+  const handleGuardarSector = async (nuevoSector) => {
+    try {
+      const resp = await crearSector(nuevoSector);
+      mostrarToast(resp.message || 'Sector registrado exitosamente.');
+      setIsModalSectorOpen(false);
+      await cargarDatos();
+    } catch (err) {
+      mostrarToast(`Error: ${err.message}`);
+    }
   };
 
   // Filtrado reactivo de Equipos
@@ -230,11 +158,13 @@ export default function Equipos() {
     const coincideTexto = 
       (item.codPatrimonial || '').toLowerCase().includes(texto) ||
       (item.marcaModelo || '').toLowerCase().includes(texto) ||
-      (item.nombreSector || '').toLowerCase().includes(texto) ||
-      (item.ipFija || '').toLowerCase().includes(texto);
+      (item.nombreSector || item.nombreOficina || '').toLowerCase().includes(texto) ||
+      (item.ipFija || '').toLowerCase().includes(texto) ||
+      (item.numeroSerie || '').toLowerCase().includes(texto);
 
+    const tipoNormalizado = (item.tipoEquipo || '').toLowerCase();
     const coincideTipo = 
-      filtroTipo === 'todos' || item.tipoEquipo === filtroTipo;
+      filtroTipo === 'todos' || tipoNormalizado === filtroTipo.toLowerCase();
 
     const coincideEstado = 
       filtroEstado === 'todos' || item.estadoOperativo === filtroEstado;
@@ -242,14 +172,11 @@ export default function Equipos() {
     return coincideTexto && coincideTipo && coincideEstado;
   });
 
-  // Filtrado reactivo de Sectores
+  // Filtrado reactivo de Sectores físicos por nombre
   const sectoresFiltrados = sectores.filter((s) => {
-    const texto = searchTerm.toLowerCase();
-    return (
-      s.codigoSector.toLowerCase().includes(texto) ||
-      s.nombreOficina.toLowerCase().includes(texto) ||
-      s.responsable.toLowerCase().includes(texto)
-    );
+    const texto = searchTerm.toLowerCase().trim();
+    const nombre = (s.nombreOficina || s.nombreSector || '').toLowerCase();
+    return nombre.includes(texto);
   });
 
   // Renderizador de Badges de Estado Operativo
@@ -327,6 +254,15 @@ export default function Equipos() {
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               type="button"
+              onClick={cargarDatos}
+              title="Sincronizar con la base de datos"
+              className="flex items-center gap-1.5 px-3 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer"
+            >
+              <RefreshCw size={14} className={isLoading ? 'animate-spin text-blue-600' : ''} />
+              <span className="hidden sm:inline">Actualizar</span>
+            </button>
+            <button
+              type="button"
               onClick={() => mostrarToast('Generando reporte patrimonial en PDF...')}
               className="flex items-center gap-2 px-3.5 sm:px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer"
             >
@@ -343,6 +279,23 @@ export default function Equipos() {
             </button>
           </div>
         </div>
+
+        {/* Mensaje de Error de Conexión */}
+        {error && (
+          <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl flex items-center justify-between text-xs animate-in fade-in">
+            <div className="flex items-center gap-2">
+              <AlertTriangle size={16} className="text-rose-600 shrink-0" />
+              <span>{error}</span>
+            </div>
+            <button
+              type="button"
+              onClick={cargarDatos}
+              className="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg text-xs transition cursor-pointer"
+            >
+              Reintentar
+            </button>
+          </div>
+        )}
 
         {/* Selector de Pestañas (Equipos Informáticos / Sectores Físicos) */}
         <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200/80">
@@ -378,7 +331,7 @@ export default function Equipos() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder={activeTab === 'equipos' ? 'Buscar por código, marca/modelo, sector o IP...' : 'Buscar sector por nombre o responsable...'}
+              placeholder={activeTab === 'equipos' ? 'Buscar por código, marca/modelo, sector o IP...' : 'Buscar dependencia u oficina por nombre...'}
               className="w-full pl-10 pr-4 py-2.5 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/50 focus:bg-white transition"
             />
           </div>
@@ -444,7 +397,16 @@ export default function Equipos() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-slate-700">
-                  {equiposFiltrados.length === 0 ? (
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={6} className="py-12 text-center text-slate-500">
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          <Loader2 size={24} className="animate-spin text-blue-600" />
+                          <span className="text-xs font-medium">Cargando parque patrimonial del TEP...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : equiposFiltrados.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="py-10 text-center text-slate-400">
                         No se encontraron equipos que coincidan con los filtros aplicados.
@@ -466,7 +428,7 @@ export default function Equipos() {
                           <div className="flex items-center gap-2">
                             {renderTipoIcono(item.tipoEquipo)}
                             <span className="font-bold text-slate-800 group-hover:text-blue-700 transition">
-                              {item.codPatrimonial}
+                              {item.codPatrimonial || 'S/N Patrimonial'}
                             </span>
                           </div>
                         </td>
@@ -479,8 +441,8 @@ export default function Equipos() {
                             {item.procesador && item.procesador !== 'No aplica' && (
                               <span className="ml-1.5 text-slate-500 font-sans">• {item.procesador}</span>
                             )}
-                            {item.tonerCompatible && (
-                              <span className="ml-1.5 text-amber-600 font-sans">• {item.tonerCompatible}</span>
+                            {(item.insumoCompatibleDescripcion || item.tonerCompatible) && (
+                              <span className="ml-1.5 text-amber-600 font-sans">• {item.insumoCompatibleDescripcion || item.tonerCompatible}</span>
                             )}
                           </p>
                         </td>
@@ -570,45 +532,63 @@ export default function Equipos() {
         {activeTab === 'sectores' && (
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs min-w-[650px]">
+              <table className="w-full text-left text-xs min-w-[550px]">
                 <thead className="bg-slate-50/60 text-slate-400 uppercase font-semibold border-b border-slate-100 select-none">
                   <tr>
-                    <th className="py-4 px-6">Código de Sector</th>
-                    <th className="py-4 px-6">Nombre de la Dependencia</th>
-                    <th className="py-4 px-6">Ubicación Edilicia</th>
-                    <th className="py-4 px-6">Responsable Asignado</th>
+                    <th className="py-4 px-6">Nombre de la Dependencia / Oficina</th>
+                    <th className="py-4 px-6 text-center">Estado Institucional</th>
                     <th className="py-4 px-6 text-right">Equipos Asignados</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-slate-700">
-                  {sectoresFiltrados.map((item) => {
-                    const cantEquipos = equipos.filter(
-                      (e) => String(e.idSector) === String(item.idSector) || e.nombreSector === item.nombreOficina
-                    ).length;
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={3} className="py-12 text-center text-slate-500">
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          <Loader2 size={24} className="animate-spin text-blue-600" />
+                          <span className="text-xs font-medium">Cargando dependencias y sectores del TEP...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : sectoresFiltrados.length === 0 ? (
+                    <tr>
+                      <td colSpan={3} className="py-10 text-center text-slate-400">
+                        No se encontraron dependencias registradas en la base de datos.
+                      </td>
+                    </tr>
+                  ) : (
+                    sectoresFiltrados.map((item) => {
+                      const cantEquipos = equipos.filter(
+                        (e) => Number(e.idSector) === Number(item.idSector)
+                      ).length;
 
-                    return (
-                      <tr key={item.idSector} className="hover:bg-slate-50/50 transition">
-                        <td className="py-4 px-6 font-mono font-bold text-blue-700">
-                          <span className="bg-blue-50 px-2 py-1 rounded border border-blue-100">
-                            {item.codigoSector}
-                          </span>
-                        </td>
-                        <td className="py-4 px-6 font-bold text-slate-800">{item.nombreOficina}</td>
-                        <td className="py-4 px-6">
-                          <div className="flex items-center gap-1.5 text-slate-600">
-                            <MapPin size={14} className="text-slate-400" />
-                            <span>{item.ubicacion}</span>
-                          </div>
-                        </td>
-                        <td className="py-4 px-6 text-slate-700 font-medium">{item.responsable}</td>
-                        <td className="py-4 px-6 text-right">
-                          <span className="bg-slate-100 text-slate-700 font-bold px-2.5 py-1 rounded-full text-[11px]">
-                            {cantEquipos} equipos
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                      return (
+                        <tr key={item.idSector} className="hover:bg-slate-50/50 transition">
+                          <td className="py-4 px-6">
+                            <div className="flex items-center gap-2.5">
+                              <span className="p-2 rounded-xl bg-blue-50 text-blue-600">
+                                <Building2 size={16} />
+                              </span>
+                              <span className="font-bold text-slate-800 text-sm">
+                                {item.nombreOficina || item.nombreSector}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 text-center">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              <CheckCircle2 size={11} />
+                              HABILITADO
+                            </span>
+                          </td>
+                          <td className="py-4 px-6 text-right">
+                            <span className="bg-slate-100 text-slate-700 font-bold px-2.5 py-1 rounded-full text-[11px]">
+                              {cantEquipos} {cantEquipos === 1 ? 'equipo' : 'equipos'}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
@@ -628,6 +608,8 @@ export default function Equipos() {
         onClose={() => setIsModalNuevoEquipoOpen(false)}
         onSave={handleGuardarEquipo}
         sectores={sectores}
+        insumos={insumos}
+        equipos={equipos}
       />
 
       {/* MODAL: Ficha Técnica Detallada, Edición y Acciones (Poner en reparación, baja, etc.) */}
@@ -635,6 +617,8 @@ export default function Equipos() {
         isOpen={isDetalleModalOpen}
         equipo={equipoSeleccionado}
         sectores={sectores}
+        insumos={insumos}
+        equipos={equipos}
         onClose={() => {
           setIsDetalleModalOpen(false);
           setEquipoSeleccionado(null);
@@ -656,7 +640,7 @@ export default function Equipos() {
             <div className="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
               <div>
                 <h3 className="text-base font-bold text-slate-800">Registrar Dependencia / Sector</h3>
-                <p className="text-xs text-slate-400">Agregue una oficina física institucional</p>
+                <p className="text-xs text-slate-400">Agregue una oficina física institucional (TEP)</p>
               </div>
               <button 
                 type="button" 
@@ -670,52 +654,19 @@ export default function Equipos() {
               onSubmit={(e) => {
                 e.preventDefault();
                 const form = e.target;
-                const nuevoSec = {
-                  idSector: sectores.length + 1,
-                  codigoSector: form.codigoSector.value.trim(),
-                  nombreOficina: form.nombreOficina.value.trim(),
-                  ubicacion: form.ubicacion.value.trim(),
-                  responsable: form.responsable.value.trim()
-                };
-                setSectores([...sectores, nuevoSec]);
-                setIsModalSectorOpen(false);
-                mostrarToast(`Sector ${nuevoSec.nombreOficina} registrado.`);
+                const nombre = form.nombreOficina.value.trim();
+                handleGuardarSector({ nombreSector: nombre });
               }} 
               className="space-y-3.5"
             >
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Código de Sector</label>
-                <input 
-                  name="codigoSector" 
-                  required 
-                  placeholder="Ej. S-005" 
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none" 
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Nombre de la Dependencia</label>
+                <label className="block text-xs font-semibold text-slate-600 mb-1">
+                  Nombre de la Dependencia u Oficina (*)
+                </label>
                 <input 
                   name="nombreOficina" 
                   required 
-                  placeholder="Ej. Secretaría de Informática" 
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none" 
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Ubicación Edilicia</label>
-                <input 
-                  name="ubicacion" 
-                  required 
-                  placeholder="Ej. Piso 1 - Ala Este" 
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none" 
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Funcionario Responsable</label>
-                <input 
-                  name="responsable" 
-                  required 
-                  placeholder="Ej. Lic. Carlos Duarte" 
+                  placeholder="Ej. Secretaría de Informática Electoral" 
                   className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none" 
                 />
               </div>

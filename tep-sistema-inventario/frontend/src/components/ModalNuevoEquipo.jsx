@@ -9,7 +9,7 @@ import {
   AlertCircle 
 } from 'lucide-react';
 
-export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [] }) {
+export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [], insumos = [], equipos = [] }) {
   // Tipo de equipo seleccionado: limitado estrictamente a Computadoras e Impresoras
   const [tipoEquipo, setTipoEquipo] = useState('computadora'); // 'computadora' | 'impresora'
 
@@ -34,12 +34,31 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
 
     // Específicos de Impresoras (Láser / Térmica / Multifunción)
     tipoImpresion: 'Láser Monocromática',
-    tonerCompatible: 'Tóner Brother TN-1060',
+    idInsumoCompatible: '',
     conexionImpresora: 'Red Ethernet (RJ-45)',
     formatoPapel: 'A4 / Oficio'
   });
 
   const [error, setError] = useState('');
+
+  // Detección preventiva de conflictos de unicidad (S/N, Código Patrimonial, IP)
+  const serieEnUso = equipos.find(
+    (eq) => formData.numeroSerie?.trim() && 
+            eq.numeroSerie?.toLowerCase().trim() === formData.numeroSerie.toLowerCase().trim()
+  );
+
+  const codPatEnUso = equipos.find(
+    (eq) => formData.codPatrimonial?.trim() && 
+            eq.codPatrimonial?.toLowerCase().trim() === formData.codPatrimonial.toLowerCase().trim()
+  );
+
+  const ipEnUso = equipos.find((eq) => {
+    const ip = formData.ipFija?.trim();
+    if (!ip || ip === '0.0.0.0' || ip.toLowerCase() === 'dhcp' || ip.toLowerCase().includes('no aplica')) {
+      return false;
+    }
+    return eq.ipFija?.trim() === ip && eq.estadoOperativo !== 'Baja';
+  });
 
   if (!isOpen) return null;
 
@@ -68,29 +87,55 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
       return;
     }
 
-    // Adaptar los atributos técnicos según el tipo de equipo
-    let equipoNormalizado = {
-      ...formData,
-      tipoEquipo,
-      codPatrimonial: formData.codPatrimonial.trim() || `PAT-2026-${Math.floor(100 + Math.random() * 900)}`
-    };
-
-    if (tipoEquipo === 'computadora') {
-      equipoNormalizado = {
-        ...equipoNormalizado,
-        ipFija: formData.ipFija.trim() || 'DHCP (Automática)'
-      };
-    } else if (tipoEquipo === 'impresora') {
-      equipoNormalizado = {
-        ...equipoNormalizado,
-        // Limpiamos atributos de computadoras que no aplican a impresoras
-        procesador: 'No aplica',
-        memoriaRAM: 'No aplica',
-        almacenamiento: 'No aplica',
-        sistemaOperativo: 'Firmware Propietario',
-        ipFija: formData.conexionImpresora.includes('USB') ? 'No aplica (USB Local)' : (formData.ipFija.trim() || 'DHCP')
-      };
+    if (!formData.idSector) {
+      setError('Debe seleccionar un sector asignado.');
+      return;
     }
+
+    // Validación preventiva de Número de Serie Único
+    if (serieEnUso) {
+      setError(`Número de serie duplicado: El serial "${formData.numeroSerie.trim()}" ya está registrado en el equipo "${serieEnUso.marcaModelo}" (ID: ${serieEnUso.idEquipo}). Cada dispositivo debe tener un serial de fábrica único.`);
+      return;
+    }
+
+    // Validación preventiva de Código Patrimonial Único
+    if (codPatEnUso) {
+      setError(`Código patrimonial duplicado: El código "${formData.codPatrimonial.trim()}" ya pertenece al equipo "${codPatEnUso.marcaModelo}" (ID: ${codPatEnUso.idEquipo}). Cada bien patrimonial del TEP debe tener un código único.`);
+      return;
+    }
+
+    // Validación preventiva de colisión de red
+    if (ipEnUso && formData.estadoOperativo !== 'Baja') {
+      setError(`Conflicto de red: La dirección IP "${formData.ipFija}" ya está asignada al equipo "${ipEnUso.marcaModelo}" (${ipEnUso.tipoEquipo}). Dos dispositivos activos en red no pueden compartir la misma IP.`);
+      return;
+    }
+
+    const esImp = tipoEquipo === 'impresora';
+
+    const equipoNormalizado = {
+      codPatrimonial: formData.codPatrimonial.trim() || null,
+      tipoEquipo: esImp ? 'Impresora' : 'Computadora',
+      marcaModelo: formData.marcaModelo.trim(),
+      numeroSerie: formData.numeroSerie.trim(),
+      idSector: Number(formData.idSector),
+      nombreSector: formData.nombreSector,
+      estadoOperativo: formData.estadoOperativo || 'Operativo',
+      ipFija: formData.ipFija.trim() || '0.0.0.0',
+      mascaraSubred: formData.mascaraSubred.trim() || '255.255.255.0',
+      workgroup: formData.workgroup.trim() || 'TRIBUNAL_SEC',
+
+      // Atributos de PC
+      procesador: !esImp ? formData.procesador.trim() : null,
+      memoriaRAM: !esImp ? formData.memoriaRAM.trim() : null,
+      almacenamiento: !esImp ? formData.almacenamiento.trim() : null,
+      sistemaOperativo: !esImp ? formData.sistemaOperativo.trim() : null,
+
+      // Atributos de Impresora
+      tecnologiaImpresion: esImp ? formData.tipoImpresion : null,
+      tipoConexion: esImp ? formData.conexionImpresora : null,
+      formatoPapel: esImp ? formData.formatoPapel : null,
+      idInsumoCompatible: esImp && formData.idInsumoCompatible ? Number(formData.idInsumoCompatible) : null
+    };
 
     setError('');
     onSave(equipoNormalizado);
@@ -193,8 +238,18 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
                     value={formData.codPatrimonial}
                     onChange={handleChange}
                     placeholder="Ej. PAT-2026-001 (o autogenerar)"
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 font-mono"
+                    className={`w-full px-3 py-2 text-xs border rounded-xl font-mono focus:outline-none transition ${
+                      codPatEnUso
+                        ? 'border-amber-400 bg-amber-50/50 text-amber-900 focus:border-amber-500'
+                        : 'border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600'
+                    }`}
                   />
+                  {codPatEnUso && (
+                    <p className="text-[10px] text-amber-700 font-semibold mt-1 flex items-center gap-1">
+                      <AlertTriangle size={12} className="shrink-0 text-amber-600" />
+                      <span>Ya asignado a: {codPatEnUso.marcaModelo}</span>
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1">Marca y Modelo (*)</label>
@@ -223,8 +278,18 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
                     onChange={handleChange}
                     required
                     placeholder="Ej. SN-89410294"
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 font-mono"
+                    className={`w-full px-3 py-2 text-xs border rounded-xl font-mono focus:outline-none transition ${
+                      serieEnUso
+                        ? 'border-amber-400 bg-amber-50/50 text-amber-900 focus:border-amber-500'
+                        : 'border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600'
+                    }`}
                   />
+                  {serieEnUso && (
+                    <p className="text-[10px] text-amber-700 font-semibold mt-1 flex items-center gap-1">
+                      <AlertTriangle size={12} className="shrink-0 text-amber-600" />
+                      <span>Ya registrado en: {serieEnUso.marcaModelo}</span>
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1">Sector Asignado</label>
@@ -331,8 +396,18 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
                       value={formData.ipFija}
                       onChange={handleChange}
                       placeholder="Ej. 192.168.10.45 (o vacío)"
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 font-mono"
+                      className={`w-full px-3 py-2 text-xs border rounded-xl focus:outline-none focus:ring-1 font-mono transition ${
+                        ipEnUso 
+                          ? 'border-amber-400 bg-amber-50/50 text-amber-900 focus:border-amber-500 focus:ring-amber-500' 
+                          : 'border-slate-200 focus:border-blue-600 focus:ring-blue-600'
+                      }`}
                     />
+                    {ipEnUso && (
+                      <p className="text-[10px] text-amber-700 font-semibold mt-1 flex items-center gap-1">
+                        <AlertCircle size={12} className="shrink-0 text-amber-600" />
+                        <span>En uso por: {ipEnUso.marcaModelo} ({ipEnUso.tipoEquipo})</span>
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-600 mb-1">Máscara Subred</label>
@@ -388,16 +463,21 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-600 mb-1">
-                      Insumo / Tóner Compatible (Vinculado a Insumos)
+                      Insumo / Tóner Compatible (Catálogo TEP)
                     </label>
-                    <input
-                      type="text"
-                      name="tonerCompatible"
-                      value={formData.tonerCompatible}
+                    <select
+                      name="idInsumoCompatible"
+                      value={formData.idInsumoCompatible}
                       onChange={handleChange}
-                      placeholder="Ej. Tóner Brother TN-1060 / HP 85A Negro"
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
-                    />
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white"
+                    >
+                      <option value="">-- Sin insumo asignado --</option>
+                      {insumos.map((ins) => (
+                        <option key={ins.idInsumo} value={ins.idInsumo}>
+                          {ins.descripcion} ({ins.codigoInterno})
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
@@ -423,8 +503,18 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
                       value={formData.ipFija}
                       onChange={handleChange}
                       placeholder="Ej. 192.168.10.112 (o N/A si es USB)"
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 font-mono"
+                      className={`w-full px-3 py-2 text-xs border rounded-xl focus:outline-none focus:ring-1 font-mono transition ${
+                        ipEnUso 
+                          ? 'border-amber-400 bg-amber-50/50 text-amber-900 focus:border-amber-500 focus:ring-amber-500' 
+                          : 'border-slate-200 focus:border-blue-600 focus:ring-blue-600'
+                      }`}
                     />
+                    {ipEnUso && (
+                      <p className="text-[10px] text-amber-700 font-semibold mt-1 flex items-center gap-1">
+                        <AlertCircle size={12} className="shrink-0 text-amber-600" />
+                        <span>En uso por: {ipEnUso.marcaModelo} ({ipEnUso.tipoEquipo})</span>
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-600 mb-1">Formato de Papel</label>
