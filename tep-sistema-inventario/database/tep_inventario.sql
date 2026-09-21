@@ -273,6 +273,7 @@ ALTER TABLE `log_auditoria`
 --
 ALTER TABLE `matriz_compatibilidad`
   ADD PRIMARY KEY (`idRegla`),
+  ADD UNIQUE KEY `uq_equipo_insumo` (`idEquipo`, `idInsumo`),
   ADD KEY `fk_Matriz_Compatibilidad_Insumos1_idx` (`idInsumo`),
   ADD KEY `fk_Matriz_Compatibilidad_Equipos1_idx` (`idEquipo`);
 
