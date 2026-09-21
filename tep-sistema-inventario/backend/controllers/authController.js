@@ -1,6 +1,7 @@
 const db = require('../database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { registrarAuditoria } = require('../utils/auditoriaHelper');
 
 // Clave secreta para firmar el JWT obtenida desde variables de entorno (.env) o fallback seguro
@@ -92,9 +93,10 @@ const login = async (req, res) => {
 
 /**
  * Controlador para el registro de nuevos operadores (Register)
+ * Genera automáticamente un PIN numérico de 6 dígitos para recuperación interna de contraseñas.
  */
 const register = async (req, res) => {
-    const { username, password, rolAcceso, pinRecuperacion } = req.body;
+    const { username, password, rolAcceso } = req.body;
 
     // Validación de campos requeridos
     if (!username || !password) {
@@ -138,14 +140,16 @@ const register = async (req, res) => {
             // Hashear contraseña con bcrypt
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(password, saltRounds);
-            const pin = pinRecuperacion ? String(pinRecuperacion).trim() : null;
+
+            // Generar PIN aleatorio de 6 dígitos numéricos (CSPRNG)
+            const pinGenerado = crypto.randomInt(100000, 1000000).toString();
 
             const insertQuery = `
-                INSERT INTO Usuarios (username, password, rolAcceso, estadoActivo, pinRecuperacion)
-                VALUES (?, ?, ?, 1, ?)
+                INSERT INTO Usuarios (username, password, rolAcceso, estadoActivo, pinRecuperacion, fechaUltimoPin)
+                VALUES (?, ?, ?, 1, ?, NOW())
             `;
 
-            db.query(insertQuery, [username, hashedPassword, rol, pin], (errInsert, result) => {
+            db.query(insertQuery, [username, hashedPassword, rol, pinGenerado], (errInsert, result) => {
                 if (errInsert) {
                     console.error('Error al insertar nuevo usuario:', errInsert);
                     return res.status(500).json({ 
@@ -153,8 +157,17 @@ const register = async (req, res) => {
                     });
                 }
 
+                // Registrar evento en auditoría
+                registrarAuditoria(
+                    result.insertId,
+                    `Alta de nuevo usuario: ${username} (Rol: ${rol}) con generación inicial de PIN`,
+                    'Seguridad'
+                ).catch(() => {});
+
+                // Devolver el PIN en texto claro en la respuesta exitosa para que el frontend se lo notifique al usuario
                 return res.status(201).json({
-                    message: '¡Usuario registrado exitosamente!',
+                    message: '¡Usuario registrado exitosamente! Guarde su PIN de recuperación en un lugar seguro.',
+                    pinRecuperacion: pinGenerado,
                     usuario: {
                         idUsuario: result.insertId,
                         username,
@@ -173,7 +186,7 @@ const register = async (req, res) => {
 };
 
 /**
- * Endpoint para blanquear/recuperar contraseña validando username y pinRecuperacion
+ * Endpoint para blanquear/recuperar contraseña validando username y pinRecuperacion (Autogestión del usuario)
  * POST /api/auth/recuperar-password
  */
 const recuperarPassword = async (req, res) => {
@@ -247,8 +260,100 @@ const recuperarPassword = async (req, res) => {
     });
 };
 
+/**
+ * Controlador de Administrador: Regeneración de PIN con Cooldown de 30 días
+ * Permite al Admin regenerar un nuevo PIN cuando el usuario olvidó su contraseña Y su PIN.
+ * PUT /api/auth/admin/regenerar-pin/:idUsuario
+ */
+const regenerarPinAdmin = async (req, res) => {
+    const { idUsuario } = req.params;
+    const adminOperador = req.usuario;
+
+    // 1. Verificación de permisos de Administrador
+    if (!adminOperador || adminOperador.rolAcceso !== 'Administrador') {
+        return res.status(403).json({ 
+            message: 'Acceso denegado: Solo los administradores pueden regenerar PINs de recuperación.' 
+        });
+    }
+
+    const usuarioId = parseInt(idUsuario, 10);
+    if (isNaN(usuarioId)) {
+        return res.status(400).json({ 
+            message: 'El ID de usuario debe ser un número entero válido.' 
+        });
+    }
+
+    // 2. Buscar usuario objetivo
+    const query = 'SELECT idUsuario, username, fechaUltimoPin, estadoActivo FROM Usuarios WHERE idUsuario = ?';
+
+    db.query(query, [usuarioId], (err, results) => {
+        if (err) {
+            console.error('Error al consultar usuario para regenerar PIN:', err);
+            return res.status(500).json({ message: 'Error interno del servidor.' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: `No se encontró ningún usuario con ID ${usuarioId}.` });
+        }
+
+        const usuario = results[0];
+
+        // 3. Regla de Cooldown de 30 días
+        if (usuario.fechaUltimoPin) {
+            const ahora = new Date();
+            const fechaUltimo = new Date(usuario.fechaUltimoPin);
+            const diferenciaMs = ahora.getTime() - fechaUltimo.getTime();
+            const diasTranscurridos = diferenciaMs / (1000 * 60 * 60 * 24);
+            const COOLDOWN_DIAS = 30;
+
+            if (diasTranscurridos < COOLDOWN_DIAS) {
+                const diasRestantes = Math.ceil(COOLDOWN_DIAS - diasTranscurridos);
+                return res.status(429).json({ 
+                    message: `Cooldown activo: No es posible regenerar el PIN aún. Debe esperar ${diasRestantes} día(s) restante(s).`,
+                    diasRestantes,
+                    fechaUltimoPin: usuario.fechaUltimoPin
+                });
+            }
+        }
+
+        // 4. Generar nuevo PIN criptográficamente seguro de 6 dígitos
+        const nuevoPin = crypto.randomInt(100000, 1000000).toString();
+
+        // 5. Actualizar en base de datos reseteando fechaUltimoPin a NOW()
+        const updateQuery = `
+            UPDATE Usuarios 
+            SET pinRecuperacion = ?, fechaUltimoPin = NOW() 
+            WHERE idUsuario = ?
+        `;
+
+        db.query(updateQuery, [nuevoPin, usuarioId], (updateErr) => {
+            if (updateErr) {
+                console.error('Error al actualizar PIN de usuario:', updateErr);
+                return res.status(500).json({ message: 'Error interno al actualizar el PIN.' });
+            }
+
+            // 6. Registrar en auditoría
+            registrarAuditoria(
+                adminOperador.idUsuario,
+                `Regeneración de PIN por Administrador para el usuario ${usuario.username} (ID: ${usuarioId})`,
+                'Seguridad'
+            ).catch(() => {});
+
+            // 7. Devolver el nuevo PIN en texto claro para que el Admin se lo informe al usuario
+            return res.status(200).json({
+                message: `Nuevo PIN de recuperación generado exitosamente para el usuario ${usuario.username}.`,
+                idUsuario: usuario.idUsuario,
+                username: usuario.username,
+                nuevoPin,
+                fechaUltimoPin: new Date()
+            });
+        });
+    });
+};
+
 module.exports = {
     login,
     register,
-    recuperarPassword
+    recuperarPassword,
+    regenerarPinAdmin
 };

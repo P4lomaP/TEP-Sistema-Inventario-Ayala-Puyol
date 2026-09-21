@@ -1,10 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
+const authMiddleware = require('../middlewares/authMiddleware');
 
-// Rutas de autenticación
+// ----------------------------------------------------
+// Rutas Públicas (Sin token)
+// ----------------------------------------------------
 router.post('/login', authController.login);
 router.post('/register', authController.register);
 router.post('/recuperar-password', authController.recuperarPassword);
 
+// ----------------------------------------------------
+// Rutas de Administración Protegidas (Requiere Token y Rol Administrador)
+// ----------------------------------------------------
+router.put(
+    '/admin/regenerar-pin/:idUsuario', 
+    authMiddleware, 
+    authMiddleware.verificarRol(['Administrador']), 
+    authController.regenerarPinAdmin
+);
+
 module.exports = router;
+

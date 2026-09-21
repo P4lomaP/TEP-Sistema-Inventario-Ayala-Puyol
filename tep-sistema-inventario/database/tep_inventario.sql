@@ -212,7 +212,8 @@ CREATE TABLE `usuarios` (
   `password` varchar(255) NOT NULL,
   `rolAcceso` varchar(255) NOT NULL,
   `estadoActivo` tinyint NOT NULL,
-  `pinRecuperacion` varchar(50) DEFAULT NULL
+  `pinRecuperacion` varchar(50) DEFAULT NULL,
+  `fechaUltimoPin` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
