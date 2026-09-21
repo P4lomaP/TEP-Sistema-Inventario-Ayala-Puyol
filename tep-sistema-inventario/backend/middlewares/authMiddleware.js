@@ -1,0 +1,84 @@
+const jwt = require('jsonwebtoken');
+
+// Clave secreta obtenida del entorno con fallback seguro sincronizado con authController
+const JWT_SECRET = process.env.JWT_SECRET || 'una_clave_larga_y_segura_para_el_tribunal';
+
+/**
+ * Middleware para validar el token JWT y controlar la inactividad de sesión (30 minutos)
+ * Header esperado: Authorization: Bearer <token>
+ */
+const verificarToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'] || req.headers['Authorization'];
+
+    // 1. Validar presencia del header de autorización
+    if (!authHeader) {
+        return res.status(401).json({ 
+            message: 'Acceso no autorizado. Token no proporcionado.' 
+        });
+    }
+
+    // 2. Extraer el token del esquema Bearer <token>
+    const partes = authHeader.trim().split(' ');
+    if (partes.length !== 2 || partes[0] !== 'Bearer') {
+        return res.status(401).json({ 
+            message: 'Formato de token inválido. Utilice el esquema Bearer <token>' 
+        });
+    }
+
+    const token = partes[1];
+
+    if (!token) {
+        return res.status(401).json({ 
+            message: 'Acceso no autorizado. Token no proporcionado.' 
+        });
+    }
+
+    // 3. Verificación criptográfica y de tiempo de expiración
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+        if (err) {
+            // Captura estricta de TokenExpiredError para el Frontend React
+            if (err.name === 'TokenExpiredError') {
+                return res.status(401).json({ 
+                    message: 'Sesión expirada por inactividad. Vuelva a iniciar sesión.',
+                    expired: true 
+                });
+            }
+
+            // Token alterado, firma inválida o corrupto
+            return res.status(403).json({ 
+                message: 'Token inválido o adulterado.',
+                error: err.message 
+            });
+        }
+
+        // 4. Inyectar datos del operador autenticado en la petición
+        req.usuario = decoded;
+        next();
+    });
+};
+
+/**
+ * Middleware opcional para control de acceso basado en roles (RBAC)
+ * @param {Array<string>} rolesPermitidos - Lista de roles autorizados (ej: ['Administrador', 'Tecnico'])
+ */
+const verificarRol = (rolesPermitidos = []) => {
+    return (req, res, next) => {
+        if (!req.usuario || !req.usuario.rolAcceso) {
+            return res.status(403).json({ message: 'No se encontraron permisos asociados al usuario.' });
+        }
+
+        if (!rolesPermitidos.includes(req.usuario.rolAcceso)) {
+            return res.status(403).json({ 
+                message: `Acceso denegado: El rol "${req.usuario.rolAcceso}" no cuenta con los privilegios suficientes para esta acción.` 
+            });
+        }
+
+        next();
+    };
+};
+
+// Compatibilidad para require('../middlewares/authMiddleware') y desestructuración { verificarToken }
+verificarToken.verificarToken = verificarToken;
+verificarToken.verificarRol = verificarRol;
+
+module.exports = verificarToken;

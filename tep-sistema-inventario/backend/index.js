@@ -11,20 +11,29 @@ const movimientosRoutes = require('./routes/movimientosRoutes');
 const auditoriaRoutes = require('./routes/auditoriaRoutes');
 const matrizRoutes = require('./routes/matrizRoutes');
 
+// Middleware de autenticación y control de inactividad (30m)
+const authMiddleware = require('./middlewares/authMiddleware');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 
-// Rutas de la API
+// ----------------------------------------------------
+// 1. Rutas Públicas (Sin token: Login y Recuperación)
+// ----------------------------------------------------
 app.use('/api/auth', authRoutes);
-app.use('/api/sectores', sectoresRoutes);
-app.use('/api/insumos', insumosRoutes);
-app.use('/api/equipos', equiposRoutes);
-app.use('/api/movimientos', movimientosRoutes);
-app.use('/api/auditoria', auditoriaRoutes);
-app.use('/api/compatibilidad', matrizRoutes);
+
+// ----------------------------------------------------
+// 2. Rutas Protegidas (Requieren Bearer Token y expiran a los 30 min de inactividad)
+// ----------------------------------------------------
+app.use('/api/sectores', authMiddleware, sectoresRoutes);
+app.use('/api/insumos', authMiddleware, insumosRoutes);
+app.use('/api/equipos', authMiddleware, equiposRoutes);
+app.use('/api/movimientos', authMiddleware, movimientosRoutes);
+app.use('/api/auditoria', authMiddleware, auditoriaRoutes);
+app.use('/api/compatibilidad', authMiddleware, matrizRoutes);
 
 // Una ruta de prueba para ver si el servidor responde
 app.get('/', (req, res) => {
