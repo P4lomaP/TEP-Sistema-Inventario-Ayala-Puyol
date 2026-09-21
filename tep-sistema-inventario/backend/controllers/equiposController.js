@@ -156,6 +156,7 @@ const crearEquipo = (req, res) => {
     const ip = ipFija && ipFija.trim() ? ipFija.trim() : '0.0.0.0';
     const mascara = mascaraSubred && mascaraSubred.trim() ? mascaraSubred.trim() : '255.255.255.0';
     const grupo = workgroup && workgroup.trim() ? workgroup.trim() : 'WORKGROUP';
+    // Admite "Operativo", "En Reparación", "En Mantenimiento", "Baja", etc.
     const estado = estadoOperativo && estadoOperativo.trim() ? estadoOperativo.trim() : 'Operativo';
     const sector = parseInt(idSector, 10);
 
@@ -170,52 +171,98 @@ const crearEquipo = (req, res) => {
     const formPap = formatoPapel && formatoPapel.trim() ? formatoPapel.trim() : null;
     const insumoComp = idInsumoCompatible ? parseInt(idInsumoCompatible, 10) : null;
 
-    const query = `
-        INSERT INTO Equipos (
-            codPatrimonial,
-            tipoEquipo,
-            marcaModelo,
-            numeroSerie,
-            ipFija,
-            mascaraSubred,
-            workgroup,
-            estadoOperativo,
-            idSector,
-            procesador,
-            memoriaRAM,
-            almacenamiento,
-            sistemaOperativo,
-            tecnologiaImpresion,
-            tipoConexion,
-            formatoPapel,
-            idInsumoCompatible
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+    // 4. Verificación de colisión de red (IP estática duplicada en equipos activos)
+    const validarColisionIP = (callback) => {
+        if (ip && ip !== '0.0.0.0') {
+            const queryIP = "SELECT idEquipo, marcaModelo, estadoOperativo FROM Equipos WHERE ipFija = ? AND estadoOperativo != 'Baja' LIMIT 1";
+            db.query(queryIP, [ip], (errIP, resultsIP) => {
+                if (errIP) return callback(errIP);
+                if (resultsIP.length > 0) {
+                    const existente = resultsIP[0];
+                    return callback({
+                        isCollision: true,
+                        message: `Conflicto de red: la dirección IP "${ip}" ya está asignada al equipo activo ID ${existente.idEquipo} (${existente.marcaModelo}).`
+                    });
+                }
+                return callback(null);
+            });
+        } else {
+            callback(null);
+        }
+    };
 
-    const values = [
-        codPat,
-        tipo,
-        marca,
-        serie,
-        ip,
-        mascara,
-        grupo,
-        estado,
-        sector,
-        proc,
-        ram,
-        alm,
-        so,
-        tecImp,
-        conImp,
-        formPap,
-        insumoComp
-    ];
+    validarColisionIP((errColision) => {
+        if (errColision) {
+            if (errColision.isCollision) {
+                return res.status(409).json({ message: errColision.message });
+            }
+            console.error('Error al validar IP:', errColision);
+            return res.status(500).json({ message: 'Error al verificar disponibilidad de IP.' });
+        }
 
-    const ejecutarInsercion = () => {
+        const query = `
+            INSERT INTO Equipos (
+                codPatrimonial,
+                tipoEquipo,
+                marcaModelo,
+                numeroSerie,
+                ipFija,
+                mascaraSubred,
+                workgroup,
+                estadoOperativo,
+                idSector,
+                procesador,
+                memoriaRAM,
+                almacenamiento,
+                sistemaOperativo,
+                tecnologiaImpresion,
+                tipoConexion,
+                formatoPapel,
+                idInsumoCompatible
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        const values = [
+            codPat,
+            tipo,
+            marca,
+            serie,
+            ip,
+            mascara,
+            grupo,
+            estado,
+            sector,
+            proc,
+            ram,
+            alm,
+            so,
+            tecImp,
+            conImp,
+            formPap,
+            insumoComp
+        ];
+
         db.query(query, values, async (err, result) => {
             if (err) {
                 console.error('Error al registrar equipo:', err);
+
+                // Control de duplicados MySQL (UNIQUE constraints) -> 409 Conflict
+                if (err.code === 'ER_DUP_ENTRY') {
+                    const sqlMsg = err.sqlMessage || '';
+                    if (sqlMsg.includes('uq_codPatrimonial') || sqlMsg.includes('codPatrimonial')) {
+                        return res.status(409).json({ 
+                            message: `Conflicto de duplicidad: el código patrimonial "${codPat}" ya está registrado en otro equipo.` 
+                        });
+                    }
+                    if (sqlMsg.includes('uq_numeroSerie') || sqlMsg.includes('numeroSerie')) {
+                        return res.status(409).json({ 
+                            message: `Conflicto de duplicidad: el número de serie "${serie}" ya está registrado en el sistema.` 
+                        });
+                    }
+                    return res.status(409).json({ 
+                        message: 'Conflicto de duplicidad: ya existe un equipo con ese código patrimonial o número de serie.' 
+                    });
+                }
 
                 if (err.code === 'ER_NO_REFERENCED_ROW_2' || err.code === 'ER_NO_REFERENCED_ROW') {
                     return res.status(400).json({ 
@@ -236,11 +283,11 @@ const crearEquipo = (req, res) => {
                     idNuevo, 
                     null, 
                     sector, 
-                    `Alta inicial de ${tipo} en sistema`
+                    `Alta inicial de ${tipo} en sistema (Estado: ${estado})`
                 );
                 await registrarAuditoria(
                     idUsuario, 
-                    `Alta de equipo ID ${idNuevo} [${tipo}]: ${marca} (S/N: ${serie})`, 
+                    `Alta de equipo ID ${idNuevo} [${tipo}]: ${marca} (S/N: ${serie}, IP: ${ip})`, 
                     'Equipos'
                 );
             } catch (sideErr) {
@@ -271,84 +318,11 @@ const crearEquipo = (req, res) => {
                 }
             });
         });
-    };
-
-    // 1. Validación de Número de Serie Único (S/N de fábrica)
-    db.query(
-        "SELECT idEquipo, marcaModelo, codPatrimonial FROM Equipos WHERE LOWER(numeroSerie) = LOWER(?) LIMIT 1",
-        [serie],
-        (errSerie, rowsSerie) => {
-            if (errSerie) {
-                console.error('Error al verificar número de serie:', errSerie);
-                return res.status(500).json({ message: 'Error interno al validar número de serie.' });
-            }
-            if (rowsSerie && rowsSerie.length > 0) {
-                return res.status(409).json({
-                    message: `El número de serie "${serie}" ya pertenece al equipo "${rowsSerie[0].marcaModelo}" (ID: ${rowsSerie[0].idEquipo}). Cada dispositivo físico debe tener un número de serie único.`
-                });
-            }
-
-            // 2. Validación de Código Patrimonial Único (si se suministró)
-            const validarCodPatrimonial = () => {
-                if (!codPat) {
-                    return validarIp();
-                }
-                db.query(
-                    "SELECT idEquipo, marcaModelo, numeroSerie FROM Equipos WHERE LOWER(codPatrimonial) = LOWER(?) LIMIT 1",
-                    [codPat],
-                    (errPat, rowsPat) => {
-                        if (errPat) {
-                            console.error('Error al verificar código patrimonial:', errPat);
-                            return res.status(500).json({ message: 'Error interno al validar código patrimonial.' });
-                        }
-                        if (rowsPat && rowsPat.length > 0) {
-                            return res.status(409).json({
-                                message: `El código patrimonial "${codPat}" ya está asignado al equipo "${rowsPat[0].marcaModelo}" (ID: ${rowsPat[0].idEquipo}). Cada bien patrimonial del TEP debe tener un código único.`
-                            });
-                        }
-                        validarIp();
-                    }
-                );
-            };
-
-            // 3. Validación de Conflicto de IP Fija (dos dispositivos activos no pueden tener la misma IP en red)
-            const validarIp = () => {
-                const esIpMonitoreada = ip !== '0.0.0.0' && 
-                                       ip.toLowerCase() !== 'dhcp' && 
-                                       !ip.toLowerCase().includes('no aplica');
-
-                if (esIpMonitoreada && estado.toLowerCase() !== 'baja') {
-                    db.query(
-                        "SELECT idEquipo, marcaModelo, tipoEquipo FROM Equipos WHERE ipFija = ? AND LOWER(estadoOperativo) != 'baja' LIMIT 1",
-                        [ip],
-                        (checkErr, checkResults) => {
-                            if (checkErr) {
-                                console.error('Error al validar unicidad de IP:', checkErr);
-                                return res.status(500).json({ message: 'Error interno al validar dirección IP.' });
-                            }
-
-                            if (checkResults.length > 0) {
-                                const existente = checkResults[0];
-                                return res.status(409).json({
-                                    message: `Conflicto de red: La dirección IP ${ip} ya está asignada al equipo "${existente.marcaModelo}" (${existente.tipoEquipo}). Dos dispositivos activos no pueden compartir la misma IP.`
-                                });
-                            }
-
-                            ejecutarInsercion();
-                        }
-                    );
-                } else {
-                    ejecutarInsercion();
-                }
-            };
-
-            validarCodPatrimonial();
-        }
-    );
+    });
 };
 
 /**
- * Actualizar datos de un equipo existente con soporte polimórfico (PC / Impresora)
+ * Actualizar datos de un equipo existente con soporte polimórfico, colisión de IP y control de duplicados
  * PUT /api/equipos/:id
  */
 const actualizarEquipo = (req, res) => {
@@ -382,7 +356,7 @@ const actualizarEquipo = (req, res) => {
     }
 
     // 1. Consultar estado previo del equipo
-    db.query('SELECT idSector, marcaModelo, tipoEquipo, codPatrimonial, estadoOperativo FROM Equipos WHERE idEquipo = ?', [id], (findErr, findResults) => {
+    db.query('SELECT idSector, marcaModelo, tipoEquipo, codPatrimonial, estadoOperativo, ipFija FROM Equipos WHERE idEquipo = ?', [id], (findErr, findResults) => {
         if (findErr) {
             console.error('Error al consultar equipo para actualización:', findErr);
             return res.status(500).json({ message: 'Error interno al consultar el equipo.' });
@@ -394,94 +368,142 @@ const actualizarEquipo = (req, res) => {
 
         const equipoPrevio = findResults[0];
 
-        // 2. Construir dinámicamente campos a actualizar respetando NULLs
-        const campos = [];
-        const values = [];
+        // 2. Validar colisión de red (si se actualiza la IP a una distinta de 0.0.0.0)
+        const nuevaIP = ipFija !== undefined ? (ipFija ? ipFija.trim() : '0.0.0.0') : equipoPrevio.ipFija;
+        const nuevoEstado = estadoOperativo !== undefined ? estadoOperativo.trim() : equipoPrevio.estadoOperativo;
 
-        if (codPatrimonial !== undefined) {
-            campos.push('codPatrimonial = ?');
-            values.push(codPatrimonial && codPatrimonial.trim() ? codPatrimonial.trim() : null);
-        }
-        if (tipoEquipo !== undefined) {
-            campos.push('tipoEquipo = ?');
-            values.push(tipoEquipo.trim());
-        }
-        if (marcaModelo !== undefined) {
-            campos.push('marcaModelo = ?');
-            values.push(marcaModelo.trim());
-        }
-        if (numeroSerie !== undefined) {
-            campos.push('numeroSerie = ?');
-            values.push(numeroSerie.trim());
-        }
-        if (ipFija !== undefined) {
-            campos.push('ipFija = ?');
-            values.push(ipFija.trim());
-        }
-        if (mascaraSubred !== undefined) {
-            campos.push('mascaraSubred = ?');
-            values.push(mascaraSubred.trim());
-        }
-        if (workgroup !== undefined) {
-            campos.push('workgroup = ?');
-            values.push(workgroup.trim());
-        }
-        if (estadoOperativo !== undefined) {
-            campos.push('estadoOperativo = ?');
-            values.push(estadoOperativo.trim());
-        }
-        if (idSector !== undefined) {
-            campos.push('idSector = ?');
-            values.push(parseInt(idSector, 10));
-        }
+        const validarColision = (cb) => {
+            if (ipFija !== undefined && nuevaIP !== '0.0.0.0' && nuevaIP !== '' && nuevoEstado !== 'Baja') {
+                const queryColision = "SELECT idEquipo, marcaModelo FROM Equipos WHERE ipFija = ? AND idEquipo != ? AND estadoOperativo != 'Baja' LIMIT 1";
+                db.query(queryColision, [nuevaIP, id], (errCol, resCol) => {
+                    if (errCol) return cb(errCol);
+                    if (resCol.length > 0) {
+                        return cb({
+                            isCollision: true,
+                            message: `Conflicto de red: la dirección IP "${nuevaIP}" ya está asignada al equipo activo ID ${resCol[0].idEquipo} (${resCol[0].marcaModelo}).`
+                        });
+                    }
+                    cb(null);
+                });
+            } else {
+                cb(null);
+            }
+        };
 
-        // Atributos de Computadora
-        if (procesador !== undefined) {
-            campos.push('procesador = ?');
-            values.push(procesador && procesador.trim() ? procesador.trim() : null);
-        }
-        if (memoriaRAM !== undefined) {
-            campos.push('memoriaRAM = ?');
-            values.push(memoriaRAM && memoriaRAM.trim() ? memoriaRAM.trim() : null);
-        }
-        if (almacenamiento !== undefined) {
-            campos.push('almacenamiento = ?');
-            values.push(almacenamiento && almacenamiento.trim() ? almacenamiento.trim() : null);
-        }
-        if (sistemaOperativo !== undefined) {
-            campos.push('sistemaOperativo = ?');
-            values.push(sistemaOperativo && sistemaOperativo.trim() ? sistemaOperativo.trim() : null);
-        }
+        validarColision((errCol) => {
+            if (errCol) {
+                if (errCol.isCollision) {
+                    return res.status(409).json({ message: errCol.message });
+                }
+                console.error('Error al verificar colisión de IP:', errCol);
+                return res.status(500).json({ message: 'Error al verificar disponibilidad de IP.' });
+            }
 
-        // Atributos de Impresora
-        if (tecnologiaImpresion !== undefined) {
-            campos.push('tecnologiaImpresion = ?');
-            values.push(tecnologiaImpresion && tecnologiaImpresion.trim() ? tecnologiaImpresion.trim() : null);
-        }
-        if (tipoConexion !== undefined) {
-            campos.push('tipoConexion = ?');
-            values.push(tipoConexion && tipoConexion.trim() ? tipoConexion.trim() : null);
-        }
-        if (formatoPapel !== undefined) {
-            campos.push('formatoPapel = ?');
-            values.push(formatoPapel && formatoPapel.trim() ? formatoPapel.trim() : null);
-        }
-        if (idInsumoCompatible !== undefined) {
-            campos.push('idInsumoCompatible = ?');
-            values.push(idInsumoCompatible ? parseInt(idInsumoCompatible, 10) : null);
-        }
+            // 3. Construir dinámicamente campos a actualizar respetando NULLs
+            const campos = [];
+            const values = [];
 
-        if (campos.length === 0) {
-            return res.status(400).json({ message: 'No se enviaron campos para actualizar.' });
-        }
+            if (codPatrimonial !== undefined) {
+                campos.push('codPatrimonial = ?');
+                values.push(codPatrimonial && codPatrimonial.trim() ? codPatrimonial.trim() : null);
+            }
+            if (tipoEquipo !== undefined) {
+                campos.push('tipoEquipo = ?');
+                values.push(tipoEquipo.trim());
+            }
+            if (marcaModelo !== undefined) {
+                campos.push('marcaModelo = ?');
+                values.push(marcaModelo.trim());
+            }
+            if (numeroSerie !== undefined) {
+                campos.push('numeroSerie = ?');
+                values.push(numeroSerie.trim());
+            }
+            if (ipFija !== undefined) {
+                campos.push('ipFija = ?');
+                values.push(ipFija.trim());
+            }
+            if (mascaraSubred !== undefined) {
+                campos.push('mascaraSubred = ?');
+                values.push(mascaraSubred.trim());
+            }
+            if (workgroup !== undefined) {
+                campos.push('workgroup = ?');
+                values.push(workgroup.trim());
+            }
+            if (estadoOperativo !== undefined) {
+                campos.push('estadoOperativo = ?');
+                values.push(estadoOperativo.trim());
+            }
+            if (idSector !== undefined) {
+                campos.push('idSector = ?');
+                values.push(parseInt(idSector, 10));
+            }
 
-        const ejecutarActualizacion = () => {
+            // Atributos de Computadora
+            if (procesador !== undefined) {
+                campos.push('procesador = ?');
+                values.push(procesador && procesador.trim() ? procesador.trim() : null);
+            }
+            if (memoriaRAM !== undefined) {
+                campos.push('memoriaRAM = ?');
+                values.push(memoriaRAM && memoriaRAM.trim() ? memoriaRAM.trim() : null);
+            }
+            if (almacenamiento !== undefined) {
+                campos.push('almacenamiento = ?');
+                values.push(almacenamiento && almacenamiento.trim() ? almacenamiento.trim() : null);
+            }
+            if (sistemaOperativo !== undefined) {
+                campos.push('sistemaOperativo = ?');
+                values.push(sistemaOperativo && sistemaOperativo.trim() ? sistemaOperativo.trim() : null);
+            }
+
+            // Atributos de Impresora
+            if (tecnologiaImpresion !== undefined) {
+                campos.push('tecnologiaImpresion = ?');
+                values.push(tecnologiaImpresion && tecnologiaImpresion.trim() ? tecnologiaImpresion.trim() : null);
+            }
+            if (tipoConexion !== undefined) {
+                campos.push('tipoConexion = ?');
+                values.push(tipoConexion && tipoConexion.trim() ? tipoConexion.trim() : null);
+            }
+            if (formatoPapel !== undefined) {
+                campos.push('formatoPapel = ?');
+                values.push(formatoPapel && formatoPapel.trim() ? formatoPapel.trim() : null);
+            }
+            if (idInsumoCompatible !== undefined) {
+                campos.push('idInsumoCompatible = ?');
+                values.push(idInsumoCompatible ? parseInt(idInsumoCompatible, 10) : null);
+            }
+
+            if (campos.length === 0) {
+                return res.status(400).json({ message: 'No se enviaron campos para actualizar.' });
+            }
+
             const query = `UPDATE Equipos SET ${campos.join(', ')} WHERE idEquipo = ?`;
             values.push(id);
 
             db.query(query, values, async (err, result) => {
                 if (err) {
                     console.error('Error al actualizar equipo:', err);
+
+                    // Captura de duplicidad en actualización -> 409 Conflict
+                    if (err.code === 'ER_DUP_ENTRY') {
+                        const sqlMsg = err.sqlMessage || '';
+                        if (sqlMsg.includes('uq_codPatrimonial') || sqlMsg.includes('codPatrimonial')) {
+                            return res.status(409).json({ 
+                                message: 'Conflicto de duplicidad: el código patrimonial ingresado ya pertenece a otro equipo.' 
+                            });
+                        }
+                        if (sqlMsg.includes('uq_numeroSerie') || sqlMsg.includes('numeroSerie')) {
+                            return res.status(409).json({ 
+                                message: 'Conflicto de duplicidad: el número de serie ingresado ya pertenece a otro equipo.' 
+                            });
+                        }
+                        return res.status(409).json({ 
+                            message: 'Conflicto de duplicidad: ya existe un equipo con ese código patrimonial o número de serie.' 
+                        });
+                    }
 
                     if (err.code === 'ER_NO_REFERENCED_ROW_2' || err.code === 'ER_NO_REFERENCED_ROW') {
                         return res.status(400).json({ 
@@ -494,10 +516,9 @@ const actualizarEquipo = (req, res) => {
                     });
                 }
 
-                // 3. Side-effects: Disparar Historial de traslado o baja si hubo cambio
+                // 4. Side-effects: Disparar Historial de traslado o baja si hubo cambio
                 try {
                     const nuevoSectorId = idSector !== undefined ? parseInt(idSector, 10) : equipoPrevio.idSector;
-                    const nuevoEstado = estadoOperativo !== undefined ? estadoOperativo.trim() : equipoPrevio.estadoOperativo;
 
                     // Caso A: Cambio de Sector físico (Traslado)
                     if (idSector !== undefined && nuevoSectorId !== equipoPrevio.idSector) {
@@ -522,7 +543,7 @@ const actualizarEquipo = (req, res) => {
                     // Registro en Log_Auditoria
                     await registrarAuditoria(
                         idUsuario,
-                        `Actualización de equipo ID ${id} [${tipoEquipo || equipoPrevio.tipoEquipo}]: ${marcaModelo || equipoPrevio.marcaModelo}`,
+                        `Actualización de equipo ID ${id} [${tipoEquipo || equipoPrevio.tipoEquipo}]: ${marcaModelo || equipoPrevio.marcaModelo} (Estado: ${nuevoEstado})`,
                         'Equipos'
                     );
 
@@ -535,87 +556,7 @@ const actualizarEquipo = (req, res) => {
                     idEquipo: Number(id)
                 });
             });
-        };
-
-        // 1. Validar unicidad de número de serie si se actualizó
-        const validarSerie = (callback) => {
-            if (numeroSerie === undefined || !numeroSerie.trim()) return callback();
-            const serieTarget = numeroSerie.trim();
-            db.query(
-                "SELECT idEquipo, marcaModelo FROM Equipos WHERE LOWER(numeroSerie) = LOWER(?) AND idEquipo != ? LIMIT 1",
-                [serieTarget, id],
-                (errS, rowsS) => {
-                    if (errS) {
-                        console.error('Error al validar número de serie:', errS);
-                        return res.status(500).json({ message: 'Error interno al validar número de serie.' });
-                    }
-                    if (rowsS && rowsS.length > 0) {
-                        return res.status(409).json({
-                            message: `El número de serie "${serieTarget}" ya está registrado en el equipo "${rowsS[0].marcaModelo}" (ID: ${rowsS[0].idEquipo}). Cada dispositivo debe tener un número de serie único.`
-                        });
-                    }
-                    callback();
-                }
-            );
-        };
-
-        // 2. Validar unicidad de código patrimonial si se actualizó
-        const validarCodPatrimonial = (callback) => {
-            if (codPatrimonial === undefined || !codPatrimonial || !codPatrimonial.trim()) return callback();
-            const patTarget = codPatrimonial.trim();
-            db.query(
-                "SELECT idEquipo, marcaModelo FROM Equipos WHERE LOWER(codPatrimonial) = LOWER(?) AND idEquipo != ? LIMIT 1",
-                [patTarget, id],
-                (errP, rowsP) => {
-                    if (errP) {
-                        console.error('Error al validar código patrimonial:', errP);
-                        return res.status(500).json({ message: 'Error interno al validar código patrimonial.' });
-                    }
-                    if (rowsP && rowsP.length > 0) {
-                        return res.status(409).json({
-                            message: `El código patrimonial "${patTarget}" ya está asignado al equipo "${rowsP[0].marcaModelo}" (ID: ${rowsP[0].idEquipo}). Los códigos patrimoniales son únicos en el Tribunal.`
-                        });
-                    }
-                    callback();
-                }
-            );
-        };
-
-        // 3. Validación de duplicidad de IP en actualización
-        const validarIp = () => {
-            const ipAValidar = ipFija !== undefined ? ipFija.trim() : null;
-            const estadoAValidar = estadoOperativo !== undefined ? estadoOperativo.trim() : equipoPrevio.estadoOperativo;
-            const esIpMonitoreada = ipAValidar && 
-                                   ipAValidar !== '0.0.0.0' && 
-                                   ipAValidar.toLowerCase() !== 'dhcp' && 
-                                   !ipAValidar.toLowerCase().includes('no aplica');
-
-            if (esIpMonitoreada && estadoAValidar.toLowerCase() !== 'baja') {
-                db.query(
-                    "SELECT idEquipo, marcaModelo, tipoEquipo FROM Equipos WHERE ipFija = ? AND LOWER(estadoOperativo) != 'baja' AND idEquipo != ? LIMIT 1",
-                    [ipAValidar, id],
-                    (checkErr, checkResults) => {
-                        if (checkErr) {
-                            console.error('Error al validar unicidad de IP en actualización:', checkErr);
-                            return res.status(500).json({ message: 'Error interno al validar IP.' });
-                        }
-
-                        if (checkResults.length > 0) {
-                            const eq = checkResults[0];
-                            return res.status(409).json({
-                                message: `Conflicto de red: La dirección IP ${ipAValidar} ya está asignada al equipo "${eq.marcaModelo}" (${eq.tipoEquipo}). Dos dispositivos activos no pueden compartir la misma IP.`
-                            });
-                        }
-
-                        ejecutarActualizacion();
-                    }
-                );
-            } else {
-                ejecutarActualizacion();
-            }
-        };
-
-        validarSerie(() => validarCodPatrimonial(validarIp));
+        });
     });
 };
 
@@ -681,7 +622,7 @@ const eliminarEquipo = (req, res) => {
             return;
         }
 
-        // Baja lógica estándar
+        // Baja lógica estándar (normativa judicial del Tribunal)
         const queryBaja = "UPDATE Equipos SET estadoOperativo = 'Baja' WHERE idEquipo = ?";
 
         db.query(queryBaja, [id], async (err, result) => {

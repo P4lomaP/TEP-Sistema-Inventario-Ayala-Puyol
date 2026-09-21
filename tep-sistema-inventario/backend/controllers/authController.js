@@ -1,12 +1,14 @@
 const db = require('../database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { registrarAuditoria } = require('../utils/auditoriaHelper');
 
 // Clave secreta para firmar el JWT obtenida desde variables de entorno (.env) o fallback seguro
 const JWT_SECRET = process.env.JWT_SECRET || 'una_clave_larga_y_segura_para_el_tribunal';
 
 /**
  * Controlador para el inicio de sesión (Login)
+ * Token con expiración a 30m para cumplir con el cierre automático por inactividad
  */
 const login = async (req, res) => {
     const { username, password } = req.body;
@@ -54,7 +56,7 @@ const login = async (req, res) => {
                 });
             }
 
-            // Generar token JWT con idUsuario y rolAcceso
+            // Generar token JWT con tiempo de expiración de 30 minutos (inactividad)
             const token = jwt.sign(
                 { 
                     idUsuario: usuario.idUsuario, 
@@ -62,10 +64,13 @@ const login = async (req, res) => {
                     rolAcceso: usuario.rolAcceso 
                 },
                 JWT_SECRET,
-                { expiresIn: '8h' }
+                { expiresIn: '30m' }
             );
 
-            // Respuesta exitosa (sin exponer la contraseña)
+            // Registrar auditoría de inicio de sesión exitoso
+            registrarAuditoria(usuario.idUsuario, `Inicio de sesión exitoso para ${usuario.username}`, 'Seguridad').catch(() => {});
+
+            // Respuesta exitosa (sin exponer la contraseña ni el pin)
             return res.status(200).json({
                 message: '¡Inicio de sesión exitoso!',
                 token,
@@ -89,7 +94,7 @@ const login = async (req, res) => {
  * Controlador para el registro de nuevos operadores (Register)
  */
 const register = async (req, res) => {
-    const { username, password, rolAcceso } = req.body;
+    const { username, password, rolAcceso, pinRecuperacion } = req.body;
 
     // Validación de campos requeridos
     if (!username || !password) {
@@ -133,13 +138,14 @@ const register = async (req, res) => {
             // Hashear contraseña con bcrypt
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(password, saltRounds);
+            const pin = pinRecuperacion ? String(pinRecuperacion).trim() : null;
 
             const insertQuery = `
-                INSERT INTO Usuarios (username, password, rolAcceso, estadoActivo)
-                VALUES (?, ?, ?, 1)
+                INSERT INTO Usuarios (username, password, rolAcceso, estadoActivo, pinRecuperacion)
+                VALUES (?, ?, ?, 1, ?)
             `;
 
-            db.query(insertQuery, [username, hashedPassword, rol], (errInsert, result) => {
+            db.query(insertQuery, [username, hashedPassword, rol, pin], (errInsert, result) => {
                 if (errInsert) {
                     console.error('Error al insertar nuevo usuario:', errInsert);
                     return res.status(500).json({ 
@@ -166,7 +172,83 @@ const register = async (req, res) => {
     });
 };
 
+/**
+ * Endpoint para blanquear/recuperar contraseña validando username y pinRecuperacion
+ * POST /api/auth/recuperar-password
+ */
+const recuperarPassword = async (req, res) => {
+    const { username, pinRecuperacion, nuevaPassword, password } = req.body;
+    const newPassword = nuevaPassword || password;
+
+    if (!username || !pinRecuperacion || !newPassword) {
+        return res.status(400).json({ 
+            message: 'Nombre de usuario, PIN de recuperación y nueva contraseña son obligatorios.' 
+        });
+    }
+
+    if (newPassword.length < 8) {
+        return res.status(400).json({ 
+            message: 'La nueva contraseña debe contener al menos 8 caracteres.' 
+        });
+    }
+
+    const query = 'SELECT idUsuario, username, pinRecuperacion, estadoActivo FROM Usuarios WHERE username = ?';
+
+    db.query(query, [username.trim()], async (err, results) => {
+        if (err) {
+            console.error('Error al consultar usuario para recuperación:', err);
+            return res.status(500).json({ message: 'Error interno del servidor.' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
+
+        const usuario = results[0];
+
+        if (usuario.estadoActivo !== 1) {
+            return res.status(403).json({ message: 'Usuario inactivo o deshabilitado.' });
+        }
+
+        // Validación estricta de PIN sin requerir envíos de emails externos
+        if (!usuario.pinRecuperacion || usuario.pinRecuperacion.trim() !== String(pinRecuperacion).trim()) {
+            return res.status(401).json({ 
+                message: 'El PIN de recuperación es incorrecto o no ha sido asignado.' 
+            });
+        }
+
+        try {
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+            const updateQuery = 'UPDATE Usuarios SET password = ? WHERE idUsuario = ?';
+            db.query(updateQuery, [hashedPassword, usuario.idUsuario], async (updateErr) => {
+                if (updateErr) {
+                    console.error('Error al actualizar contraseña:', updateErr);
+                    return res.status(500).json({ message: 'Error al actualizar la contraseña.' });
+                }
+
+                // Registrar evento en auditoría
+                registrarAuditoria(
+                    usuario.idUsuario,
+                    `Blanqueo de contraseña exitoso mediante PIN para usuario ${usuario.username}`,
+                    'Seguridad'
+                ).catch(() => {});
+
+                return res.status(200).json({
+                    message: 'Contraseña actualizada exitosamente. Ya puede iniciar sesión con su nueva clave.'
+                });
+            });
+
+        } catch (error) {
+            console.error('Error al encriptar nueva contraseña:', error);
+            return res.status(500).json({ message: 'Error al procesar la nueva contraseña.' });
+        }
+    });
+};
+
 module.exports = {
     login,
-    register
+    register,
+    recuperarPassword
 };

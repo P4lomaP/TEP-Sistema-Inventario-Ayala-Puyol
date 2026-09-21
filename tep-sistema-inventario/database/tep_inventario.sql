@@ -169,7 +169,8 @@ CREATE TABLE `movimientos` (
   `tipoMovimiento` varchar(45) NOT NULL,
   `comprobanteRef` varchar(50) NOT NULL,
   `agenteReceptor` varchar(100) DEFAULT NULL,
-  `idUsuario` int NOT NULL
+  `idUsuario` int NOT NULL,
+  `estado` varchar(50) NOT NULL DEFAULT 'Activo'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
@@ -210,7 +211,8 @@ CREATE TABLE `usuarios` (
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
   `rolAcceso` varchar(255) NOT NULL,
-  `estadoActivo` tinyint NOT NULL
+  `estadoActivo` tinyint NOT NULL,
+  `pinRecuperacion` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
@@ -238,6 +240,8 @@ ALTER TABLE `detalle_movimientos`
 --
 ALTER TABLE `equipos`
   ADD PRIMARY KEY (`idEquipo`),
+  ADD UNIQUE KEY `uq_codPatrimonial` (`codPatrimonial`),
+  ADD UNIQUE KEY `uq_numeroSerie` (`numeroSerie`),
   ADD KEY `fk_Equipos_Sectores1_idx` (`idSector`),
   ADD KEY `fk_equipos_insumo` (`idInsumoCompatible`);
 
