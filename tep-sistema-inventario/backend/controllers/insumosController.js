@@ -62,8 +62,10 @@ const crearInsumo = (req, res) => {
     const stockSeg = stockSeguridad !== undefined ? parseInt(stockSeguridad, 10) : 0;
     const fila = ubicacionFila ? ubicacionFila.trim() : '';
     const columna = ubicacionColumna ? ubicacionColumna.trim() : '';
-    // Si no tiene fecha de vencimiento (insumos no químicos), se guarda una fecha límite lejana o la recibida
-    const fecha = fechaVencimiento ? fechaVencimiento : '9999-12-31';
+
+    // Los periféricos no llevan fecha de vencimiento (valor NULL). Para insumos consumibles, si no se especifica, se guarda NULL.
+    const esPeriferico = categoria.trim().toLowerCase().startsWith('perif');
+    const fecha = esPeriferico || !fechaVencimiento || fechaVencimiento === '9999-12-31' ? null : fechaVencimiento;
 
     const query = `
         INSERT INTO Insumos (
@@ -147,30 +149,59 @@ const actualizarInsumo = (req, res) => {
         });
     }
 
-    const query = `
-        UPDATE Insumos SET
-            codigoInterno = COALESCE(?, codigoInterno),
-            descripcion = COALESCE(?, descripcion),
-            categoria = COALESCE(?, categoria),
-            stockActual = COALESCE(?, stockActual),
-            stockSeguridad = COALESCE(?, stockSeguridad),
-            ubicacionFila = COALESCE(?, ubicacionFila),
-            ubicacionColumna = COALESCE(?, ubicacionColumna),
-            fechaVencimiento = COALESCE(?, fechaVencimiento)
-        WHERE idInsumo = ? AND estadoActivo = 1
-    `;
+    const campos = [];
+    const values = [];
 
-    const values = [
-        codigoInterno !== undefined ? codigoInterno.trim() : null,
-        descripcion !== undefined ? descripcion.trim() : null,
-        categoria !== undefined ? categoria.trim() : null,
-        stockActual !== undefined ? parseInt(stockActual, 10) : null,
-        stockSeguridad !== undefined ? parseInt(stockSeguridad, 10) : null,
-        ubicacionFila !== undefined ? ubicacionFila.trim() : null,
-        ubicacionColumna !== undefined ? ubicacionColumna.trim() : null,
-        fechaVencimiento !== undefined ? fechaVencimiento : null,
-        id
-    ];
+    if (codigoInterno !== undefined) {
+        campos.push('codigoInterno = ?');
+        values.push(codigoInterno.trim());
+    }
+    if (descripcion !== undefined) {
+        campos.push('descripcion = ?');
+        values.push(descripcion.trim());
+    }
+    if (categoria !== undefined) {
+        campos.push('categoria = ?');
+        values.push(categoria.trim());
+    }
+    if (stockActual !== undefined) {
+        campos.push('stockActual = ?');
+        values.push(parseInt(stockActual, 10));
+    }
+    if (stockSeguridad !== undefined) {
+        campos.push('stockSeguridad = ?');
+        values.push(parseInt(stockSeguridad, 10));
+    }
+    if (ubicacionFila !== undefined) {
+        campos.push('ubicacionFila = ?');
+        values.push(ubicacionFila.trim());
+    }
+    if (ubicacionColumna !== undefined) {
+        campos.push('ubicacionColumna = ?');
+        values.push(ubicacionColumna.trim());
+    }
+
+    // Manejo de fecha de vencimiento: si la categoría es periférico, forzar a NULL
+    const esPeriferico = categoria && categoria.trim().toLowerCase().startsWith('perif');
+    if (esPeriferico) {
+        campos.push('fechaVencimiento = NULL');
+    } else if (fechaVencimiento !== undefined) {
+        if (!fechaVencimiento || fechaVencimiento === '9999-12-31') {
+            campos.push('fechaVencimiento = NULL');
+        } else {
+            campos.push('fechaVencimiento = ?');
+            values.push(fechaVencimiento);
+        }
+    }
+
+    if (campos.length === 0) {
+        return res.status(400).json({ 
+            message: 'No se enviaron campos válidos para actualizar.' 
+        });
+    }
+
+    values.push(id);
+    const query = `UPDATE Insumos SET ${campos.join(', ')} WHERE idInsumo = ? AND estadoActivo = 1`;
 
     db.query(query, values, (err, result) => {
         if (err) {

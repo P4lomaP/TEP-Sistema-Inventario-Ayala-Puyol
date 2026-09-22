@@ -1,3 +1,5 @@
+import { authFetch } from './authService';
+
 const BASE_URL = 'http://localhost:3000/api/equipos';
 
 /**
@@ -7,7 +9,7 @@ const BASE_URL = 'http://localhost:3000/api/equipos';
 export async function listarEquipos() {
   let response;
   try {
-    response = await fetch(BASE_URL);
+    response = await authFetch(BASE_URL);
   } catch {
     throw new Error('No se pudo conectar con el servidor backend (http://localhost:3000). Verifique que esté iniciado.');
   }
@@ -57,11 +59,8 @@ export async function crearEquipo(equipoData) {
 
   let response;
   try {
-    response = await fetch(BASE_URL, {
+    response = await authFetch(BASE_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(payload),
     });
   } catch {
@@ -117,11 +116,8 @@ export async function actualizarEquipo(idEquipo, equipoData) {
 
   let response;
   try {
-    response = await fetch(`${BASE_URL}/${idEquipo}`, {
+    response = await authFetch(`${BASE_URL}/${idEquipo}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(payload),
     });
   } catch {
@@ -146,11 +142,8 @@ export async function actualizarEquipo(idEquipo, equipoData) {
 export async function darDeBajaEquipo(idEquipo, motivoBaja = 'Baja patrimonial / descarte definitivo') {
   let response;
   try {
-    response = await fetch(`${BASE_URL}/${idEquipo}`, {
+    response = await authFetch(`${BASE_URL}/${idEquipo}`, {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify({ motivoBaja }),
     });
   } catch {
@@ -174,7 +167,7 @@ export async function darDeBajaEquipo(idEquipo, motivoBaja = 'Baja patrimonial /
 export async function obtenerHistorialEquipo(idEquipo) {
   let response;
   try {
-    response = await fetch(`${BASE_URL}/${idEquipo}/historial`);
+    response = await authFetch(`${BASE_URL}/${idEquipo}/historial`);
   } catch {
     throw new Error('No se pudo conectar con el servidor backend (http://localhost:3000).');
   }

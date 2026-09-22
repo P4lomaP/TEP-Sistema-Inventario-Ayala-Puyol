@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { X, PlusCircle, AlertCircle } from 'lucide-react';
+import { X, PlusCircle, AlertCircle, Info } from 'lucide-react';
 
 export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
   // 1. ZONA JAVASCRIPT: Estados vinculados a las columnas de la tabla 'insumos'
   const [formData, setFormData] = useState({
     codigoInterno: '',
     descripcion: '',
-    categoria: 'Hardware',
+    categoria: 'Insumo',
     stockActual: 0,
     stockSeguridad: 5,
     ubicacionFila: '',
@@ -20,14 +20,23 @@ export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
 
   if (!isOpen) return null;
 
-  // Manejador genérico de campos
+  // Manejador genérico de campos con limpieza de fecha para periféricos
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? (checked ? 1 : 0) : value
-    }));
+    setFormData((prev) => {
+      const nuevo = {
+        ...prev,
+        [name]: type === 'checkbox' ? (checked ? 1 : 0) : value
+      };
+      // Si se selecciona la categoría Periférico, la fecha de vencimiento pasa automáticamente a vacía/null
+      if (name === 'categoria' && value === 'Periférico') {
+        nuevo.fechaVencimiento = '';
+      }
+      return nuevo;
+    });
   };
+
+  const esPeriferico = formData.categoria === 'Periférico';
 
   // 2. FUNCIÓN DE ENVÍO: Validación y guardado en backend
   const handleSubmit = async (e) => {
@@ -49,12 +58,14 @@ export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
       await onSave({
         ...formData,
         stockActual: Number(formData.stockActual),
-        stockSeguridad: Number(formData.stockSeguridad)
+        stockSeguridad: Number(formData.stockSeguridad),
+        // Si es periférico el valor enviado es null; si es insumo y no se ingresó fecha también es null
+        fechaVencimiento: esPeriferico ? null : (formData.fechaVencimiento || null)
       });
       setFormData({
         codigoInterno: '',
         descripcion: '',
-        categoria: 'Hardware',
+        categoria: 'Insumo',
         stockActual: 0,
         stockSeguridad: 5,
         ubicacionFila: '',
@@ -84,7 +95,7 @@ export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
         {/* Encabezado del Modal */}
         <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
-            <h3 className="text-lg font-bold text-slate-800">Registrar Nuevo Insumo</h3>
+            <h3 className="text-lg font-bold text-slate-800">Registrar Nuevo Insumo / Periférico</h3>
             <p className="text-xs text-slate-400">Complete los datos técnicos para el inventario institucional</p>
           </div>
           <button 
@@ -114,7 +125,7 @@ export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
                 name="codigoInterno"
                 value={formData.codigoInterno}
                 onChange={handleChange}
-                placeholder="Ej. INS-009"
+                placeholder="Ej. INS-009 o PER-001"
                 required
                 className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
               />
@@ -125,28 +136,23 @@ export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
                 name="categoria"
                 value={formData.categoria}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white"
+                className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white font-medium text-slate-700"
               >
-                <option value="Hardware">Hardware</option>
-                <option value="Equipos">Equipos</option>
-                <option value="Periféricos">Periféricos</option>
-                <option value="Cables">Cables</option>
-                <option value="Multimedia">Multimedia</option>
-                <option value="Mobiliario">Mobiliario</option>
-                <option value="Consumibles">Consumibles</option>
+                <option value="Insumo">Insumo (Consumibles, tóner, hojas, tintas)</option>
+                <option value="Periférico">Periférico (Mouse, teclado, etc.)</option>
               </select>
             </div>
           </div>
 
           {/* Fila 2: Descripción amplia */}
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">Descripción del Insumo</label>
+            <label className="block text-xs font-semibold text-slate-600 mb-1">Descripción del Insumo / Periférico</label>
             <textarea
               name="descripcion"
               rows={2}
               value={formData.descripcion}
               onChange={handleChange}
-              placeholder="Ej. Tóner Láser HP 85A Negro original para impresora de secretaría..."
+              placeholder={esPeriferico ? "Ej. Mouse Óptico USB Genius DX-120 Negro..." : "Ej. Tóner Láser HP 85A Negro original para impresora de secretaría..."}
               required
               className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 resize-none"
             />
@@ -211,15 +217,23 @@ export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
           {/* Fila 5: Vencimiento y Estado Activo */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center pt-1">
             <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">Fecha de Vencimiento / Garantía</label>
-              <input
-                type="date"
-                name="fechaVencimiento"
-                value={formData.fechaVencimiento}
-                onChange={handleChange}
-                required
-                className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-700"
-              />
+              <label className="block text-xs font-semibold text-slate-600 mb-1">
+                Fecha de Vencimiento / Caducidad
+              </label>
+              {esPeriferico ? (
+                <div className="w-full px-3 py-2 text-xs border border-dashed border-slate-200 rounded-xl bg-slate-50 text-slate-400 flex items-center gap-1.5 select-none">
+                  <Info size={14} className="text-slate-400 shrink-0" />
+                  <span>No aplica a periféricos (sin vencimiento)</span>
+                </div>
+              ) : (
+                <input
+                  type="date"
+                  name="fechaVencimiento"
+                  value={formData.fechaVencimiento}
+                  onChange={handleChange}
+                  className="w-full px-3.5 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-700"
+                />
+              )}
             </div>
             <div className="flex items-center gap-2 pt-4 sm:pt-5">
               <input
@@ -228,9 +242,9 @@ export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
                 name="estadoActivo"
                 checked={formData.estadoActivo === 1}
                 onChange={handleChange}
-                className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer"
               />
-              <label htmlFor="estadoActivo" className="text-xs font-medium text-slate-700 cursor-pointer">
+              <label htmlFor="estadoActivo" className="text-xs font-medium text-slate-700 cursor-pointer select-none">
                 Insumo Activo para Despacho
               </label>
             </div>

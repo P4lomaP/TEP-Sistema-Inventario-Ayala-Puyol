@@ -110,12 +110,13 @@ export default function Insumos() {
   // Cálculo dinámico del estado de observación para cada insumo
   const getObservacionInfo = (item) => {
     const isCritico = Number(item.stockActual) <= Number(item.stockSeguridad);
+    const esPeriferico = (item.categoria || '').toLowerCase().startsWith('perif');
     let isProximoVencer = false;
     let isVencido = false;
     let diasRestantes = null;
 
-    if (item.fechaVencimiento && item.fechaVencimiento !== '9999-12-31') {
-      const fechaActual = new Date('2026-09-17');
+    if (!esPeriferico && item.fechaVencimiento && item.fechaVencimiento !== '9999-12-31') {
+      const fechaActual = new Date();
       const fechaVenc = new Date(item.fechaVencimiento);
       const diffTime = fechaVenc - fechaActual;
       diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -186,8 +187,14 @@ export default function Insumos() {
     const coincideTexto = 
       (item.codigoInterno || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (item.descripcion || '').toLowerCase().includes(searchTerm.toLowerCase());
-    const coincideCategoria = 
-      categoriaFiltro === 'Todas' || item.categoria === categoriaFiltro;
+    
+    let coincideCategoria = true;
+    if (categoriaFiltro === 'Insumo') {
+      coincideCategoria = item.categoria === 'Insumo' || (!item.categoria?.toLowerCase().startsWith('perif'));
+    } else if (categoriaFiltro === 'Periférico') {
+      coincideCategoria = item.categoria === 'Periférico' || item.categoria?.toLowerCase().startsWith('perif');
+    }
+
     return coincideTexto && coincideCategoria;
   });
 
@@ -287,14 +294,8 @@ export default function Insumos() {
                 className="px-3 py-2 border border-slate-200 rounded-xl text-xs font-medium text-slate-600 bg-white hover:bg-slate-50 focus:outline-none focus:border-blue-600 transition cursor-pointer"
               >
                 <option value="Todas">Todas las Categorías</option>
-                <option value="Hardware">Hardware</option>
-                <option value="Equipos">Equipos</option>
-                <option value="Periféricos">Periféricos</option>
-                <option value="Cables">Cables</option>
-                <option value="Multimedia">Multimedia</option>
-                <option value="Mobiliario">Mobiliario</option>
-                <option value="Consumibles">Consumibles</option>
-                <option value="Tóner">Tóner</option>
+                <option value="Insumo">Insumos (Consumibles)</option>
+                <option value="Periférico">Periféricos (Hardware)</option>
               </select>
             </div>
 

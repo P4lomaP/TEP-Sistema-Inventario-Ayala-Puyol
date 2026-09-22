@@ -1,3 +1,5 @@
+import { authFetch } from './authService';
+
 const BASE_URL = 'http://localhost:3000/api/compatibilidad';
 
 /**
@@ -7,7 +9,7 @@ const BASE_URL = 'http://localhost:3000/api/compatibilidad';
 export async function listarCompatibilidades() {
   let response;
   try {
-    response = await fetch(BASE_URL);
+    response = await authFetch(BASE_URL);
   } catch {
     throw new Error('No se pudo conectar con el servidor backend (http://localhost:3000). Verifique que esté iniciado.');
   }
@@ -26,7 +28,7 @@ export async function listarCompatibilidades() {
  * GET /api/compatibilidad/equipo/:idEquipo
  */
 export async function obtenerInsumosPorEquipo(idEquipo) {
-  const response = await fetch(`${BASE_URL}/equipo/${idEquipo}`);
+  const response = await authFetch(`${BASE_URL}/equipo/${idEquipo}`);
   const data = await response.json();
 
   if (!response.ok) {
@@ -41,7 +43,7 @@ export async function obtenerInsumosPorEquipo(idEquipo) {
  * GET /api/compatibilidad/insumo/:idInsumo
  */
 export async function obtenerEquiposPorInsumo(idInsumo) {
-  const response = await fetch(`${BASE_URL}/insumo/${idInsumo}`);
+  const response = await authFetch(`${BASE_URL}/insumo/${idInsumo}`);
   const data = await response.json();
 
   if (!response.ok) {
@@ -59,11 +61,8 @@ export async function obtenerEquiposPorInsumo(idInsumo) {
  * @param {number|string} [idUsuario]
  */
 export async function crearCompatibilidad(idInsumo, idEquipo, idUsuario = 1) {
-  const response = await fetch(BASE_URL, {
+  const response = await authFetch(BASE_URL, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       idInsumo: Number(idInsumo),
       idEquipo: Number(idEquipo),
@@ -87,11 +86,8 @@ export async function crearCompatibilidad(idInsumo, idEquipo, idUsuario = 1) {
  * @param {number|string} [idUsuario]
  */
 export async function eliminarCompatibilidad(idRegla, idUsuario = 1) {
-  const response = await fetch(`${BASE_URL}/${idRegla}`, {
+  const response = await authFetch(`${BASE_URL}/${idRegla}`, {
     method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       idUsuario: Number(idUsuario || 1),
     }),
@@ -105,3 +101,4 @@ export async function eliminarCompatibilidad(idRegla, idUsuario = 1) {
 
   return data;
 }
+

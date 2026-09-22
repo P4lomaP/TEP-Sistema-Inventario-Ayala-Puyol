@@ -1,3 +1,5 @@
+import { authFetch } from './authService';
+
 const BASE_URL = 'http://localhost:3000/api/sectores';
 
 /**
@@ -7,8 +9,11 @@ const BASE_URL = 'http://localhost:3000/api/sectores';
 export async function listarSectores() {
   let response;
   try {
-    response = await fetch(BASE_URL);
-  } catch {
+    response = await authFetch(BASE_URL);
+  } catch (err) {
+    if (err.message && !err.message.includes('servidor backend')) {
+      throw err;
+    }
     throw new Error('No se pudo conectar con el servidor backend (http://localhost:3000).');
   }
 
@@ -34,14 +39,14 @@ export async function crearSector(sectorData) {
 
   let response;
   try {
-    response = await fetch(BASE_URL, {
+    response = await authFetch(BASE_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(payload),
     });
-  } catch {
+  } catch (err) {
+    if (err.message && !err.message.includes('servidor backend')) {
+      throw err;
+    }
     throw new Error('No se pudo conectar con el servidor backend (http://localhost:3000).');
   }
 
@@ -53,3 +58,4 @@ export async function crearSector(sectorData) {
 
   return data;
 }
+

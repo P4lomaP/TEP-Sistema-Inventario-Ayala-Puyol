@@ -6,6 +6,7 @@ import Insumos from './pages/Insumos';
 import Equipos from './pages/Equipos';
 import Movimientos from './pages/Movimientos';
 import Compatibilidad from './pages/Compatibilidad';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Envoltorio para Login con navegación por URL
 function LoginPage() {
@@ -32,23 +33,23 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Ruta principal: por defecto va al Dashboard */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        
-        {/* Rutas principales del sistema */}
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/equipos" element={<Equipos />} />
-        <Route path="/insumos" element={<Insumos />} />
-        <Route path="/movimientos" element={<Movimientos />} />
-        <Route path="/compatibilidad" element={<Compatibilidad />} />
-        <Route path="/catalogo-insumos" element={<Navigate to="/insumos" replace />} />
+        {/* Rutas públicas */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registro" element={<RegisterPage />} />
-        
-        {/* Alias en inglés */}
         <Route path="/register" element={<Navigate to="/registro" replace />} />
 
-        {/* Cualquier otra ruta inexistente redirige al dashboard */}
+        {/* Rutas protegidas del sistema con monitoreo de 30 minutos de inactividad */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/equipos" element={<Equipos />} />
+          <Route path="/insumos" element={<Insumos />} />
+          <Route path="/movimientos" element={<Movimientos />} />
+          <Route path="/compatibilidad" element={<Compatibilidad />} />
+          <Route path="/catalogo-insumos" element={<Navigate to="/insumos" replace />} />
+        </Route>
+
+        {/* Cualquier otra ruta inexistente redirige al dashboard (o al login si no está autenticado) */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>

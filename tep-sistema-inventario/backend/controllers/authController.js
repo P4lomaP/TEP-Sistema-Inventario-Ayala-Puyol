@@ -57,7 +57,7 @@ const login = async (req, res) => {
                 });
             }
 
-            // Generar token JWT con tiempo de expiración de 30 minutos (inactividad)
+            // Generar token JWT con tiempo de expiración de 30 minutos renovable por actividad
             const token = jwt.sign(
                 { 
                     idUsuario: usuario.idUsuario, 

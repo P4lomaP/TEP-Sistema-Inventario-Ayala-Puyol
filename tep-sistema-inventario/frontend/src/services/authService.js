@@ -27,9 +27,10 @@ export async function loginService(username, password) {
     throw new Error(data.message || 'Error al iniciar sesión.');
   }
 
-  // Si el login es exitoso, persistir token y datos del usuario en localStorage
+  // Si el login es exitoso, persistir token, actividad y datos del usuario en localStorage
   if (data.token) {
     localStorage.setItem('token', data.token);
+    localStorage.setItem('tep_last_activity', Date.now().toString());
   }
   if (data.usuario) {
     localStorage.setItem('usuario', JSON.stringify(data.usuario));
@@ -72,6 +73,7 @@ export async function registerService({ username, password, rolAcceso }) {
 export function logoutService() {
   localStorage.removeItem('token');
   localStorage.removeItem('usuario');
+  localStorage.removeItem('tep_last_activity');
 }
 
 /**
@@ -85,3 +87,68 @@ export function getStoredUser() {
     return null;
   }
 }
+
+/**
+ * Obtener el token JWT almacenado
+ */
+export function getAuthToken() {
+  return localStorage.getItem('token');
+}
+
+/**
+ * Obtener headers con autorización Bearer para peticiones protegidas
+ * @param {Object} extraHeaders
+ * @returns {Object}
+ */
+export function getAuthHeaders(extraHeaders = {}) {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...extraHeaders,
+  };
+}
+
+/**
+ * Guardar token renovado automáticamente si el backend lo envía en los headers
+ * (Mecanismo de sesión deslizante por actividad del usuario: renueva 30m)
+ */
+export function handleTokenRenewal(response) {
+  try {
+    const renewed = response?.headers?.get('x-renewed-token');
+    if (renewed) {
+      localStorage.setItem('token', renewed);
+    }
+  } catch {}
+}
+
+/**
+ * Petición fetch autenticada con renovación transparente y captura de sesión expirada
+ */
+export async function authFetch(url, options = {}) {
+  const headers = getAuthHeaders(options.headers || {});
+  const response = await fetch(url, {
+    ...options,
+    headers,
+  });
+
+  // Si el usuario está activo y el servidor renovó el token, persistirlo y actualizar última actividad
+  handleTokenRenewal(response);
+  localStorage.setItem('tep_last_activity', Date.now().toString());
+
+  // Si la sesión expiró en el servidor por inactividad prolongada (401)
+  if (response.status === 401) {
+    const cloned = response.clone();
+    const data = await cloned.json().catch(() => ({}));
+    logoutService();
+    sessionStorage.setItem(
+      'tep_inactivity_message',
+      data.message || 'Su sesión se ha cerrado automáticamente tras 30 minutos sin actividad.'
+    );
+    window.dispatchEvent(new CustomEvent('session-expired', { detail: data.message }));
+  }
+
+  return response;
+}
+
+

@@ -1,3 +1,5 @@
+import { authFetch } from './authService';
+
 const BASE_URL = 'http://localhost:3000/api/movimientos';
 
 /**
@@ -7,7 +9,7 @@ const BASE_URL = 'http://localhost:3000/api/movimientos';
 export async function listarMovimientos() {
   let response;
   try {
-    response = await fetch(BASE_URL);
+    response = await authFetch(BASE_URL);
   } catch {
     throw new Error('No se pudo conectar con el servidor backend (http://localhost:3000). Verifique que esté iniciado.');
   }
@@ -27,7 +29,7 @@ export async function listarMovimientos() {
  * @param {number|string} idMovimiento
  */
 export async function obtenerMovimientoPorId(idMovimiento) {
-  const response = await fetch(`${BASE_URL}/${idMovimiento}`);
+  const response = await authFetch(`${BASE_URL}/${idMovimiento}`);
   const data = await response.json();
 
   if (!response.ok) {
@@ -60,11 +62,8 @@ export async function crearMovimiento(movimientoData) {
     }))
   };
 
-  const response = await fetch(BASE_URL, {
+  const response = await authFetch(BASE_URL, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify(payload),
   });
 
@@ -84,11 +83,8 @@ export async function crearMovimiento(movimientoData) {
  * @param {number|string} [idUsuario]
  */
 export async function anularMovimiento(idMovimiento, idUsuario = 1) {
-  const response = await fetch(`${BASE_URL}/${idMovimiento}`, {
+  const response = await authFetch(`${BASE_URL}/${idMovimiento}`, {
     method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       idUsuario: Number(idUsuario || 1),
     }),
@@ -102,3 +98,28 @@ export async function anularMovimiento(idMovimiento, idUsuario = 1) {
 
   return data;
 }
+
+/**
+ * Descargar acta de movimiento / remito en PDF
+ * GET /api/comprobantes/:idMovimiento/pdf
+ * @param {number|string} idMovimiento
+ * @param {string} [comprobanteRef]
+ */
+export async function descargarComprobantePDF(idMovimiento, comprobanteRef = '') {
+  const response = await authFetch(`http://localhost:3000/api/comprobantes/${idMovimiento}/pdf`);
+
+  if (!response.ok) {
+    throw new Error('Error al descargar el comprobante en formato PDF.');
+  }
+
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Acta_Movimiento_${comprobanteRef || idMovimiento}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+}
+

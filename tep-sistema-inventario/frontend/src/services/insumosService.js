@@ -1,3 +1,5 @@
+import { authFetch } from './authService';
+
 const BASE_URL = 'http://localhost:3000/api/insumos';
 
 /**
@@ -5,7 +7,7 @@ const BASE_URL = 'http://localhost:3000/api/insumos';
  * GET /api/insumos
  */
 export async function listarInsumos() {
-  const response = await fetch(BASE_URL);
+  const response = await authFetch(BASE_URL);
   const data = await response.json();
 
   if (!response.ok) {
@@ -21,22 +23,20 @@ export async function listarInsumos() {
  * @param {Object} insumoData
  */
 export async function crearInsumo(insumoData) {
+  const esPeriferico = (insumoData.categoria || '').trim().toLowerCase().startsWith('perif');
   const payload = {
     codigoInterno: insumoData.codigoInterno?.trim(),
     descripcion: insumoData.descripcion?.trim(),
-    categoria: insumoData.categoria?.trim(),
+    categoria: insumoData.categoria?.trim() || 'Insumo',
     stockActual: Number(insumoData.stockActual ?? 0),
     stockSeguridad: Number(insumoData.stockSeguridad ?? 0),
     ubicacionFila: insumoData.ubicacionFila?.trim() || '',
     ubicacionColumna: insumoData.ubicacionColumna?.trim() || '',
-    fechaVencimiento: insumoData.fechaVencimiento || '9999-12-31'
+    fechaVencimiento: esPeriferico ? null : (insumoData.fechaVencimiento || null)
   };
 
-  const response = await fetch(BASE_URL, {
+  const response = await authFetch(BASE_URL, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify(payload),
   });
 
@@ -56,22 +56,20 @@ export async function crearInsumo(insumoData) {
  * @param {Object} insumoData
  */
 export async function actualizarInsumo(idInsumo, insumoData) {
+  const esPeriferico = (insumoData.categoria || '').trim().toLowerCase().startsWith('perif');
   const payload = {
     codigoInterno: insumoData.codigoInterno?.trim(),
     descripcion: insumoData.descripcion?.trim(),
-    categoria: insumoData.categoria?.trim(),
+    categoria: insumoData.categoria?.trim() || 'Insumo',
     stockActual: Number(insumoData.stockActual ?? 0),
     stockSeguridad: Number(insumoData.stockSeguridad ?? 0),
     ubicacionFila: insumoData.ubicacionFila?.trim() || '',
     ubicacionColumna: insumoData.ubicacionColumna?.trim() || '',
-    fechaVencimiento: insumoData.fechaVencimiento || '9999-12-31'
+    fechaVencimiento: esPeriferico ? null : (insumoData.fechaVencimiento || null)
   };
 
-  const response = await fetch(`${BASE_URL}/${idInsumo}`, {
+  const response = await authFetch(`${BASE_URL}/${idInsumo}`, {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify(payload),
   });
 
@@ -90,7 +88,7 @@ export async function actualizarInsumo(idInsumo, insumoData) {
  * @param {number|string} idInsumo
  */
 export async function darDeBajaInsumo(idInsumo) {
-  const response = await fetch(`${BASE_URL}/${idInsumo}/baja`, {
+  const response = await authFetch(`${BASE_URL}/${idInsumo}/baja`, {
     method: 'PUT',
   });
 
@@ -102,3 +100,4 @@ export async function darDeBajaInsumo(idInsumo) {
 
   return data;
 }
+

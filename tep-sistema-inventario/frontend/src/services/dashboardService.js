@@ -1,3 +1,5 @@
+import { authFetch } from './authService';
+
 const BASE_URL = 'http://localhost:3000/api';
 
 /**
@@ -5,7 +7,7 @@ const BASE_URL = 'http://localhost:3000/api';
  * GET /api/equipos
  */
 export async function getEquipos() {
-  const response = await fetch(`${BASE_URL}/equipos`);
+  const response = await authFetch(`${BASE_URL}/equipos`);
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.message || 'Error al obtener la lista de equipos.');
@@ -18,7 +20,7 @@ export async function getEquipos() {
  * GET /api/insumos
  */
 export async function getInsumos() {
-  const response = await fetch(`${BASE_URL}/insumos`);
+  const response = await authFetch(`${BASE_URL}/insumos`);
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.message || 'Error al obtener los insumos.');
@@ -31,7 +33,7 @@ export async function getInsumos() {
  * GET /api/movimientos
  */
 export async function getMovimientos() {
-  const response = await fetch(`${BASE_URL}/movimientos`);
+  const response = await authFetch(`${BASE_URL}/movimientos`);
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.message || 'Error al consultar los movimientos.');

@@ -23,7 +23,8 @@ import {
   RefreshCw,
   Minus,
   Check,
-  Layers
+  Layers,
+  Download
 } from 'lucide-react';
 import MainLayout from '../components/MainLayout';
 import { listarEquipos } from '../services/equiposService';
@@ -32,7 +33,8 @@ import { listarSectores } from '../services/sectoresService';
 import { 
   listarMovimientos, 
   crearMovimiento, 
-  obtenerMovimientoPorId 
+  obtenerMovimientoPorId,
+  descargarComprobantePDF
 } from '../services/movimientosService';
 
 export default function Movimientos() {
@@ -1087,14 +1089,31 @@ export default function Movimientos() {
                           </span>
                         </td>
                         <td className="py-3.5 px-4 text-right">
-                          <button
-                            type="button"
-                            onClick={() => handleVerDetalleMovimiento(mov.idMovimiento)}
-                            disabled={cargandoDetalleId === mov.idMovimiento}
-                            className="px-2.5 py-1 text-xs font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition cursor-pointer"
-                          >
-                            {cargandoDetalleId === mov.idMovimiento ? 'Cargando...' : 'Ver Artículos'}
-                          </button>
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleVerDetalleMovimiento(mov.idMovimiento)}
+                              disabled={cargandoDetalleId === mov.idMovimiento}
+                              className="px-2.5 py-1 text-xs font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition cursor-pointer"
+                            >
+                              {cargandoDetalleId === mov.idMovimiento ? 'Cargando...' : 'Ver Artículos'}
+                            </button>
+                            <button
+                              type="button"
+                              title="Descargar Acta / Remito Oficial en PDF"
+                              onClick={async () => {
+                                try {
+                                  await descargarComprobantePDF(mov.idMovimiento, mov.comprobanteRef);
+                                  mostrarToast(`✓ Acta PDF descargada: ${mov.comprobanteRef}`);
+                                } catch (err) {
+                                  mostrarToast(`Error: ${err.message || 'No se pudo descargar el PDF.'}`);
+                                }
+                              }}
+                              className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer"
+                            >
+                              <Download size={14} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -1179,7 +1198,22 @@ export default function Movimientos() {
                 </div>
               </div>
 
-              <div className="pt-2 flex items-center justify-end">
+              <div className="pt-2 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await descargarComprobantePDF(movimientoDetalleModal.idMovimiento, movimientoDetalleModal.comprobanteRef);
+                      mostrarToast(`✓ Acta en PDF descargada: ${movimientoDetalleModal.comprobanteRef}`);
+                    } catch (err) {
+                      mostrarToast(`Error: ${err.message || 'No se pudo descargar el PDF.'}`);
+                    }
+                  }}
+                  className="px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 shadow-sm"
+                >
+                  <Download size={14} />
+                  <span>Descargar Acta PDF</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => setMovimientoDetalleModal(null)}

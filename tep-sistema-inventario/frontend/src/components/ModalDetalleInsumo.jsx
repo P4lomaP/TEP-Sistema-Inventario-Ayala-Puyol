@@ -11,7 +11,8 @@ import {
   Layers, 
   Save, 
   RotateCcw,
-  AlertCircle
+  AlertCircle,
+  Info
 } from 'lucide-react';
 
 export default function ModalDetalleInsumo({ 
@@ -36,7 +37,7 @@ export default function ModalDetalleInsumo({
         idInsumo: insumo.idInsumo,
         codigoInterno: insumo.codigoInterno || '',
         descripcion: insumo.descripcion || '',
-        categoria: insumo.categoria || 'Hardware',
+        categoria: insumo.categoria || 'Insumo',
         stockActual: insumo.stockActual ?? 0,
         stockSeguridad: insumo.stockSeguridad ?? 5,
         ubicacionFila: insumo.ubicacionFila || '',
@@ -53,14 +54,21 @@ export default function ModalDetalleInsumo({
   if (!isOpen || !insumo || !formData) return null;
 
   const isCritico = formData.stockActual <= formData.stockSeguridad;
+  const esPeriferico = formData.categoria === 'Periférico';
 
-  // Manejador genérico de campos en modo edición
+  // Manejador genérico de campos en modo edición con limpieza de fecha para periféricos
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? (checked ? 1 : 0) : value
-    }));
+    setFormData((prev) => {
+      const nuevo = {
+        ...prev,
+        [name]: type === 'checkbox' ? (checked ? 1 : 0) : value
+      };
+      if (name === 'categoria' && value === 'Periférico') {
+        nuevo.fechaVencimiento = '';
+      }
+      return nuevo;
+    });
   };
 
   // Guardar edición en backend
@@ -79,7 +87,7 @@ export default function ModalDetalleInsumo({
       ...formData,
       stockActual: Number(formData.stockActual),
       stockSeguridad: Number(formData.stockSeguridad),
-      fechaVencimiento: formData.fechaVencimiento ? formData.fechaVencimiento : '9999-12-31'
+      fechaVencimiento: esPeriferico ? null : (formData.fechaVencimiento || null)
     };
 
     setIsSaving(true);
@@ -178,15 +186,10 @@ export default function ModalDetalleInsumo({
                     name="categoria"
                     value={formData.categoria}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white font-medium text-slate-700"
                   >
-                    <option value="Hardware">Hardware</option>
-                    <option value="Equipos">Equipos</option>
-                    <option value="Periféricos">Periféricos</option>
-                    <option value="Cables">Cables</option>
-                    <option value="Multimedia">Multimedia</option>
-                    <option value="Mobiliario">Mobiliario</option>
-                    <option value="Consumibles">Consumibles</option>
+                    <option value="Insumo">Insumo (Consumibles, tóner, hojas, tintas)</option>
+                    <option value="Periférico">Periférico (Mouse, teclado, etc.)</option>
                   </select>
                 </div>
               </div>
@@ -257,14 +260,23 @@ export default function ModalDetalleInsumo({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Fecha de Vencimiento / Garantía</label>
-                  <input
-                    type="date"
-                    name="fechaVencimiento"
-                    value={formData.fechaVencimiento}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-700"
-                  />
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                    Fecha de Vencimiento / Caducidad
+                  </label>
+                  {esPeriferico ? (
+                    <div className="w-full px-3 py-2 text-xs border border-dashed border-slate-200 rounded-xl bg-slate-50 text-slate-400 flex items-center gap-1.5 select-none">
+                      <Info size={14} className="text-slate-400 shrink-0" />
+                      <span>No aplica a periféricos (sin vencimiento)</span>
+                    </div>
+                  ) : (
+                    <input
+                      type="date"
+                      name="fechaVencimiento"
+                      value={formData.fechaVencimiento}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-700"
+                    />
+                  )}
                 </div>
                 <div className="flex items-center gap-2 pt-4">
                   <input
@@ -395,15 +407,17 @@ export default function ModalDetalleInsumo({
 
                 {/* Vencimiento */}
                 <div className="p-3.5 bg-white border border-slate-100 rounded-xl flex items-start gap-3 shadow-2xs">
-                  <div className="p-2 bg-amber-50 text-amber-600 rounded-lg shrink-0">
+                  <div className={`p-2 rounded-lg shrink-0 ${esPeriferico ? 'bg-slate-100 text-slate-400' : 'bg-amber-50 text-amber-600'}`}>
                     <Calendar size={16} />
                   </div>
                   <div>
                     <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Caducidad / Garantía</span>
-                    <p className="font-semibold text-slate-700 mt-0.5">
-                      {formData.fechaVencimiento || 'No registrada'}
+                    <p className={`font-semibold mt-0.5 ${esPeriferico ? 'text-slate-500' : 'text-slate-700'}`}>
+                      {esPeriferico ? 'No aplica (Periférico)' : (formData.fechaVencimiento || 'No registrada')}
                     </p>
-                    <p className="text-[11px] text-slate-400">Control preventivo</p>
+                    <p className="text-[11px] text-slate-400">
+                      {esPeriferico ? 'Sin fecha de vencimiento' : 'Control preventivo'}
+                    </p>
                   </div>
                 </div>
               </div>

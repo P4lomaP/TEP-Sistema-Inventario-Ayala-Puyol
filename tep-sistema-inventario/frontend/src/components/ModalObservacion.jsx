@@ -23,10 +23,11 @@ export default function ModalObservacion({
   const stockSeguridad = Number(insumo.stockSeguridad ?? 0);
   const isStockCritico = stockActual <= stockSeguridad;
 
-  // 2. Análisis dinámico de Vencimiento (Fecha de referencia institucional: Septiembre 2026)
+  // 2. Análisis dinámico de Vencimiento (Sólo para consumibles no periféricos)
+  const esPeriferico = (insumo.categoria || '').toLowerCase().startsWith('perif');
   let vencimientoInfo = null;
-  if (insumo.fechaVencimiento && insumo.fechaVencimiento !== '9999-12-31') {
-    const fechaActual = new Date('2026-09-17');
+  if (!esPeriferico && insumo.fechaVencimiento && insumo.fechaVencimiento !== '9999-12-31') {
+    const fechaActual = new Date();
     const fechaVenc = new Date(insumo.fechaVencimiento);
     const diffTime = fechaVenc - fechaActual;
     const diffDias = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -212,9 +213,13 @@ export default function ModalObservacion({
                 <Box size={16} />
               </div>
               <div>
-                <h4 className="text-xs font-semibold text-slate-700">Bien de Consumo / Uso Continuo</h4>
+                <h4 className="text-xs font-semibold text-slate-700">
+                  {esPeriferico ? 'Periférico Informático (Hardware)' : 'Bien de Consumo / Uso Continuo'}
+                </h4>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  No posee fecha de vencimiento perecedera registrada.
+                  {esPeriferico
+                    ? 'Los periféricos no cuentan con fecha de caducidad perecedera (valor nulo reglamentario).'
+                    : 'No posee fecha de vencimiento perecedera registrada.'}
                 </p>
               </div>
             </div>

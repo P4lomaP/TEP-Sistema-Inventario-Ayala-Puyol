@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { X, Eye, EyeOff, Loader2, Clock } from 'lucide-react';
 import { loginService } from '../services/authService';
 
 export default function Login({ onSwitchToRegister, onLoginSuccess }) {
@@ -10,10 +10,21 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Mensaje de advertencia si la sesión fue cerrada por 30 minutos de inactividad
+  const [inactivityNotice, setInactivityNotice] = useState(() => {
+    const msg = sessionStorage.getItem('tep_inactivity_message');
+    if (msg) {
+      sessionStorage.removeItem('tep_inactivity_message');
+      return msg;
+    }
+    return '';
+  });
+
   // 2. FUNCIÓN DE ENVÍO: Petición real al backend POST /api/auth/login
   const handleSubmit = async (e) => {
     e.preventDefault(); // Evita recargar la página
     setError('');
+    setInactivityNotice('');
 
     if (!username.trim() || !password) {
       setError('Por favor, ingrese usuario y contraseña.');
@@ -56,6 +67,17 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
         <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 mb-6 sm:mb-8 tracking-tight">
           Inicia Sesión
         </h2>
+
+        {/* Mensaje de alerta por sesión cerrada por inactividad */}
+        {inactivityNotice && (
+          <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl p-3.5 mb-6 flex items-start gap-2.5 shadow-xs">
+            <Clock size={16} className="text-amber-600 mt-0.5 shrink-0" />
+            <div>
+              <p className="font-semibold">Sesión finalizada por inactividad</p>
+              <p className="text-amber-700 mt-0.5">{inactivityNotice}</p>
+            </div>
+          </div>
+        )}
 
         {/* Mensaje de alerta por error */}
         {error && (

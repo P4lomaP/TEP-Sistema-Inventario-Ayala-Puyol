@@ -114,7 +114,7 @@ CREATE TABLE `insumos` (
   `estadoActivo` tinyint NOT NULL,
   `ubicacionFila` varchar(50) NOT NULL,
   `ubicacionColumna` varchar(50) NOT NULL,
-  `fechaVencimiento` date NOT NULL
+  `fechaVencimiento` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
@@ -122,7 +122,7 @@ CREATE TABLE `insumos` (
 --
 
 INSERT INTO `insumos` (`idInsumo`, `codigoInterno`, `descripcion`, `categoria`, `stockActual`, `stockSeguridad`, `estadoActivo`, `ubicacionFila`, `ubicacionColumna`, `fechaVencimiento`) VALUES
-(1, 'TON-HP-85A', 'Tóner HP CE285A Negro Original', 'Tóner', 10, 3, 1, 'Estante B', 'Caja 4', '2027-12-31');
+(1, 'TON-HP-85A', 'Tóner HP CE285A Negro Original', 'Insumo', 10, 3, 1, 'Estante B', 'Caja 4', '2027-12-31');
 
 -- --------------------------------------------------------
 

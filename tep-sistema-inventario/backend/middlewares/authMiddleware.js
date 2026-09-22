@@ -39,7 +39,7 @@ const verificarToken = (req, res, next) => {
             // Captura estricta de TokenExpiredError para el Frontend React
             if (err.name === 'TokenExpiredError') {
                 return res.status(401).json({ 
-                    message: 'Sesión expirada por inactividad. Vuelva a iniciar sesión.',
+                    message: 'Sesión expirada por inactividad (30 minutos sin uso). Vuelva a iniciar sesión.',
                     expired: true 
                 });
             }
@@ -53,6 +53,24 @@ const verificarToken = (req, res, next) => {
 
         // 4. Inyectar datos del operador autenticado en la petición
         req.usuario = decoded;
+
+        // 5. Sesión deslizante: Renovar automáticamente el token por 30m en cada petición activa
+        try {
+            const tokenRenovado = jwt.sign(
+                { 
+                    idUsuario: decoded.idUsuario, 
+                    username: decoded.username,
+                    rolAcceso: decoded.rolAcceso 
+                },
+                JWT_SECRET,
+                { expiresIn: '30m' }
+            );
+            res.setHeader('x-renewed-token', tokenRenovado);
+            res.setHeader('Access-Control-Expose-Headers', 'x-renewed-token');
+        } catch (renewErr) {
+            // Continuar normalmente si falla la firma de renovación
+        }
+
         next();
     });
 };
