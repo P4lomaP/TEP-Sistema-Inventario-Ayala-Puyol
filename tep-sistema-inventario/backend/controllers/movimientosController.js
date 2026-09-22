@@ -202,6 +202,34 @@ const registrarMovimiento = async (req, res) => {
                 throw new Error(`Stock insuficiente para "${insumo.descripcion}". Stock actual: ${insumo.stockActual}, solicitado: ${cantidad}.`);
             }
 
+            // Si se especifica un equipo destino, validar existencia, estado activo y compatibilidad técnica
+            if (idEquipoDestino) {
+                const [equipo] = await executeQuery(
+                    'SELECT idEquipo, marcaModelo, codPatrimonial, tipoEquipo, estadoOperativo FROM Equipos WHERE idEquipo = ?',
+                    [idEquipoDestino]
+                );
+
+                if (!equipo) {
+                    throw new Error(`El equipo destino con ID ${idEquipoDestino} no existe en el sistema.`);
+                }
+
+                if (equipo.estadoOperativo === 'Baja') {
+                    throw new Error(`El equipo "${equipo.marcaModelo}" (${equipo.codPatrimonial || 'S/C'}) está dado de baja y no puede recibir insumos.`);
+                }
+
+                // En egresos, verificar compatibilidad en la Matriz de Compatibilidad
+                if (esEgreso) {
+                    const [compat] = await executeQuery(
+                        'SELECT idRegla FROM matriz_compatibilidad WHERE idEquipo = ? AND idInsumo = ?',
+                        [idEquipoDestino, idInsumo]
+                    );
+
+                    if (!compat) {
+                        throw new Error(`Incompatibilidad rechazada: El insumo "${insumo.descripcion}" no es compatible con el equipo destino "${equipo.marcaModelo}" (${equipo.codPatrimonial || 'S/C'}) según la Matriz de Compatibilidad.`);
+                    }
+                }
+            }
+
             // Insertar en Detalle_Movimientos
             const queryDetalle = `
                 INSERT INTO Detalle_Movimientos (
@@ -352,6 +380,30 @@ const actualizarMovimiento = async (req, res) => {
 
                 if (!esNuevoIngreso && insumo.stockActual < cantidad) {
                     throw new Error(`Stock insuficiente para "${insumo.descripcion}" al corregir egreso. Stock disponible tras reversión: ${insumo.stockActual}, solicitado: ${cantidad}.`);
+                }
+
+                if (idEquipoDestino && !esNuevoIngreso) {
+                    const [equipo] = await executeQuery(
+                        'SELECT idEquipo, marcaModelo, codPatrimonial, tipoEquipo, estadoOperativo FROM Equipos WHERE idEquipo = ?',
+                        [idEquipoDestino]
+                    );
+
+                    if (!equipo) {
+                        throw new Error(`El equipo destino con ID ${idEquipoDestino} no existe.`);
+                    }
+
+                    if (equipo.estadoOperativo === 'Baja') {
+                        throw new Error(`El equipo "${equipo.marcaModelo}" está dado de baja.`);
+                    }
+
+                    const [compat] = await executeQuery(
+                        'SELECT idRegla FROM matriz_compatibilidad WHERE idEquipo = ? AND idInsumo = ?',
+                        [idEquipoDestino, idInsumo]
+                    );
+
+                    if (!compat) {
+                        throw new Error(`Incompatibilidad rechazada: El insumo "${insumo.descripcion}" no es compatible con el equipo destino "${equipo.marcaModelo}" según la Matriz de Compatibilidad.`);
+                    }
                 }
 
                 // Insertar nuevo detalle

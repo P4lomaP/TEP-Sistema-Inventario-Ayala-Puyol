@@ -19,7 +19,7 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
     { id: 'insumos', label: 'Catálogos de Insumos', icon: Layers, path: '/insumos' },
     { id: 'movimientos', label: 'Movimientos', icon: ArrowLeftRight, path: '/movimientos' },
     { id: 'compatibilidad', label: 'Matriz de Compatibilidad', icon: Workflow, path: '/compatibilidad' },
-    { id: 'auditorias', label: 'Auditorias y Reportes', icon: FileText, path: '/auditorias' },
+    { id: 'reportes', label: 'Reportes y Auditoría', icon: FileText, path: '/reportes' },
     { id: 'usuarios', label: 'Usuarios y Roles', icon: ShieldCheck, path: '/usuarios' },
   ];
 
@@ -79,7 +79,7 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
         <nav className="flex-1 py-4 sm:py-6 px-3 space-y-1 overflow-y-auto">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = activePage === item.id;
+            const isActive = activePage === item.id || (item.id === 'reportes' && (activePage === 'auditorias' || activePage === 'reportes' || activePage === 'backup'));
             return (
               <button
                 key={item.id}

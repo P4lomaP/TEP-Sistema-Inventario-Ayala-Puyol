@@ -19,7 +19,9 @@ const obtenerTodasLasCompatibilidades = async (req, res) => {
                 e.codPatrimonial,
                 e.marcaModelo,
                 e.tipoEquipo,
+                e.numeroSerie,
                 e.estadoOperativo,
+                s.nombreOficina AS nombreSector,
                 m.idInsumo,
                 i.codigoInterno,
                 i.descripcion AS insumoDescripcion,
@@ -29,6 +31,7 @@ const obtenerTodasLasCompatibilidades = async (req, res) => {
                 i.estadoActivo AS insumoEstadoActivo
             FROM matriz_compatibilidad m
             JOIN Equipos e ON m.idEquipo = e.idEquipo
+            LEFT JOIN Sectores s ON e.idSector = s.idSector
             JOIN Insumos i ON m.idInsumo = i.idInsumo
             ORDER BY e.marcaModelo ASC, i.descripcion ASC
         `;
@@ -199,9 +202,15 @@ const crearCompatibilidad = async (req, res) => {
             });
         }
 
+        if (equipo.estadoOperativo === 'Baja') {
+            return res.status(400).json({ 
+                message: `El equipo "${equipo.marcaModelo}" (${equipo.codPatrimonial}) se encuentra dado de baja y no puede recibir nuevas compatibilidades.` 
+            });
+        }
+
         // 3. Verificar existencia del insumo
         const [insumo] = await executeQuery(
-            'SELECT idInsumo, codigoInterno, descripcion, categoria, estadoActivo FROM Insumos WHERE idInsumo = ?',
+            'SELECT idInsumo, codigoInterno, descripcion, categoria, stockActual, stockSeguridad, estadoActivo FROM Insumos WHERE idInsumo = ?',
             [insumoId]
         );
 
@@ -217,7 +226,34 @@ const crearCompatibilidad = async (req, res) => {
             });
         }
 
-        // 4. Prevenir duplicados (regla de unicidad)
+        // 4. Validación de coherencia técnica: Evitar asociaciones ilógicas
+        const tipoEquipoLower = (equipo.tipoEquipo || '').toLowerCase();
+        const categoriaInsumoLower = (insumo.categoria || '').toLowerCase();
+        const descInsumoLower = (insumo.descripcion || '').toLowerCase();
+
+        // A. Periféricos de cómputo (mouse, teclado) no corresponden a impresoras
+        if (categoriaInsumoLower === 'periférico' && tipoEquipoLower === 'impresora') {
+            return res.status(400).json({ 
+                message: `Inconsistencia técnica: El insumo "${insumo.descripcion}" es un periférico de computación y no puede asociarse a una impresora.` 
+            });
+        }
+
+        // B. Consumibles exclusivos de impresión (tóner, cartuchos, tintas, tambores) no corresponden a computadoras
+        const esConsumibleImpresion = descInsumoLower.includes('tóner') || 
+                                      descInsumoLower.includes('toner') || 
+                                      descInsumoLower.includes('cartucho') || 
+                                      descInsumoLower.includes('tinta') || 
+                                      descInsumoLower.includes('tambor') || 
+                                      descInsumoLower.includes('fusor') || 
+                                      descInsumoLower.includes('cinta');
+
+        if (esConsumibleImpresion && tipoEquipoLower === 'computadora') {
+            return res.status(400).json({ 
+                message: `Inconsistencia técnica: El insumo "${insumo.descripcion}" es un consumible de impresión y no puede asociarse directamente a una computadora.` 
+            });
+        }
+
+        // 5. Prevenir duplicados (regla de unicidad)
         const [existente] = await executeQuery(
             'SELECT idRegla FROM matriz_compatibilidad WHERE idEquipo = ? AND idInsumo = ?',
             [equipoId, insumoId]
@@ -230,7 +266,7 @@ const crearCompatibilidad = async (req, res) => {
             });
         }
 
-        // 5. Inserción en la tabla intermedia
+        // 6. Inserción en la tabla intermedia
         const insertResult = await executeQuery(
             'INSERT INTO matriz_compatibilidad (idInsumo, idEquipo) VALUES (?, ?)',
             [insumoId, equipoId]
@@ -238,7 +274,7 @@ const crearCompatibilidad = async (req, res) => {
 
         const idRegla = insertResult.insertId;
 
-        // 6. Side-effect: Registrar en auditoría
+        // 7. Side-effect: Registrar en auditoría
         registrarAuditoria(
             idUsuario,
             `Asociación de compatibilidad creada (Regla ID ${idRegla}): Insumo "${insumo.descripcion}" (ID ${insumoId}) asignado a Equipo "${equipo.marcaModelo}" (ID ${equipoId}).`,
@@ -250,6 +286,15 @@ const crearCompatibilidad = async (req, res) => {
             idRegla,
             idInsumo: insumoId,
             idEquipo: equipoId,
+            codPatrimonial: equipo.codPatrimonial,
+            marcaModelo: equipo.marcaModelo,
+            tipoEquipo: equipo.tipoEquipo,
+            estadoOperativo: equipo.estadoOperativo,
+            codigoInterno: insumo.codigoInterno,
+            insumoDescripcion: insumo.descripcion,
+            insumoCategoria: insumo.categoria,
+            stockActual: insumo.stockActual,
+            stockSeguridad: insumo.stockSeguridad,
             equipo: {
                 idEquipo: equipo.idEquipo,
                 codPatrimonial: equipo.codPatrimonial,

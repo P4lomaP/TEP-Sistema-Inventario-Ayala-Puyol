@@ -36,6 +36,7 @@ import {
   obtenerMovimientoPorId,
   descargarComprobantePDF
 } from '../services/movimientosService';
+import { listarCompatibilidades } from '../services/compatibilidadService';
 
 export default function Movimientos() {
   const navigate = useNavigate();
@@ -86,6 +87,7 @@ export default function Movimientos() {
 
   // 6. Estados de conexión con el backend de movimientos
   const [historialMovimientos, setHistorialMovimientos] = useState([]);
+  const [reglasCompatibilidad, setReglasCompatibilidad] = useState([]);
   const [enviandoMovimiento, setEnviandoMovimiento] = useState(false);
   const [movimientoDetalleModal, setMovimientoDetalleModal] = useState(null);
   const [cargandoDetalleId, setCargandoDetalleId] = useState(null);
@@ -120,6 +122,14 @@ export default function Movimientos() {
       .then((data) => {
         if (Array.isArray(data)) {
           setHistorialMovimientos(data);
+        }
+      })
+      .catch(() => {});
+
+    listarCompatibilidades()
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setReglasCompatibilidad(data);
         }
       })
       .catch(() => {});
@@ -224,6 +234,15 @@ export default function Movimientos() {
       return;
     }
 
+    // Validación de compatibilidad cuando hay un equipo destino seleccionado
+    if (equipoSeleccionado) {
+      const alerta = verificarAlertaCompatibilidad();
+      if (alerta && alerta.tipo === 'incompatible') {
+        mostrarToast(`⛔ No se puede añadir: ${alerta.mensaje}`);
+        return;
+      }
+    }
+
     const destinoNombre = equipoSeleccionado
       ? `${equipoSeleccionado.marcaModelo}${equipoSeleccionado.codPatrimonial ? ` (${equipoSeleccionado.codPatrimonial})` : ''}`
       : (sector || 'General / Sin equipo');
@@ -288,7 +307,7 @@ export default function Movimientos() {
           const nueva = item.cantidad + delta;
           if (nueva < 1) return item;
           if (nueva > (item.stockMax || 999)) {
-            mostrarToast(`Stock máximo disponible alcanzado.`);
+            mostrarToast(`Stock máximo disponible: ${item.stockMax} unidades.`);
             return item;
           }
           return { ...item, cantidad: nueva };
@@ -298,39 +317,56 @@ export default function Movimientos() {
     );
   };
 
-  // Verificación de advertencia de compatibilidad
+  // Verificación estricta de compatibilidad contra la Matriz de Compatibilidad
   const verificarAlertaCompatibilidad = () => {
     if (!equipoSeleccionado || !insumoSeleccionado) return null;
 
-    const esComputadora = equipoSeleccionado.tipoEquipo?.toLowerCase() === 'computadora';
-    const esImpresora = equipoSeleccionado.tipoEquipo?.toLowerCase() === 'impresora';
-    const esToner = insumoSeleccionado.categoria?.toLowerCase() === 'tóner' || 
-                    insumoSeleccionado.categoria?.toLowerCase() === 'toner';
+    // 1. Buscar si existe la regla en la Matriz
+    const esCompatibleEnMatriz = reglasCompatibilidad.some(
+      (r) => Number(r.idEquipo) === Number(equipoSeleccionado.idEquipo) && 
+             Number(r.idInsumo) === Number(insumoSeleccionado.idInsumo)
+    );
 
-    // Regla A: Tóner en Computadora
-    if (esComputadora && esToner) {
+    if (esCompatibleEnMatriz) {
       return {
-        tipo: 'incompatible',
-        mensaje: `Incompatibilidad: Está asignando un insumo de impresión (${insumoSeleccionado.descripcion}) a una Computadora (${equipoSeleccionado.marcaModelo}).`
+        tipo: 'compatible',
+        mensaje: `✓ Compatibilidad verificada: "${insumoSeleccionado.descripcion}" está homologado y habilitado para ${equipoSeleccionado.marcaModelo} en la Matriz de Compatibilidad.`
       };
     }
 
-    // Regla B: Tóner en Impresora
-    if (esImpresora && esToner) {
-      if (equipoSeleccionado.idInsumoCompatible && Number(equipoSeleccionado.idInsumoCompatible) === Number(insumoSeleccionado.idInsumo)) {
-        return {
-          tipo: 'compatible',
-          mensaje: `Compatibilidad verificada: Este tóner es el insumo oficial registrado para la impresora ${equipoSeleccionado.marcaModelo}.`
-        };
-      } else {
-        return {
-          tipo: 'advertencia',
-          mensaje: `Advertencia de compatibilidad: Verifique si el modelo ${insumoSeleccionado.codigoInterno} es compatible con ${equipoSeleccionado.marcaModelo} en la Matriz de Compatibilidad.`
-        };
-      }
+    // 2. Si no está en la matriz, comprobar si es una incoherencia de tipo evidente
+    const tipoEq = (equipoSeleccionado.tipoEquipo || '').toLowerCase();
+    const esPc = tipoEq === 'computadora' || (!equipoSeleccionado.tipoEquipo && Boolean(equipoSeleccionado.procesador));
+    const esImp = tipoEq === 'impresora' || (!equipoSeleccionado.tipoEquipo && Boolean(equipoSeleccionado.tecnologiaImpresion));
+
+    const catIns = (insumoSeleccionado.categoria || '').toLowerCase();
+    const descIns = (insumoSeleccionado.descripcion || '').toLowerCase();
+
+    const esPerif = catIns === 'periférico' || catIns === 'periferico' || 
+      descIns.includes('mouse') || descIns.includes('teclado') || descIns.includes('auricular') || descIns.includes('webcam');
+
+    const esConsumibleImp = descIns.includes('tóner') || descIns.includes('toner') || 
+      descIns.includes('cartucho') || descIns.includes('tinta') || descIns.includes('tambor') || descIns.includes('fusor');
+
+    if (esPerif && esImp) {
+      return {
+        tipo: 'incompatible',
+        mensaje: `⛔ Incompatibilidad técnica: Está intentando asignar un periférico de cómputo (${insumoSeleccionado.descripcion}) a una Impresora (${equipoSeleccionado.marcaModelo}).`
+      };
     }
 
-    return null;
+    if (esConsumibleImp && esPc) {
+      return {
+        tipo: 'incompatible',
+        mensaje: `⛔ Incompatibilidad técnica: Está intentando asignar un consumible de impresión (${insumoSeleccionado.descripcion}) a una Computadora (${equipoSeleccionado.marcaModelo}).`
+      };
+    }
+
+    // 3. Incompatibilidad por falta de registro en la Matriz
+    return {
+      tipo: 'incompatible',
+      mensaje: `⛔ Incompatibilidad: "${insumoSeleccionado.descripcion}" no está registrado como compatible con "${equipoSeleccionado.marcaModelo}" en la Matriz de Compatibilidad. Para usarlo en este equipo, regístrelo en la Matriz o desvincule el equipo destino.`
+    };
   };
 
   const alertaCompatibilidad = verificarAlertaCompatibilidad();
@@ -658,6 +694,17 @@ export default function Movimientos() {
                                 <span className="font-mono text-[10px] text-blue-700 bg-blue-50 border border-blue-100 px-1.5 py-0.2 rounded font-bold">
                                   {item.codigoInterno}
                                 </span>
+                                {equipoSeleccionado && (
+                                  <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded border ${
+                                    reglasCompatibilidad.some(r => Number(r.idEquipo) === Number(equipoSeleccionado.idEquipo) && Number(r.idInsumo) === Number(item.idInsumo))
+                                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                      : 'bg-rose-50 text-rose-600 border-rose-200'
+                                  }`}>
+                                    {reglasCompatibilidad.some(r => Number(r.idEquipo) === Number(equipoSeleccionado.idEquipo) && Number(r.idInsumo) === Number(item.idInsumo))
+                                      ? '✓ Compatible'
+                                      : 'Incompatible'}
+                                  </span>
+                                )}
                               </div>
                               <p className="text-[11px] text-slate-400 mt-0.5">
                                 Categoría: <span className="font-medium text-slate-600">{item.categoria}</span> • Stock actual: <span className={`font-bold ${item.stockActual <= 3 ? 'text-amber-600' : 'text-emerald-700'}`}>{item.stockActual} un.</span>
@@ -755,10 +802,25 @@ export default function Movimientos() {
                     <button
                       type="button"
                       onClick={handleAgregarInsumoALaLista}
-                      className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center justify-center gap-2 cursor-pointer"
+                      disabled={alertaCompatibilidad?.tipo === 'incompatible'}
+                      className={`px-4 py-2.5 text-xs font-bold rounded-xl shadow-xs transition flex items-center justify-center gap-2 ${
+                        alertaCompatibilidad?.tipo === 'incompatible'
+                          ? 'bg-rose-100 text-rose-700 border border-rose-200 cursor-not-allowed opacity-80'
+                          : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer'
+                      }`}
+                      title={alertaCompatibilidad?.tipo === 'incompatible' ? 'Insumo incompatible con el equipo destino seleccionado' : 'Añadir insumo a la orden'}
                     >
-                      <Plus size={15} />
-                      <span>Añadir Insumo a la Lista</span>
+                      {alertaCompatibilidad?.tipo === 'incompatible' ? (
+                        <>
+                          <AlertCircle size={15} />
+                          <span>Incompatible con Equipo Destino</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus size={15} />
+                          <span>Añadir Insumo a la Lista</span>
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>

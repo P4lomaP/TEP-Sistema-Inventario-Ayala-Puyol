@@ -6,9 +6,9 @@ import Insumos from './pages/Insumos';
 import Equipos from './pages/Equipos';
 import Movimientos from './pages/Movimientos';
 import Compatibilidad from './pages/Compatibilidad';
+import Reportes from './pages/Reportes';
 import ProtectedRoute from './components/ProtectedRoute';
 
-// Envoltorio para Login con navegación por URL
 function LoginPage() {
   const navigate = useNavigate();
   return (
@@ -19,7 +19,6 @@ function LoginPage() {
   );
 }
 
-// Envoltorio para Register con navegación por URL
 function RegisterPage() {
   const navigate = useNavigate();
   return (
@@ -38,18 +37,27 @@ export default function App() {
         <Route path="/registro" element={<RegisterPage />} />
         <Route path="/register" element={<Navigate to="/registro" replace />} />
 
-        {/* Rutas protegidas del sistema con monitoreo de 30 minutos de inactividad */}
+        {/* Rutas protegidas con monitoreo de 30 minutos de inactividad */}
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/equipos" element={<Equipos />} />
+          <Route path="/equipos-patrimoniales" element={<Navigate to="/equipos" replace />} />
           <Route path="/insumos" element={<Insumos />} />
-          <Route path="/movimientos" element={<Movimientos />} />
-          <Route path="/compatibilidad" element={<Compatibilidad />} />
           <Route path="/catalogo-insumos" element={<Navigate to="/insumos" replace />} />
+          <Route path="/movimientos" element={<Movimientos />} />
+          <Route path="/movement" element={<Navigate to="/movimientos" replace />} />
+          <Route path="/compatibilidad" element={<Compatibilidad />} />
+          <Route path="/matriz-compatibilidad" element={<Navigate to="/compatibilidad" replace />} />
+          
+          {/* Módulo de Reportes y Auditoría */}
+          <Route path="/reportes" element={<Reportes />} />
+          <Route path="/auditorias" element={<Navigate to="/reportes" replace />} />
+          <Route path="/auditorias-reportes" element={<Navigate to="/reportes" replace />} />
+          <Route path="/backup" element={<Navigate to="/reportes" replace />} />
         </Route>
 
-        {/* Cualquier otra ruta inexistente redirige al dashboard (o al login si no está autenticado) */}
+        {/* Redirección por defecto */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
