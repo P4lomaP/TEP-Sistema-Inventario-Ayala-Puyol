@@ -11,6 +11,7 @@ const movimientosRoutes = require('./routes/movimientosRoutes');
 const auditoriaRoutes = require('./routes/auditoriaRoutes');
 const matrizRoutes = require('./routes/matrizRoutes');
 const comprobantesRoutes = require('./routes/comprobantesRoutes');
+const backupRoutes = require('./routes/backupRoutes');
 
 // Middleware de autenticación y control de inactividad (30m)
 const authMiddleware = require('./middlewares/authMiddleware');
@@ -38,6 +39,7 @@ app.use('/api/movimientos', authMiddleware, movimientosRoutes);
 app.use('/api/auditoria', authMiddleware, auditoriaRoutes);
 app.use('/api/compatibilidad', authMiddleware, matrizRoutes);
 app.use('/api/comprobantes', authMiddleware, comprobantesRoutes);
+app.use('/api/backup', backupRoutes);
 
 // Una ruta de prueba para ver si el servidor responde
 app.get('/', (req, res) => {
