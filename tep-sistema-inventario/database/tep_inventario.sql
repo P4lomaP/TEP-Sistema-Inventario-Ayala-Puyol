@@ -74,7 +74,7 @@ CREATE TABLE `equipos` (
 --
 
 INSERT INTO `equipos` (`idEquipo`, `codPatrimonial`, `tipoEquipo`, `marcaModelo`, `numeroSerie`, `ipFija`, `mascaraSubred`, `workgroup`, `estadoOperativo`, `idSector`, `procesador`, `memoriaRAM`, `almacenamiento`, `sistemaOperativo`, `tecnologiaImpresion`, `tipoConexion`, `formatoPapel`, `idInsumoCompatible`) VALUES
-(1, 'TEP-PC-042', '', 'Dell OptiPlex 3090', 'SNDELL998877', '192.168.1.150', '255.255.255.0', 'TRIBUNAL', 'Activo', 2, 'Intel Core i5-10500', '16GB DDR4', '512GB SSD NVMe', 'Windows 10 Pro', NULL, NULL, NULL, NULL);
+(1, 'TEP-PC-042', 'Computadora', 'Dell OptiPlex 3090', 'SNDELL998877', '192.168.1.150', '255.255.255.0', 'TRIBUNAL', 'Activo', 2, 'Intel Core i5-10500', '16GB DDR4', '512GB SSD NVMe', 'Windows 10 Pro', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 

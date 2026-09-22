@@ -4,6 +4,8 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Insumos from './pages/Insumos';
 import Equipos from './pages/Equipos';
+import Movimientos from './pages/Movimientos';
+import Compatibilidad from './pages/Compatibilidad';
 
 // Envoltorio para Login con navegación por URL
 function LoginPage() {
@@ -37,6 +39,8 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/equipos" element={<Equipos />} />
         <Route path="/insumos" element={<Insumos />} />
+        <Route path="/movimientos" element={<Movimientos />} />
+        <Route path="/compatibilidad" element={<Compatibilidad />} />
         <Route path="/catalogo-insumos" element={<Navigate to="/insumos" replace />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registro" element={<RegisterPage />} />
