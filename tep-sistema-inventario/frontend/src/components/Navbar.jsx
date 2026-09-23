@@ -93,9 +93,9 @@ export default function Navbar({ title = 'Dashboard', isSidebarOpen = true, onTo
                 type="button"
                 onClick={() => {
                   setIsProfileOpen(false);
-                  alert('Vista de Mi Perfil en desarrollo');
+                  navigate('/perfil');
                 }}
-                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition text-left cursor-pointer"
+                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition text-left cursor-pointer font-medium"
               >
                 <User size={16} className="text-slate-400" />
                 <span>Mi Perfil</span>

@@ -351,9 +351,173 @@ const regenerarPinAdmin = async (req, res) => {
     });
 };
 
+/**
+ * Consultar perfil del usuario autenticado en sesión
+ * GET /api/auth/perfil
+ */
+const obtenerPerfil = async (req, res) => {
+    try {
+        const idUsuario = req.usuario?.idUsuario;
+        if (!idUsuario) {
+            return res.status(401).json({ message: 'No autenticado.' });
+        }
+
+        const query = `
+            SELECT 
+                u.idUsuario,
+                CONCAT('USR-', LPAD(u.idUsuario, 3, '0')) AS codUsuario,
+                u.username,
+                u.rolAcceso,
+                u.estadoActivo,
+                CASE WHEN u.pinRecuperacion IS NOT NULL AND u.pinRecuperacion != '' THEN 1 ELSE 0 END AS tienePin,
+                DATE_FORMAT(u.fechaUltimoPin, '%d/%m/%Y %H:%i') AS fechaUltimoPin,
+                DATE_FORMAT(MIN(l.fechaHora), '%d/%m/%Y') AS fechaCreacion,
+                DATE_FORMAT(MAX(l.fechaHora), '%d/%m/%Y %H:%i') AS ultimoAcceso,
+                COUNT(l.idLog) AS totalOperaciones,
+                DATEDIFF(NOW(), COALESCE(MIN(l.fechaHora), NOW())) + 1 AS diasActivo
+            FROM Usuarios u
+            LEFT JOIN Log_Auditoria l ON u.idUsuario = l.idUsuario
+            WHERE u.idUsuario = ?
+            GROUP BY u.idUsuario, u.username, u.rolAcceso, u.estadoActivo, u.pinRecuperacion, u.fechaUltimoPin
+        `;
+
+        db.query(query, [idUsuario], (err, results) => {
+            if (err) {
+                console.error('Error al obtener perfil:', err);
+                return res.status(500).json({ message: 'Error interno al consultar perfil.' });
+            }
+
+            if (results.length === 0) {
+                return res.status(404).json({ message: 'Usuario no encontrado.' });
+            }
+
+            const usr = results[0];
+            return res.status(200).json({
+                idUsuario: usr.idUsuario,
+                codUsuario: usr.codUsuario,
+                username: usr.username,
+                email: `${usr.username.toLowerCase()}@tribunal.gob.ar`,
+                rolAcceso: usr.rolAcceso,
+                estadoActivo: usr.estadoActivo,
+                estado: usr.estadoActivo === 1 ? 'Activo' : 'Inactivo',
+                tienePin: usr.tienePin === 1,
+                fechaUltimoPin: usr.fechaUltimoPin,
+                fechaCreacion: usr.fechaCreacion || 'Reciente',
+                ultimoAcceso: usr.ultimoAcceso || 'Hoy',
+                diasActivo: usr.diasActivo || 1,
+                totalOperaciones: usr.totalOperaciones || 0
+            });
+        });
+    } catch (error) {
+        console.error('Error en obtenerPerfil:', error);
+        return res.status(500).json({ message: 'Error interno al consultar perfil.' });
+    }
+};
+
+/**
+ * Actualizar contraseña o PIN de recuperación del usuario en sesión
+ * PUT /api/auth/perfil
+ */
+const actualizarPerfil = async (req, res) => {
+    try {
+        const idUsuario = req.usuario?.idUsuario;
+        const { passwordActual, nuevoPassword, nuevoPin } = req.body;
+
+        if (!passwordActual) {
+            return res.status(400).json({
+                message: 'Debe ingresar su contraseña actual para validar la operación de seguridad.'
+            });
+        }
+
+        const query = 'SELECT idUsuario, username, password FROM Usuarios WHERE idUsuario = ?';
+        db.query(query, [idUsuario], async (err, results) => {
+            if (err) {
+                console.error('Error al consultar usuario para actualizar perfil:', err);
+                return res.status(500).json({ message: 'Error interno del servidor.' });
+            }
+
+            if (results.length === 0) {
+                return res.status(404).json({ message: 'Usuario no encontrado.' });
+            }
+
+            const usuario = results[0];
+
+            // Validar contraseña actual con bcrypt
+            const isMatch = await bcrypt.compare(passwordActual, usuario.password);
+            if (!isMatch) {
+                return res.status(401).json({
+                    message: 'La contraseña actual ingresada es incorrecta.'
+                });
+            }
+
+            let updates = [];
+            let values = [];
+            let detallesAuditoria = [];
+
+            // 1. Cambiar contraseña si se proporcionó una nueva
+            if (nuevoPassword && nuevoPassword.trim() !== '') {
+                if (nuevoPassword.length < 8) {
+                    return res.status(400).json({
+                        message: 'La nueva contraseña debe tener al menos 8 caracteres.'
+                    });
+                }
+                const hashedPassword = await bcrypt.hash(nuevoPassword, 10);
+                updates.push('password = ?');
+                values.push(hashedPassword);
+                detallesAuditoria.push('cambio de contraseña');
+            }
+
+            // 2. Cambiar PIN si se proporcionó uno nuevo
+            if (nuevoPin && nuevoPin.trim() !== '') {
+                const pinLimpio = String(nuevoPin).trim();
+                if (!/^\d{4,6}$/.test(pinLimpio)) {
+                    return res.status(400).json({
+                        message: 'El PIN de recuperación debe ser numérico de 4 a 6 dígitos.'
+                    });
+                }
+                updates.push('pinRecuperacion = ?', 'fechaUltimoPin = NOW()');
+                values.push(pinLimpio);
+                detallesAuditoria.push('actualización de PIN de recuperación');
+            }
+
+            if (updates.length === 0) {
+                return res.status(400).json({
+                    message: 'No se indicaron cambios de contraseña ni de PIN.'
+                });
+            }
+
+            values.push(idUsuario);
+            const updateSql = `UPDATE Usuarios SET ${updates.join(', ')} WHERE idUsuario = ?`;
+
+            db.query(updateSql, values, async (updateErr) => {
+                if (updateErr) {
+                    console.error('Error al actualizar seguridad de usuario:', updateErr);
+                    return res.status(500).json({ message: 'Error al actualizar credenciales.' });
+                }
+
+                await registrarAuditoria(
+                    idUsuario,
+                    `Actualización de seguridad por usuario @${usuario.username}: ${detallesAuditoria.join(' y ')}.`,
+                    'Seguridad'
+                ).catch(() => {});
+
+                return res.status(200).json({
+                    message: 'Credenciales de seguridad actualizadas con éxito.',
+                    tienePin: true
+                });
+            });
+        });
+    } catch (error) {
+        console.error('Error en actualizarPerfil:', error);
+        return res.status(500).json({ message: 'Error al procesar la actualización del perfil.' });
+    }
+};
+
 module.exports = {
     login,
     register,
     recuperarPassword,
-    regenerarPinAdmin
+    regenerarPinAdmin,
+    obtenerPerfil,
+    actualizarPerfil
 };

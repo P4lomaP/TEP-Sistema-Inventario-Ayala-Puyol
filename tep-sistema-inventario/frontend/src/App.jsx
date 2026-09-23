@@ -7,7 +7,10 @@ import Equipos from './pages/Equipos';
 import Movimientos from './pages/Movimientos';
 import Compatibilidad from './pages/Compatibilidad';
 import Reportes from './pages/Reportes';
+import Usuarios from './pages/Usuarios';
+import Perfil from './pages/Perfil';
 import ProtectedRoute from './components/ProtectedRoute';
+import { getStoredUser } from './services/authService';
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -28,11 +31,20 @@ function RegisterPage() {
   );
 }
 
+// Guardián exclusivo para vistas de Administrador
+function AdminRoute({ children }) {
+  const user = getStoredUser();
+  if (user?.rolAcceso !== 'Administrador') {
+    return <Navigate to="/dashboard" replace />;
+  }
+  return children;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Rutas públicas */}
+        {/* Rutas públicas de autenticación */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registro" element={<RegisterPage />} />
         <Route path="/register" element={<Navigate to="/registro" replace />} />
@@ -41,12 +53,16 @@ export default function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          
           <Route path="/equipos" element={<Equipos />} />
           <Route path="/equipos-patrimoniales" element={<Navigate to="/equipos" replace />} />
+          
           <Route path="/insumos" element={<Insumos />} />
           <Route path="/catalogo-insumos" element={<Navigate to="/insumos" replace />} />
+          
           <Route path="/movimientos" element={<Movimientos />} />
           <Route path="/movement" element={<Navigate to="/movimientos" replace />} />
+          
           <Route path="/compatibilidad" element={<Compatibilidad />} />
           <Route path="/matriz-compatibilidad" element={<Navigate to="/compatibilidad" replace />} />
           
@@ -55,6 +71,21 @@ export default function App() {
           <Route path="/auditorias" element={<Navigate to="/reportes" replace />} />
           <Route path="/auditorias-reportes" element={<Navigate to="/reportes" replace />} />
           <Route path="/backup" element={<Navigate to="/reportes" replace />} />
+
+          {/* Módulo exclusivo de Administrador */}
+          <Route 
+            path="/usuarios" 
+            element={
+              <AdminRoute>
+                <Usuarios />
+              </AdminRoute>
+            } 
+          />
+          <Route path="/usuarios-roles" element={<Navigate to="/usuarios" replace />} />
+
+          {/* Perfil del Operador */}
+          <Route path="/perfil" element={<Perfil />} />
+          <Route path="/profile" element={<Navigate to="/perfil" replace />} />
         </Route>
 
         {/* Redirección por defecto */}

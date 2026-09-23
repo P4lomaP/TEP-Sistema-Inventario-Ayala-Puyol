@@ -9,19 +9,25 @@ import {
   ShieldCheck,
   X
 } from 'lucide-react';
+import { getStoredUser } from '../services/authService';
 
 export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClose }) {
   const navigate = useNavigate();
 
-  const menuItems = [
+  const currentUser = getStoredUser();
+  const isAdmin = currentUser?.rolAcceso === 'Administrador';
+
+  const allMenuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid, path: '/dashboard' },
     { id: 'equipos', label: 'Equipos Patrimoniales', icon: Package, path: '/equipos' },
     { id: 'insumos', label: 'Catálogos de Insumos', icon: Layers, path: '/insumos' },
     { id: 'movimientos', label: 'Movimientos', icon: ArrowLeftRight, path: '/movimientos' },
     { id: 'compatibilidad', label: 'Matriz de Compatibilidad', icon: Workflow, path: '/compatibilidad' },
     { id: 'reportes', label: 'Reportes y Auditoría', icon: FileText, path: '/reportes' },
-    { id: 'usuarios', label: 'Usuarios y Roles', icon: ShieldCheck, path: '/usuarios' },
+    { id: 'usuarios', label: 'Usuarios y Roles', icon: ShieldCheck, path: '/usuarios', adminOnly: true },
   ];
+
+  const menuItems = allMenuItems.filter(item => !item.adminOnly || isAdmin);
 
   const handleNavigate = (path) => {
     if (path) {

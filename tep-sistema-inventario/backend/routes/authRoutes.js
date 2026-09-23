@@ -11,6 +11,12 @@ router.post('/register', authController.register);
 router.post('/recuperar-password', authController.recuperarPassword);
 
 // ----------------------------------------------------
+// Rutas de Usuario Protegidas (Requiere Token)
+// ----------------------------------------------------
+router.get('/perfil', authMiddleware, authController.obtenerPerfil);
+router.put('/perfil', authMiddleware, authController.actualizarPerfil);
+
+// ----------------------------------------------------
 // Rutas de Administración Protegidas (Requiere Token y Rol Administrador)
 // ----------------------------------------------------
 router.put(
