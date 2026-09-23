@@ -69,10 +69,10 @@ export async function descargarReporteEquiposPDF() {
 
 /**
  * Descargar copia de seguridad SQL completa de la base de datos (RF-07.3)
- * GET /api/reportes/backup o /api/backup/sql
+ * GET /api/backup/sql
  */
 export async function descargarBackupSQL() {
-  const response = await authFetch(`${BASE_URL}/reportes/backup`);
+  const response = await authFetch(`${BASE_URL}/backup/sql`);
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
