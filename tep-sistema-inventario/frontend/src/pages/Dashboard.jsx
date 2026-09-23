@@ -28,10 +28,11 @@ export default function Dashboard() {
     totalInsumos: 0,
     totalStockUnidades: 0,
     insumosCriticos: 0,
+    distribucionMensual: [],
     ultimosMovimientos: []
   });
 
-  // Función para cargar los datos desde los 3 endpoints reales
+  // Función para cargar los datos consolidados desde el backend
   const cargarDatos = async () => {
     setLoading(true);
     setError(null);
@@ -50,21 +51,25 @@ export default function Dashboard() {
     cargarDatos();
   }, []);
 
-  // Alturas porcentuales representativas para las 12 barras mensuales
-  const barrasGrafico = [
-    { mes: 'Ene', valor: 42 },
-    { mes: 'Feb', valor: 38 },
-    { mes: 'Mar', valor: 62 },
-    { mes: 'Abr', valor: 54 },
-    { mes: 'May', valor: 78 },
-    { mes: 'Jun', valor: 66 },
-    { mes: 'Jul', valor: 58 },
-    { mes: 'Ago', valor: 82 },
-    { mes: 'Sep', valor: 70 },
-    { mes: 'Oct', valor: 86 },
-    { mes: 'Nov', valor: 80 },
-    { mes: 'Dic', valor: 95 },
+  // Barras mensuales reales obtenidas desde el backend
+  const mesesDefault = [
+    { mes: 'Ene', valor: 8, unidades: 0 },
+    { mes: 'Feb', valor: 8, unidades: 0 },
+    { mes: 'Mar', valor: 8, unidades: 0 },
+    { mes: 'Abr', valor: 8, unidades: 0 },
+    { mes: 'May', valor: 8, unidades: 0 },
+    { mes: 'Jun', valor: 8, unidades: 0 },
+    { mes: 'Jul', valor: 8, unidades: 0 },
+    { mes: 'Ago', valor: 8, unidades: 0 },
+    { mes: 'Sep', valor: 8, unidades: 0 },
+    { mes: 'Oct', valor: 8, unidades: 0 },
+    { mes: 'Nov', valor: 8, unidades: 0 },
+    { mes: 'Dic', valor: 8, unidades: 0 },
   ];
+
+  const barrasGrafico = dashboardData.distribucionMensual && dashboardData.distribucionMensual.length === 12
+    ? dashboardData.distribucionMensual
+    : mesesDefault;
 
   // Helper para renderizar badge del tipo de movimiento
   const renderTipoBadge = (tipo) => {
@@ -233,10 +238,21 @@ export default function Dashboard() {
           <div className="overflow-x-auto pb-2 -mx-2 px-2 mt-4">
             <div className="h-52 sm:h-56 pt-6 sm:pt-8 pb-2 flex items-end justify-between gap-2 sm:gap-4 min-w-[500px]">
               {barrasGrafico.map((barra, index) => (
-                <div key={index} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+                <div 
+                  key={index} 
+                  className="flex-1 flex flex-col items-center gap-2 h-full justify-end group relative"
+                  title={`${barra.mes}: ${barra.unidades || 0} unidades despachadas`}
+                >
+                  <div className="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-[10px] px-1.5 py-0.5 rounded shadow pointer-events-none whitespace-nowrap z-20">
+                    {barra.unidades || 0} un.
+                  </div>
                   <div
                     style={{ height: `${barra.valor}%` }}
-                    className="w-full max-w-[40px] bg-[#162740] group-hover:bg-blue-600 rounded-t-md transition-all duration-300"
+                    className={`w-full max-w-[40px] rounded-t-md transition-all duration-300 ${
+                      (barra.unidades || 0) > 0 
+                        ? 'bg-blue-600 group-hover:bg-blue-700 shadow-xs' 
+                        : 'bg-slate-200 group-hover:bg-slate-300'
+                    }`}
                   />
                   <span className="text-[11px] text-slate-400 font-medium">{barra.mes}</span>
                 </div>

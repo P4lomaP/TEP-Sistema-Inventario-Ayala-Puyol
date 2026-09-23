@@ -14,6 +14,7 @@ const comprobantesRoutes = require('./routes/comprobantesRoutes');
 const backupRoutes = require('./routes/backupRoutes');
 const reportesRoutes = require('./routes/reportesRoutes');
 const usuariosRoutes = require('./routes/usuariosRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 // Middleware de autenticación y control de inactividad (30m)
 const authMiddleware = require('./middlewares/authMiddleware');
@@ -44,6 +45,7 @@ app.use('/api/comprobantes', authMiddleware, comprobantesRoutes);
 app.use('/api/backup', backupRoutes);
 app.use('/api/reportes', authMiddleware, reportesRoutes);
 app.use('/api/usuarios', authMiddleware, usuariosRoutes);
+app.use('/api/dashboard', authMiddleware, dashboardRoutes);
 
 // Una ruta de prueba para ver si el servidor responde
 app.get('/', (req, res) => {
