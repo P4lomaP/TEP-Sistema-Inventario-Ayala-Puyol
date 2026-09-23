@@ -53,6 +53,10 @@ app.get('/', (req, res) => {
 });
 
 // Encendemos el motor del servidor
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor backend corriendo en http://localhost:${PORT}`);
-});
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`🚀 Servidor backend corriendo en http://localhost:${PORT}`);
+    });
+}
+
+module.exports = app;

@@ -8,6 +8,8 @@ const authMiddleware = require('../middlewares/authMiddleware');
 // ----------------------------------------------------
 router.post('/login', authController.login);
 router.post('/register', authController.register);
+router.post('/verificar-pin', authController.verificarPin);
+router.post('/solicitar-pin', authController.solicitarNuevoPin);
 router.post('/recuperar-password', authController.recuperarPassword);
 
 // ----------------------------------------------------
@@ -24,6 +26,12 @@ router.put(
     authMiddleware, 
     authMiddleware.verificarRol(['Administrador']), 
     authController.regenerarPinAdmin
+);
+router.put(
+    '/admin/descartar-solicitud-pin/:idUsuario', 
+    authMiddleware, 
+    authMiddleware.verificarRol(['Administrador']), 
+    authController.descartarSolicitudPinAdmin
 );
 
 module.exports = router;

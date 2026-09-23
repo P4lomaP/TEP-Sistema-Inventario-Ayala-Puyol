@@ -151,4 +151,131 @@ export async function authFetch(url, options = {}) {
   return response;
 }
 
+/**
+ * Validar si el PIN de recuperación ingresado para un usuario es correcto
+ * @param {Object} data - { username, pinRecuperacion }
+ */
+export async function verificarPinService({ username, pinRecuperacion }) {
+  let response;
+  try {
+    response = await fetch(`${API_URL}/verificar-pin`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, pinRecuperacion }),
+    });
+  } catch (networkError) {
+    throw new Error('No se pudo conectar con el servidor backend.');
+  }
 
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const error = new Error(data.message || 'El PIN de recuperación es incorrecto.');
+    error.status = response.status;
+    error.valido = false;
+    error.diasRestantesCooldown = data.diasRestantesCooldown || 0;
+    error.puedeSolicitar = data.puedeSolicitar !== false;
+    throw error;
+  }
+
+  return data;
+}
+
+/**
+ * Notificar al administrador para solicitar la regeneración de un PIN
+ * @param {string} username
+ */
+export async function solicitarPinService(username) {
+  let response;
+  try {
+    response = await fetch(`${API_URL}/solicitar-pin`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username }),
+    });
+  } catch (networkError) {
+    throw new Error('No se pudo conectar con el servidor backend.');
+  }
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const error = new Error(data.message || 'Error al enviar la solicitud al Administrador.');
+    error.status = response.status;
+    error.diasRestantesCooldown = data.diasRestantesCooldown;
+    error.bloqueadoPorCooldown = data.bloqueadoPorCooldown;
+    throw error;
+  }
+
+  return data;
+}
+
+/**
+ * Blanquear / restablecer contraseña con el PIN de recuperación
+ * @param {Object} data - { username, pinRecuperacion, nuevaPassword }
+ */
+export async function recuperarPasswordService({ username, pinRecuperacion, nuevaPassword }) {
+  let response;
+  try {
+    response = await fetch(`${API_URL}/recuperar-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, pinRecuperacion, nuevaPassword }),
+    });
+  } catch (networkError) {
+    throw new Error('No se pudo conectar con el servidor backend.');
+  }
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.message || 'Error al restablecer la contraseña.');
+  }
+
+  return data;
+}
+
+/**
+ * Administrador: Regenerar PIN de recuperación para un usuario (con cooldown de 30 días)
+ * @param {number|string} idUsuario
+ */
+export async function regenerarPinAdminService(idUsuario) {
+  const response = await authFetch(`${API_URL}/admin/regenerar-pin/${idUsuario}`, {
+    method: 'PUT',
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const error = new Error(data.message || 'Error al regenerar PIN.');
+    error.status = response.status;
+    error.diasRestantes = data.diasRestantes;
+    throw error;
+  }
+
+  return data;
+}
+
+/**
+ * Administrador: Descartar solicitud de regeneración de PIN
+ * @param {number|string} idUsuario
+ */
+export async function descartarSolicitudPinService(idUsuario) {
+  const response = await authFetch(`${API_URL}/admin/descartar-solicitud-pin/${idUsuario}`, {
+    method: 'PUT',
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.message || 'Error al descartar la solicitud de PIN.');
+  }
+
+  return data;
+}

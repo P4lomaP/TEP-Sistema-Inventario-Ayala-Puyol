@@ -186,6 +186,138 @@ const register = async (req, res) => {
 };
 
 /**
+ * Validar si un PIN ingresado para recuperación es correcto antes de solicitar nueva contraseña
+ * POST /api/auth/verificar-pin
+ */
+const verificarPin = async (req, res) => {
+    const { username, pinRecuperacion } = req.body;
+
+    if (!username || !pinRecuperacion) {
+        return res.status(400).json({ 
+            message: 'Por favor, ingrese su usuario y su PIN de recuperación.' 
+        });
+    }
+
+    const query = 'SELECT idUsuario, username, pinRecuperacion, estadoActivo, fechaUltimoPin FROM Usuarios WHERE username = ?';
+
+    db.query(query, [username.trim()], (err, results) => {
+        if (err) {
+            console.error('Error al verificar PIN:', err);
+            return res.status(500).json({ message: 'Error interno del servidor.' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: 'El usuario especificado no existe.' });
+        }
+
+        const usuario = results[0];
+
+        if (usuario.estadoActivo !== 1) {
+            return res.status(403).json({ message: 'Usuario inactivo o deshabilitado.' });
+        }
+
+        // Calcular días restantes de cooldown (política estricta de 30 días)
+        let diasRestantes = 0;
+        if (usuario.fechaUltimoPin) {
+            const ahora = new Date();
+            const fechaUltimo = new Date(usuario.fechaUltimoPin);
+            const diferenciaMs = ahora.getTime() - fechaUltimo.getTime();
+            const diasTranscurridos = diferenciaMs / (1000 * 60 * 60 * 24);
+            const COOLDOWN_DIAS = 30;
+            if (diasTranscurridos < COOLDOWN_DIAS) {
+                diasRestantes = Math.ceil(COOLDOWN_DIAS - diasTranscurridos);
+            }
+        }
+
+        if (!usuario.pinRecuperacion || usuario.pinRecuperacion.trim() !== String(pinRecuperacion).trim()) {
+            return res.status(401).json({ 
+                valido: false,
+                message: 'El PIN de recuperación es incorrecto o no ha sido asignado.',
+                diasRestantesCooldown: diasRestantes,
+                puedeSolicitar: diasRestantes === 0
+            });
+        }
+
+        return res.status(200).json({
+            valido: true,
+            message: 'PIN verificado exitosamente. Ahora puede modificar su contraseña.'
+        });
+    });
+};
+
+/**
+ * Notificar al Administrador que un operador olvidó su PIN y solicita regeneración
+ * Solo se permite si ya transcurrieron 30 días desde el último PIN (evita solicitudes frecuentes)
+ * POST /api/auth/solicitar-pin
+ */
+const solicitarNuevoPin = async (req, res) => {
+    const { username } = req.body;
+
+    if (!username || !username.trim()) {
+        return res.status(400).json({ message: 'Debe ingresar su nombre de usuario.' });
+    }
+
+    const query = 'SELECT idUsuario, username, estadoActivo, fechaUltimoPin FROM Usuarios WHERE username = ?';
+
+    db.query(query, [username.trim()], (err, results) => {
+        if (err) {
+            console.error('Error al buscar usuario para solicitar PIN:', err);
+            return res.status(500).json({ message: 'Error interno del servidor.' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: 'No se encontró ningún usuario con ese identificador.' });
+        }
+
+        const usuario = results[0];
+
+        if (usuario.estadoActivo !== 1) {
+            return res.status(403).json({ message: 'Usuario inactivo o deshabilitado.' });
+        }
+
+        // Regla estricta: No se puede solicitar otro PIN hasta que pasen 30 días
+        let diasRestantes = 0;
+        if (usuario.fechaUltimoPin) {
+            const ahora = new Date();
+            const fechaUltimo = new Date(usuario.fechaUltimoPin);
+            const diferenciaMs = ahora.getTime() - fechaUltimo.getTime();
+            const diasTranscurridos = diferenciaMs / (1000 * 60 * 60 * 24);
+            const COOLDOWN_DIAS = 30;
+            if (diasTranscurridos < COOLDOWN_DIAS) {
+                diasRestantes = Math.ceil(COOLDOWN_DIAS - diasTranscurridos);
+                return res.status(429).json({
+                    message: `No podés solicitar un nuevo PIN aún. Debés esperar ${diasRestantes} día(s) restante(s). Por seguridad, el PIN dura 30 días obligando a recordarlo o anotarlo en lugar seguro.`,
+                    diasRestantesCooldown: diasRestantes,
+                    bloqueadoPorCooldown: true
+                });
+            }
+        }
+
+        // Marcar la solicitud en base de datos si ya cumplió los 30 días
+        const updateQuery = 'UPDATE Usuarios SET solicitaPin = 1 WHERE idUsuario = ?';
+        db.query(updateQuery, [usuario.idUsuario], async (updateErr) => {
+            if (updateErr) {
+                console.error('Error al registrar solicitud de PIN:', updateErr);
+                return res.status(500).json({ message: 'Error al registrar la solicitud.' });
+            }
+
+            // Registrar en auditoría institucional
+            await registrarAuditoria(
+                usuario.idUsuario,
+                `El usuario @${usuario.username} solicitó la regeneración de un nuevo PIN al Administrador tras cumplir los 30 días de cooldown`,
+                'Seguridad'
+            ).catch(() => {});
+
+            return res.status(200).json({
+                message: 'Solicitud enviada al Administrador con éxito. Ha cumplido el período de 30 días.',
+                solicitado: true,
+                diasRestantesCooldown: 0
+            });
+        });
+    });
+};
+
+/**
  * Endpoint para blanquear/recuperar contraseña validando username y pinRecuperacion (Autogestión del usuario)
  * POST /api/auth/recuperar-password
  */
@@ -234,7 +366,7 @@ const recuperarPassword = async (req, res) => {
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
-            const updateQuery = 'UPDATE Usuarios SET password = ? WHERE idUsuario = ?';
+            const updateQuery = 'UPDATE Usuarios SET password = ?, solicitaPin = 0 WHERE idUsuario = ?';
             db.query(updateQuery, [hashedPassword, usuario.idUsuario], async (updateErr) => {
                 if (updateErr) {
                     console.error('Error al actualizar contraseña:', updateErr);
@@ -284,7 +416,7 @@ const regenerarPinAdmin = async (req, res) => {
     }
 
     // 2. Buscar usuario objetivo
-    const query = 'SELECT idUsuario, username, fechaUltimoPin, estadoActivo FROM Usuarios WHERE idUsuario = ?';
+    const query = 'SELECT idUsuario, username, fechaUltimoPin, estadoActivo, solicitaPin FROM Usuarios WHERE idUsuario = ?';
 
     db.query(query, [usuarioId], (err, results) => {
         if (err) {
@@ -319,10 +451,10 @@ const regenerarPinAdmin = async (req, res) => {
         // 4. Generar nuevo PIN criptográficamente seguro de 6 dígitos
         const nuevoPin = crypto.randomInt(100000, 1000000).toString();
 
-        // 5. Actualizar en base de datos reseteando fechaUltimoPin a NOW()
+        // 5. Actualizar en base de datos reseteando fechaUltimoPin a NOW() y solicitaPin = 0
         const updateQuery = `
             UPDATE Usuarios 
-            SET pinRecuperacion = ?, fechaUltimoPin = NOW() 
+            SET pinRecuperacion = ?, fechaUltimoPin = NOW(), solicitaPin = 0 
             WHERE idUsuario = ?
         `;
 
@@ -348,6 +480,40 @@ const regenerarPinAdmin = async (req, res) => {
                 fechaUltimoPin: new Date()
             });
         });
+    });
+};
+
+/**
+ * Controlador de Administrador: Descartar solicitud de regeneración de PIN
+ * PUT /api/auth/admin/descartar-solicitud-pin/:idUsuario
+ */
+const descartarSolicitudPinAdmin = async (req, res) => {
+    const { idUsuario } = req.params;
+    const adminOperador = req.usuario;
+
+    if (!adminOperador || adminOperador.rolAcceso !== 'Administrador') {
+        return res.status(403).json({ message: 'Acceso denegado: Solo los administradores pueden descartar solicitudes.' });
+    }
+
+    const usuarioId = parseInt(idUsuario, 10);
+    if (isNaN(usuarioId)) {
+        return res.status(400).json({ message: 'ID de usuario inválido.' });
+    }
+
+    const updateQuery = 'UPDATE Usuarios SET solicitaPin = 0 WHERE idUsuario = ?';
+    db.query(updateQuery, [usuarioId], async (err) => {
+        if (err) {
+            console.error('Error al descartar solicitud de PIN:', err);
+            return res.status(500).json({ message: 'Error al descartar solicitud.' });
+        }
+
+        await registrarAuditoria(
+            adminOperador.idUsuario,
+            `Descarte de solicitud de regeneración de PIN para el usuario ID ${usuarioId}`,
+            'Seguridad'
+        ).catch(() => {});
+
+        return res.status(200).json({ message: 'Solicitud de PIN descartada correctamente.' });
     });
 };
 
@@ -516,8 +682,11 @@ const actualizarPerfil = async (req, res) => {
 module.exports = {
     login,
     register,
+    verificarPin,
+    solicitarNuevoPin,
     recuperarPassword,
     regenerarPinAdmin,
+    descartarSolicitudPinAdmin,
     obtenerPerfil,
     actualizarPerfil
 };

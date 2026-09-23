@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Eye, EyeOff, ShieldCheck, Loader2 } from 'lucide-react';
+import { X, Eye, EyeOff, ShieldCheck, Loader2, KeyRound, Copy, Check, AlertTriangle } from 'lucide-react';
 import { registerService } from '../services/authService';
 
 export default function Register({ onSwitchToLogin }) {
@@ -12,7 +12,17 @@ export default function Register({ onSwitchToLogin }) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [pinGenerado, setPinGenerado] = useState('');
+  const [copiado, setCopiado] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Copiar PIN al portapapeles
+  const handleCopiarPin = () => {
+    if (!pinGenerado) return;
+    navigator.clipboard.writeText(pinGenerado);
+    setCopiado(true);
+    setTimeout(() => setCopiado(false), 2500);
+  };
 
   // 2. FUNCIÓN DE ENVÍO: Validaciones de registro y llamada a la API POST /api/auth/register
   const handleSubmit = async (e) => {
@@ -33,20 +43,17 @@ export default function Register({ onSwitchToLogin }) {
     try {
       setIsLoading(true);
       // Petición real al backend
-      await registerService({
+      const res = await registerService({
         username: username.trim(),
         password,
         rolAcceso,
       });
 
+      // El backend devuelve el PIN generado en texto claro para que el usuario lo anote
+      if (res.pinRecuperacion) {
+        setPinGenerado(res.pinRecuperacion);
+      }
       setSuccess(true);
-
-      // Redirige al login automáticamente tras 1.5s
-      setTimeout(() => {
-        if (onSwitchToLogin) {
-          onSwitchToLogin();
-        }
-      }, 1500);
 
     } catch (err) {
       // Muestra el mensaje del backend ("El usuario ya está registrado", etc.)
@@ -56,21 +63,87 @@ export default function Register({ onSwitchToLogin }) {
     }
   };
 
-  // 3. ZONA VISUAL (HTML + Tailwind reproduciendo la interfaz modal)
+  // 3. ZONA VISUAL: Si el registro fue exitoso, mostrar pantalla con su PIN de recuperación
+  if (success && pinGenerado) {
+    return (
+      <div className="relative min-h-screen w-full flex items-center justify-center bg-slate-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.25),rgba(255,255,255,0))] p-4 sm:p-6 py-8">
+        <div className="relative w-full max-w-md bg-white rounded-2xl shadow-xl sm:shadow-2xl p-6 sm:p-8 my-4 text-center animate-fade-in border border-slate-100">
+          
+          {/* Icono de éxito */}
+          <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-100 shadow-xs">
+            <ShieldCheck size={36} />
+          </div>
+
+          <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
+            ¡Usuario Registrado Exitosamente!
+          </h2>
+          <p className="text-xs text-slate-500 mt-1 mb-6">
+            La cuenta <strong className="text-slate-700">@{username}</strong> ({rolAcceso}) ha sido creada en el sistema.
+          </p>
+
+          {/* Tarjeta destacada con el PIN */}
+          <div className="bg-gradient-to-br from-indigo-50/80 to-blue-50/60 border border-indigo-200/80 rounded-2xl p-5 mb-5 shadow-xs text-left">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 flex items-center gap-1.5">
+                <KeyRound size={13} className="text-indigo-600" />
+                Tu PIN de Recuperación
+              </span>
+              <span className="text-[10px] bg-indigo-100 text-indigo-800 font-semibold px-2 py-0.5 rounded-full">
+                Válido por 30 días
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between bg-white border border-indigo-200 rounded-xl px-4 py-3 shadow-2xs">
+              <span className="font-mono text-2xl font-black text-slate-900 tracking-widest">
+                {pinGenerado}
+              </span>
+              <button
+                type="button"
+                onClick={handleCopiarPin}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer"
+                title="Copiar código PIN"
+              >
+                {copiado ? (
+                  <>
+                    <Check size={14} className="text-emerald-300" />
+                    <span>¡Copiado!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy size={14} />
+                    <span>Copiar PIN</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="mt-3 flex items-start gap-2 text-[11px] text-slate-600 leading-relaxed">
+              <AlertTriangle size={15} className="text-amber-500 shrink-0 mt-0.5" />
+              <span>
+                <strong>Importante:</strong> Guardá y anotá este PIN en un lugar seguro. Si olvidás tu contraseña, este código te permitirá restablecerla. Por seguridad del sistema, <strong>no podrás solicitar otro PIN por 30 días</strong>, lo que te obliga a recordar o tener anotada tu clave y previene solicitudes frecuentes cada semana o pocos días.
+              </span>
+            </div>
+          </div>
+
+          {/* Botón para ir al login */}
+          <button
+            type="button"
+            onClick={onSwitchToLogin}
+            className="w-full bg-[#5764E8] hover:bg-[#4653D4] text-white text-sm font-semibold py-3 px-4 rounded-xl shadow-md transition duration-200 cursor-pointer flex items-center justify-center gap-2"
+          >
+            <span>Continuar a Iniciar Sesión</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 4. Formulario Principal de Registro
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center bg-slate-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.25),rgba(255,255,255,0))] p-4 sm:p-6 py-8">
       {/* Tarjeta Modal Blanca */}
       <div className="relative w-full max-w-md bg-white rounded-2xl shadow-xl sm:shadow-2xl p-6 sm:p-10 my-4 sm:my-6">
         
-        {/* Botón de cerrar superior */}
-        <button
-          type="button"
-          onClick={() => console.log('Cerrar modal')}
-          className="absolute top-4 right-4 sm:-top-3 sm:-right-3 bg-white text-gray-600 hover:text-gray-900 border border-gray-200 rounded-full p-1.5 shadow-md transition hover:scale-105"
-        >
-          <X size={18} />
-        </button>
-
         {/* Encabezado */}
         <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 mb-1.5 sm:mb-2 tracking-tight">
           Crear Cuenta
@@ -83,14 +156,6 @@ export default function Register({ onSwitchToLogin }) {
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg p-3 mb-5">
             {error}
-          </div>
-        )}
-
-        {/* Mensaje de confirmación local */}
-        {success && (
-          <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-lg p-3 mb-5 flex items-center gap-2">
-            <ShieldCheck size={16} />
-            <span>Usuario registrado localmente con éxito.</span>
           </div>
         )}
 

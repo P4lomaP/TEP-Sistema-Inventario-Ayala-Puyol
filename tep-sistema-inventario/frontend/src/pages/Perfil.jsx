@@ -1,21 +1,15 @@
 import { useState, useEffect } from 'react';
 import { 
-  User, 
   ShieldCheck, 
   Calendar, 
   Clock, 
-  KeyRound, 
   Mail, 
   CheckCircle2, 
-  Lock, 
-  Save, 
-  Shield,
   Activity,
-  RefreshCw,
-  AlertCircle
+  RefreshCw
 } from 'lucide-react';
 import MainLayout from '../components/MainLayout';
-import { obtenerPerfilUsuario, actualizarSeguridadUsuario } from '../services/perfilService';
+import { obtenerPerfilUsuario } from '../services/perfilService';
 
 export default function Perfil() {
   const [usuario, setUsuario] = useState({
@@ -27,18 +21,11 @@ export default function Perfil() {
     fechaCreacion: 'Cargando...',
     diasActivo: 1,
     ultimoAcceso: 'Hoy',
-    estado: 'Activo',
-    tienePin: false
+    estado: 'Activo'
   });
 
   const [cargando, setCargando] = useState(true);
-  const [guardando, setGuardando] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-
-  // Formulario de seguridad
-  const [passwordActual, setPasswordActual] = useState('');
-  const [nuevoPassword, setNuevoPassword] = useState('');
-  const [nuevoPin, setNuevoPin] = useState('');
 
   const mostrarToast = (msg) => {
     setToastMessage(msg);
@@ -63,50 +50,6 @@ export default function Perfil() {
     cargarPerfil();
   }, []);
 
-  // Actualizar contraseña y/o PIN
-  const handleActualizarSeguridad = async (e) => {
-    e.preventDefault();
-
-    if (!passwordActual) {
-      mostrarToast('Debe ingresar su contraseña actual para confirmar los cambios.');
-      return;
-    }
-
-    if (!nuevoPassword && !nuevoPin) {
-      mostrarToast('Debe ingresar una nueva contraseña o un nuevo PIN para actualizar.');
-      return;
-    }
-
-    if (nuevoPassword && nuevoPassword.length < 8) {
-      mostrarToast('La nueva contraseña debe tener al menos 8 caracteres.');
-      return;
-    }
-
-    if (nuevoPin && !/^\d{4,6}$/.test(nuevoPin)) {
-      mostrarToast('El PIN debe ser un código numérico de 4 a 6 dígitos.');
-      return;
-    }
-
-    setGuardando(true);
-    try {
-      const res = await actualizarSeguridadUsuario({
-        passwordActual,
-        nuevoPassword: nuevoPassword || undefined,
-        nuevoPin: nuevoPin || undefined
-      });
-
-      mostrarToast(`✓ ${res.message || 'Credenciales actualizadas exitosamente.'}`);
-      setPasswordActual('');
-      setNuevoPassword('');
-      setNuevoPin('');
-      cargarPerfil();
-    } catch (err) {
-      mostrarToast(`Error: ${err.message}`);
-    } finally {
-      setGuardando(false);
-    }
-  };
-
   return (
     <MainLayout activePage="" pageTitle="Mi Perfil Institucional">
       <div className="max-w-4xl mx-auto space-y-6 select-none pb-8">
@@ -124,7 +67,7 @@ export default function Perfil() {
           <div>
             <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Mi Perfil</h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Detalles de su cuenta, credenciales institucionales y parámetros de seguridad.
+              Información de identidad institucional y métricas de actividad del operador.
             </p>
           </div>
           {cargando && (
@@ -179,10 +122,6 @@ export default function Perfil() {
                 <CheckCircle2 size={14} className="text-emerald-500" />
                 Estado {usuario.estado}
               </span>
-              <span className="flex items-center gap-1.5">
-                <KeyRound size={14} className={usuario.tienePin ? 'text-emerald-600' : 'text-amber-500'} />
-                {usuario.tienePin ? 'PIN configurado' : 'Sin PIN de rescate'}
-              </span>
             </div>
           </div>
         </div>
@@ -221,91 +160,6 @@ export default function Perfil() {
               <Clock size={18} />
             </div>
           </div>
-        </div>
-
-        {/* Módulo de Seguridad y Credenciales */}
-        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/80 shadow-xs space-y-6">
-          <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-            <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
-              <Shield size={18} />
-            </div>
-            <div>
-              <h4 className="text-sm font-bold text-slate-800">Seguridad y Respaldo</h4>
-              <p className="text-xs text-slate-400">Actualice su clave de acceso o configure su PIN numérico para recuperación</p>
-            </div>
-          </div>
-
-          <form onSubmit={handleActualizarSeguridad} className="space-y-4 max-w-2xl text-xs">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Nueva Contraseña</label>
-                <div className="relative">
-                  <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="password"
-                    value={nuevoPassword}
-                    onChange={(e) => setNuevoPassword(e.target.value)}
-                    placeholder="Mínimo 8 caracteres (opcional)"
-                    className="w-full pl-10 pr-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 focus:bg-white transition"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">
-                  PIN de Rescate (4 a 6 dígitos numéricos)
-                </label>
-                <div className="relative">
-                  <KeyRound size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="password"
-                    maxLength={6}
-                    value={nuevoPin}
-                    onChange={(e) => setNuevoPin(e.target.value)}
-                    placeholder={usuario.tienePin ? 'PIN configurado (••••) - Opcional' : 'Configurar nuevo PIN'}
-                    className="w-full pl-10 pr-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 focus:bg-white font-mono transition"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Contraseña Actual <span className="text-rose-500 font-normal">(Requerida para confirmar cambios)</span>
-              </label>
-              <div className="relative">
-                <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="password"
-                  required
-                  value={passwordActual}
-                  onChange={(e) => setPasswordActual(e.target.value)}
-                  placeholder="Ingrese su contraseña actual para validar su identidad"
-                  className="w-full pl-10 pr-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 focus:bg-white transition"
-                />
-              </div>
-            </div>
-
-            <div className="pt-3 flex justify-end">
-              <button
-                type="submit"
-                disabled={guardando || !passwordActual}
-                className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold rounded-xl shadow-xs transition cursor-pointer"
-              >
-                {guardando ? (
-                  <>
-                    <RefreshCw size={14} className="animate-spin" />
-                    <span>Guardando...</span>
-                  </>
-                ) : (
-                  <>
-                    <Save size={14} />
-                    <span>Guardar Cambios</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
         </div>
 
         {/* Pie Institucional */}

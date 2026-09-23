@@ -12,10 +12,19 @@ import {
   ShieldAlert,
   X,
   RefreshCw,
-  Edit2
+  Edit2,
+  KeyRound,
+  AlertTriangle,
+  Copy,
+  Check,
+  BellRing
 } from 'lucide-react';
 import MainLayout from '../components/MainLayout';
-import { getStoredUser } from '../services/authService';
+import { 
+  getStoredUser, 
+  regenerarPinAdminService, 
+  descartarSolicitudPinService 
+} from '../services/authService';
 import { 
   listarUsuarios, 
   cambiarEstadoUsuario, 
@@ -33,7 +42,8 @@ export default function Usuarios() {
     totalPersonal: 0,
     administradores: 0,
     tecnicos: 0,
-    auditores: 0
+    auditores: 0,
+    solicitudesPin: 0
   });
 
   // Estados de interfaz y filtrado
@@ -41,6 +51,7 @@ export default function Usuarios() {
   const [descargandoPDF, setDescargandoPDF] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('Todos');
+  const [soloConSolicitudPin, setSoloConSolicitudPin] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [paginaActual, setPaginaActual] = useState(1);
   const registrosPorPagina = 8;
@@ -49,6 +60,14 @@ export default function Usuarios() {
   const [usuarioEditandoRol, setUsuarioEditandoRol] = useState(null);
   const [nuevoRol, setNuevoRol] = useState('Tecnico');
   const [guardandoRol, setGuardandoRol] = useState(false);
+
+  // Modal para gestionar PIN y Cooldown de 30 días
+  const [usuarioGestionandoPin, setUsuarioGestionandoPin] = useState(null);
+  const [regenerandoPin, setRegenerandoPin] = useState(false);
+  const [nuevoPinGenerado, setNuevoPinGenerado] = useState(null);
+  const [pinCopiado, setPinCopiado] = useState(false);
+  const [descartandoSolicitud, setDescartandoSolicitud] = useState(false);
+  const [errorGestionPin, setErrorGestionPin] = useState('');
 
   const mostrarToast = (msg) => {
     setToastMessage(msg);
@@ -132,7 +151,57 @@ export default function Usuarios() {
     }
   };
 
-  // Filtrado reactivo (Búsqueda por username o código y filtro por rol)
+  // Abrir modal para gestionar PIN y Cooldown
+  const handleAbrirGestionPin = (user) => {
+    setUsuarioGestionandoPin(user);
+    setNuevoPinGenerado(null);
+    setPinCopiado(false);
+    setErrorGestionPin('');
+  };
+
+  // Copiar nuevo PIN al portapapeles
+  const handleCopiarPin = () => {
+    if (!nuevoPinGenerado) return;
+    navigator.clipboard.writeText(nuevoPinGenerado);
+    setPinCopiado(true);
+    setTimeout(() => setPinCopiado(false), 2500);
+  };
+
+  // Confirmar regeneración de PIN en backend
+  const handleConfirmarRegenerarPin = async () => {
+    if (!usuarioGestionandoPin) return;
+    setRegenerandoPin(true);
+    setErrorGestionPin('');
+    try {
+      const data = await regenerarPinAdminService(usuarioGestionandoPin.idUsuario);
+      setNuevoPinGenerado(data.nuevoPin);
+      mostrarToast(`✓ Nuevo PIN generado para @${usuarioGestionandoPin.username}`);
+      cargarUsuarios();
+    } catch (err) {
+      setErrorGestionPin(err.message || 'Error al regenerar PIN.');
+    } finally {
+      setRegenerandoPin(false);
+    }
+  };
+
+  // Descartar solicitud de regeneración de PIN
+  const handleDescartarSolicitudPin = async () => {
+    if (!usuarioGestionandoPin) return;
+    setDescartandoSolicitud(true);
+    setErrorGestionPin('');
+    try {
+      await descartarSolicitudPinService(usuarioGestionandoPin.idUsuario);
+      mostrarToast(`✓ Solicitud de PIN descartada para @${usuarioGestionandoPin.username}`);
+      setUsuarioGestionandoPin(null);
+      cargarUsuarios();
+    } catch (err) {
+      setErrorGestionPin(err.message || 'Error al descartar la solicitud.');
+    } finally {
+      setDescartandoSolicitud(false);
+    }
+  };
+
+  // Filtrado reactivo (Búsqueda por username o código, rol y solicitudes de PIN)
   const usuariosFiltrados = useMemo(() => {
     return usuarios.filter((user) => {
       const q = searchTerm.toLowerCase();
@@ -141,9 +210,10 @@ export default function Usuarios() {
         (user.codUsuario || '').toLowerCase().includes(q);
       
       const coincideRol = roleFilter === 'Todos' || user.rolAcceso === roleFilter;
-      return coincideTexto && coincideRol;
+      const coincideSolicitud = !soloConSolicitudPin || user.solicitaPin === 1;
+      return coincideTexto && coincideRol && coincideSolicitud;
     });
-  }, [usuarios, searchTerm, roleFilter]);
+  }, [usuarios, searchTerm, roleFilter, soloConSolicitudPin]);
 
   // Paginación
   const totalPaginas = Math.ceil(usuariosFiltrados.length / registrosPorPagina) || 1;
@@ -215,8 +285,43 @@ export default function Usuarios() {
           </div>
         </div>
 
-        {/* Bloque de 4 KPIs dinámicos */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Alerta Destacada si hay Solicitudes de PIN Pendientes */}
+        {kpis.solicitudesPin > 0 && (
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs animate-fade-in">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <BellRing size={20} className="animate-bounce" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-amber-950 flex items-center gap-2">
+                  <span>¡{kpis.solicitudesPin} Solicitud(es) de Regeneración de PIN Pendiente(s)!</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-200 text-amber-900 uppercase tracking-wide">
+                    Atención Requerida
+                  </span>
+                </h4>
+                <p className="text-xs text-amber-800 mt-0.5">
+                  Hay operadores que no recuerdan su clave ni su PIN. Podés revisar cada caso, chequear el countdown de 30 días y regenerar el PIN si corresponde.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setSoloConSolicitudPin(!soloConSolicitudPin)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition shadow-xs cursor-pointer shrink-0 flex items-center gap-1.5 ${
+                soloConSolicitudPin 
+                  ? 'bg-slate-800 text-white hover:bg-slate-900' 
+                  : 'bg-amber-600 text-white hover:bg-amber-700'
+              }`}
+            >
+              <KeyRound size={14} />
+              <span>{soloConSolicitudPin ? 'Ver Todos los Usuarios' : 'Filtrar Solicitudes de PIN'}</span>
+            </button>
+          </div>
+        )}
+
+        {/* Bloque de 5 KPIs dinámicos */}
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
             <div>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Operadores</p>
@@ -260,6 +365,33 @@ export default function Usuarios() {
               <Clock size={18} />
             </div>
           </div>
+
+          <div className={`rounded-2xl p-5 border shadow-xs flex items-center justify-between transition ${
+            kpis.solicitudesPin > 0 
+              ? 'bg-amber-50/70 border-amber-300' 
+              : 'bg-white border-slate-200/80'
+          }`}>
+            <div>
+              <p className={`text-[10px] font-bold uppercase tracking-wider ${
+                kpis.solicitudesPin > 0 ? 'text-amber-800 font-extrabold' : 'text-slate-400'
+              }`}>
+                Solicitudes PIN
+              </p>
+              <h4 className={`text-2xl font-bold mt-0.5 ${
+                kpis.solicitudesPin > 0 ? 'text-amber-900' : 'text-slate-800'
+              }`}>
+                {kpis.solicitudesPin}
+              </h4>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                {kpis.solicitudesPin > 0 ? 'Pendientes de revisión' : 'Al día'}
+              </p>
+            </div>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+              kpis.solicitudesPin > 0 ? 'bg-amber-200 text-amber-900' : 'bg-slate-100 text-slate-500'
+            }`}>
+              <KeyRound size={18} />
+            </div>
+          </div>
         </div>
 
         {/* Buscador y Filtros */}
@@ -296,6 +428,21 @@ export default function Usuarios() {
               </select>
             </div>
 
+            {kpis.solicitudesPin > 0 && (
+              <button
+                type="button"
+                onClick={() => setSoloConSolicitudPin(!soloConSolicitudPin)}
+                className={`text-xs px-3 py-2 rounded-xl font-semibold border transition cursor-pointer flex items-center gap-1.5 ${
+                  soloConSolicitudPin 
+                    ? 'bg-amber-100 border-amber-300 text-amber-900 font-bold' 
+                    : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                <BellRing size={12} className={soloConSolicitudPin ? 'text-amber-700' : 'text-slate-400'} />
+                <span>Solicitudes ({kpis.solicitudesPin})</span>
+              </button>
+            )}
+
             <div className="text-xs text-slate-500 font-medium">
               Mostrando: <strong className="text-slate-800 font-bold">{usuariosFiltrados.length}</strong> Registrados
             </div>
@@ -312,21 +459,22 @@ export default function Usuarios() {
                   <th className="py-3.5 px-6">Nombre de Usuario</th>
                   <th className="py-3.5 px-6">Rol de Sistema</th>
                   <th className="py-3.5 px-6 text-center">Estado</th>
+                  <th className="py-3.5 px-6 text-center">PIN / Cooldown (30d)</th>
                   <th className="py-3.5 px-6 text-center">Último Acceso</th>
-                  <th className="py-3.5 px-6 text-right">Gestionar Rol</th>
+                  <th className="py-3.5 px-6 text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 {cargando ? (
                   <tr>
-                    <td colSpan={6} className="py-12 text-center text-slate-400 text-xs">
+                    <td colSpan={7} className="py-12 text-center text-slate-400 text-xs">
                       <RefreshCw size={20} className="animate-spin mx-auto mb-2 text-blue-600" />
                       <span>Cargando nómina de usuarios...</span>
                     </td>
                   </tr>
                 ) : usuariosPaginados.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-12 text-center text-slate-400 text-xs">
+                    <td colSpan={7} className="py-12 text-center text-slate-400 text-xs">
                       <Users size={24} className="mx-auto mb-2 text-slate-300" />
                       <p>No se encontraron operadores registrados con el criterio de búsqueda.</p>
                     </td>
@@ -397,6 +545,29 @@ export default function Usuarios() {
                           </button>
                         </td>
 
+                        {/* PIN / Cooldown (30 días) */}
+                        <td className="py-3.5 px-6 text-center">
+                          <div className="flex flex-col items-center gap-1">
+                            {user.solicitaPin === 1 && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-300 animate-pulse">
+                                <BellRing size={11} className="text-amber-600" />
+                                <span>Solicitó PIN</span>
+                              </span>
+                            )}
+                            {user.diasRestantesPin > 0 ? (
+                              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700" title={`Último PIN: ${user.fechaUltimoPinFormat || 'Reciente'}`}>
+                                <Clock size={12} className="text-amber-500" />
+                                <span>{user.diasRestantesPin} días restantes</span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600">
+                                <CheckCircle2 size={12} />
+                                <span>Cooldown cumplido</span>
+                              </span>
+                            )}
+                          </div>
+                        </td>
+
                         {/* Último Acceso */}
                         <td className="py-3.5 px-6 text-center text-slate-500 whitespace-nowrap">
                           <div className="inline-flex items-center gap-1.5 text-[11px]">
@@ -405,17 +576,33 @@ export default function Usuarios() {
                           </div>
                         </td>
 
-                        {/* Acción para Cambiar Rol */}
+                        {/* Acciones: Regenerar PIN & Editar Rol */}
                         <td className="py-3.5 px-6 text-right">
-                          <button
-                            type="button"
-                            onClick={() => handleAbrirEditarRol(user)}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition cursor-pointer"
-                            title="Modificar rol institucional de este usuario"
-                          >
-                            <Edit2 size={13} />
-                            <span>Editar Rol</span>
-                          </button>
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleAbrirGestionPin(user)}
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
+                                user.solicitaPin === 1
+                                  ? 'bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 font-bold shadow-xs'
+                                  : 'text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 border border-slate-200/60'
+                              }`}
+                              title="Gestionar PIN de recuperación y cooldown de 30 días"
+                            >
+                              <KeyRound size={13} className={user.solicitaPin === 1 ? 'text-amber-700' : 'text-slate-500'} />
+                              <span>Regenerar PIN</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleAbrirEditarRol(user)}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-blue-600 hover:bg-blue-50 border border-slate-200/60 rounded-lg transition cursor-pointer"
+                              title="Modificar rol institucional de este usuario"
+                            >
+                              <Edit2 size={13} />
+                              <span>Rol</span>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -560,6 +747,219 @@ export default function Usuarios() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL: GESTIÓN DE PIN Y COOLDOWN DE 30 DÍAS ================= */}
+      {usuarioGestionandoPin && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 sm:p-7 max-w-md w-full shadow-2xl border border-slate-100 animate-scale-in">
+            
+            {/* Cabecera del modal */}
+            <div className="flex justify-between items-center pb-3 border-b border-slate-100 mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
+                  <KeyRound size={18} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-800">Gestión de PIN de Recuperación</h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Operador: <strong className="text-slate-700">@{usuarioGestionandoPin.username}</strong> ({usuarioGestionandoPin.codUsuario})
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => {
+                  setUsuarioGestionandoPin(null);
+                  setNuevoPinGenerado(null);
+                }} 
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Error si ocurre */}
+            {errorGestionPin && (
+              <div className="bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl p-3 mb-4 flex items-start gap-2">
+                <AlertTriangle size={15} className="shrink-0 mt-0.5 text-red-500" />
+                <span>{errorGestionPin}</span>
+              </div>
+            )}
+
+            {/* SI SE REGENERÓ UN NUEVO PIN: MOSTRARLO CON BOTÓN COPIAR */}
+            {nuevoPinGenerado ? (
+              <div className="space-y-4 text-center py-2 animate-fade-in">
+                <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto border border-emerald-100">
+                  <CheckCircle2 size={32} />
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-slate-800">¡Nuevo PIN Generado con Éxito!</h4>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    El operador @{usuarioGestionandoPin.username} ya cuenta con una nueva clave de acceso de 6 dígitos.
+                  </p>
+                </div>
+
+                <div className="bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-200 rounded-2xl p-4 text-left">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 block mb-1">
+                    Nuevo PIN de Seguridad (6 dígitos)
+                  </span>
+                  <div className="flex items-center justify-between bg-white border border-indigo-200 rounded-xl px-4 py-2.5 shadow-2xs">
+                    <span className="font-mono text-2xl font-black text-slate-900 tracking-widest">
+                      {nuevoPinGenerado}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleCopiarPin}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg transition cursor-pointer"
+                    >
+                      {pinCopiado ? (
+                        <>
+                          <Check size={14} className="text-emerald-300" />
+                          <span>¡Copiado!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={14} />
+                          <span>Copiar</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-slate-600 mt-2.5 leading-relaxed">
+                    Comuníquele este código al operador. A partir de hoy, entra en vigencia el período de <strong>cooldown obligatorio de 30 días</strong>.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUsuarioGestionandoPin(null);
+                    setNuevoPinGenerado(null);
+                  }}
+                  className="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl shadow-xs transition cursor-pointer"
+                >
+                  Entendido y Cerrar
+                </button>
+              </div>
+            ) : (
+              /* VISTA DE EVALUACIÓN: SOLICITUD Y COOLDOWN DE 30 DÍAS */
+              <div className="space-y-4 text-xs">
+                
+                {/* 1. Estado de la solicitud */}
+                {usuarioGestionandoPin.solicitaPin === 1 ? (
+                  <div className="bg-amber-50 border border-amber-300 rounded-xl p-3.5 text-amber-950">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold flex items-center gap-1.5 text-amber-900">
+                        <BellRing size={14} className="text-amber-600" />
+                        Solicitud Activa del Usuario
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleDescartarSolicitudPin}
+                        disabled={descartandoSolicitud}
+                        className="text-[10px] text-amber-800 hover:text-rose-700 underline font-semibold cursor-pointer"
+                        title="Descartar solicitud sin regenerar"
+                      >
+                        {descartandoSolicitud ? 'Descartando...' : 'Descartar Solicitud'}
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-amber-800 leading-relaxed">
+                      El operador notificó que olvidó su PIN y necesita restablecer su acceso al sistema.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-600 flex items-center gap-2">
+                    <CheckCircle2 size={15} className="text-slate-400 shrink-0" />
+                    <span>Sin solicitud formal pendiente por parte del usuario.</span>
+                  </div>
+                )}
+
+                {/* 2. Cooldown y Política de 30 días */}
+                <div className="border border-slate-200 rounded-xl p-3.5 space-y-2.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-500 font-medium">Última emisión de PIN:</span>
+                    <strong className="text-slate-800 font-semibold">
+                      {usuarioGestionandoPin.fechaUltimoPinFormat || 'Generación inicial'}
+                    </strong>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-500 font-medium">Política de seguridad:</span>
+                    <span className="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full text-[10px]">
+                      Cooldown de 30 días
+                    </span>
+                  </div>
+
+                  {usuarioGestionandoPin.diasRestantesPin > 0 ? (
+                    <div className="mt-3 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-900 text-[11px] leading-relaxed">
+                      <div className="flex items-center gap-1.5 font-bold mb-1 text-rose-800">
+                        <Clock size={13} className="text-rose-600" />
+                        <span>Cooldown de Seguridad Activo</span>
+                      </div>
+                      <p>
+                        No es posible regenerar el PIN todavía. Faltan <strong>{usuarioGestionandoPin.diasRestantesPin} día(s)</strong> de espera obligatoria para obligar al operador a que recuerde su clave asignada.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-900 text-[11px] leading-relaxed">
+                      <div className="flex items-center gap-1.5 font-bold mb-1 text-emerald-800">
+                        <CheckCircle2 size={13} className="text-emerald-600" />
+                        <span>Habilitado para Regenerar</span>
+                      </div>
+                      <p>
+                        Han transcurrido 30 días o más desde la última emisión. Puede regenerar un nuevo PIN aleatorio de 6 dígitos para el operador.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Botones de acción */}
+                <div className="pt-2 flex justify-end gap-2 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUsuarioGestionandoPin(null);
+                      setNuevoPinGenerado(null);
+                    }}
+                    className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleConfirmarRegenerarPin}
+                    disabled={regenerandoPin || usuarioGestionandoPin.diasRestantesPin > 0}
+                    className={`px-4 py-2 text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 ${
+                      usuarioGestionandoPin.diasRestantesPin > 0
+                        ? 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300'
+                        : 'bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer'
+                    }`}
+                  >
+                    {regenerandoPin ? (
+                      <>
+                        <RefreshCw size={13} className="animate-spin" />
+                        <span>Generando PIN...</span>
+                      </>
+                    ) : usuarioGestionandoPin.diasRestantesPin > 0 ? (
+                      <>
+                        <Clock size={13} />
+                        <span>En Cooldown ({usuarioGestionandoPin.diasRestantesPin}d)</span>
+                      </>
+                    ) : (
+                      <>
+                        <KeyRound size={13} />
+                        <span>Regenerar PIN Ahora</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+              </div>
+            )}
+
           </div>
         </div>
       )}

@@ -20,10 +20,18 @@ const obtenerUsuarios = async (req, res) => {
                 u.username,
                 u.rolAcceso,
                 u.estadoActivo,
+                COALESCE(u.solicitaPin, 0) AS solicitaPin,
+                u.fechaUltimoPin,
+                DATE_FORMAT(u.fechaUltimoPin, '%d/%m/%Y %H:%i') AS fechaUltimoPinFormat,
+                CASE 
+                    WHEN u.fechaUltimoPin IS NOT NULL AND DATEDIFF(NOW(), u.fechaUltimoPin) < 30 
+                    THEN (30 - DATEDIFF(NOW(), u.fechaUltimoPin))
+                    ELSE 0 
+                END AS diasRestantesPin,
                 DATE_FORMAT(MAX(l.fechaHora), '%d/%m/%Y %H:%i') AS ultimoAcceso
             FROM Usuarios u
             LEFT JOIN Log_Auditoria l ON u.idUsuario = l.idUsuario
-            GROUP BY u.idUsuario, u.username, u.rolAcceso, u.estadoActivo
+            GROUP BY u.idUsuario, u.username, u.rolAcceso, u.estadoActivo, u.solicitaPin, u.fechaUltimoPin
             ORDER BY u.idUsuario ASC
         `;
 
@@ -34,6 +42,7 @@ const obtenerUsuarios = async (req, res) => {
         const administradores = usuarios.filter(u => u.rolAcceso === 'Administrador').length;
         const tecnicos = usuarios.filter(u => u.rolAcceso === 'Tecnico' || u.rolAcceso === 'Técnico').length;
         const auditores = usuarios.filter(u => u.rolAcceso === 'Auditor').length;
+        const solicitudesPin = usuarios.filter(u => u.solicitaPin === 1).length;
 
         return res.status(200).json({
             usuarios,
@@ -41,7 +50,8 @@ const obtenerUsuarios = async (req, res) => {
                 totalPersonal,
                 administradores,
                 tecnicos,
-                auditores
+                auditores,
+                solicitudesPin
             }
         });
     } catch (error) {
