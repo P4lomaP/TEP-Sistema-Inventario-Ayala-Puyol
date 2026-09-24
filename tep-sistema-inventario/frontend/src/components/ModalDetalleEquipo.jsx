@@ -107,7 +107,7 @@ export default function ModalDetalleEquipo({
   };
 
   // Guardar cambios de edición
-  const handleSaveEdit = (e) => {
+  const handleSaveEdit = async (e) => {
     e.preventDefault();
     if (codPatEnUso) {
       alert(`Código patrimonial duplicado: El código "${formData.codPatrimonial}" ya pertenece al equipo "${codPatEnUso.marcaModelo}" (ID: ${codPatEnUso.idEquipo}). Cada bien patrimonial del TEP debe tener un código único.`);
@@ -117,19 +117,43 @@ export default function ModalDetalleEquipo({
       alert(`Conflicto de red: La dirección IP "${formData.ipFija}" ya está asignada al equipo "${ipEnUso.marcaModelo}" (${ipEnUso.tipoEquipo}). Dos dispositivos activos en la red no pueden compartir la misma IP.`);
       return;
     }
-    onUpdate(formData);
+    await onUpdate(formData);
     setIsEditing(false);
+
+    // Recargar historial del equipo de inmediato para reflejar traslados o cambios
+    if (equipo?.idEquipo) {
+      setCargandoHistorial(true);
+      obtenerHistorialEquipo(equipo.idEquipo)
+        .then((data) => setHistorial(Array.isArray(data) ? data : []))
+        .catch(() => setHistorial([]))
+        .finally(() => setCargandoHistorial(false));
+    }
   };
 
   // Acción rápida: Cambiar estado operativo
-  const handleCambiarEstado = (nuevoEstado) => {
+  const handleCambiarEstado = async (nuevoEstado) => {
+    const motivo = nuevoEstado === 'En Mantenimiento'
+      ? 'Envío a mantenimiento técnico / reparación'
+      : nuevoEstado === 'Operativo'
+      ? 'Retorno de servicio técnico - Restablecido a Operativo'
+      : `Cambio de estado operativo a ${nuevoEstado}`;
+
     const actualizado = {
       ...formData,
       estadoOperativo: nuevoEstado,
-      estado: nuevoEstado.toUpperCase()
+      estado: nuevoEstado.toUpperCase(),
+      motivoBaja: motivo
     };
     setFormData(actualizado);
-    onUpdate(actualizado);
+    await onUpdate(actualizado);
+
+    if (equipo?.idEquipo) {
+      setCargandoHistorial(true);
+      obtenerHistorialEquipo(equipo.idEquipo)
+        .then((data) => setHistorial(Array.isArray(data) ? data : []))
+        .catch(() => setHistorial([]))
+        .finally(() => setCargandoHistorial(false));
+    }
   };
 
   // Confirmar baja patrimonial

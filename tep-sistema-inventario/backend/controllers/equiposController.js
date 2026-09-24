@@ -51,7 +51,22 @@ const obtenerEquipos = (req, res) => {
 };
 
 /**
- * Obtener el historial completo de traslados y bajas de un equipo específico
+ * Formatea una fecha a formato institucional DD/MM/YYYY HH:mm
+ */
+const formatearFechaHito = (d) => {
+    if (!d) return 'Fecha no disponible';
+    const dateObj = new Date(d);
+    if (isNaN(dateObj.getTime())) return String(d);
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const year = dateObj.getFullYear();
+    const hours = String(dateObj.getHours()).padStart(2, '0');
+    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+};
+
+/**
+ * Obtener el historial completo y ciclo de vida patrimonial de un equipo específico
  * GET /api/equipos/:id/historial
  */
 const obtenerHistorialEquipo = (req, res) => {
@@ -61,36 +76,245 @@ const obtenerHistorialEquipo = (req, res) => {
         return res.status(400).json({ message: 'Debe especificar el ID del equipo.' });
     }
 
-    const query = `
+    // 1. Obtener datos del equipo
+    const qEquipo = `
         SELECT 
-            h.idHistorial,
-            DATE_FORMAT(h.fechaCambio, '%Y-%m-%d %H:%i:%s') AS fechaCambio,
-            h.motivoBaja,
-            h.idEquipo,
+            e.idEquipo,
             e.codPatrimonial,
             e.tipoEquipo,
             e.marcaModelo,
-            h.idSectorAnterior,
-            COALESCE(sAnt.nombreOficina, 'Alta inicial') AS sectorAnterior,
-            h.idSectorNuevo,
-            COALESCE(sNue.nombreOficina, 'Baja patrimonial / Descarte') AS sectorNuevo
-        FROM Historial_Equipos h
-        JOIN Equipos e ON h.idEquipo = e.idEquipo
-        LEFT JOIN Sectores sAnt ON h.idSectorAnterior = sAnt.idSector
-        LEFT JOIN Sectores sNue ON h.idSectorNuevo = sNue.idSector
-        WHERE h.idEquipo = ?
-        ORDER BY h.fechaCambio DESC
+            e.numeroSerie,
+            e.estadoOperativo,
+            e.idSector,
+            COALESCE(s.nombreOficina, 'Sector no asignado') AS nombreSector
+        FROM Equipos e
+        LEFT JOIN Sectores s ON e.idSector = s.idSector
+        WHERE e.idEquipo = ?
     `;
 
-    db.query(query, [id], (err, results) => {
-        if (err) {
-            console.error('Error al obtener historial del equipo:', err);
-            return res.status(500).json({ 
-                message: 'Error interno al consultar el historial del equipo.' 
-            });
+    db.query(qEquipo, [id], (errEq, eqResults) => {
+        if (errEq) {
+            console.error('Error al consultar equipo para historial:', errEq);
+            return res.status(500).json({ message: 'Error al consultar datos del equipo.' });
         }
 
-        return res.status(200).json(results);
+        if (eqResults.length === 0) {
+            return res.status(404).json({ message: 'Equipo no encontrado.' });
+        }
+
+        const equipo = eqResults[0];
+
+        // 2. Historial patrimonial (Altas, traslados y bajas de sector)
+        const qHist = `
+            SELECT 
+                h.idHistorial,
+                h.fechaCambio,
+                h.motivoBaja,
+                h.idSectorAnterior,
+                COALESCE(sAnt.nombreOficina, 'Alta inicial') AS sectorAnterior,
+                h.idSectorNuevo,
+                COALESCE(sNue.nombreOficina, 'Baja patrimonial / Descarte') AS sectorNuevo
+            FROM Historial_Equipos h
+            LEFT JOIN Sectores sAnt ON h.idSectorAnterior = sAnt.idSector
+            LEFT JOIN Sectores sNue ON h.idSectorNuevo = sNue.idSector
+            WHERE h.idEquipo = ?
+            ORDER BY h.fechaCambio DESC
+        `;
+
+        // 3. Movimientos de insumos asociados al equipo
+        const qMov = `
+            SELECT 
+                dm.idDetalle,
+                m.idMovimiento,
+                m.fechaHora,
+                m.tipoMovimiento,
+                m.comprobanteRef,
+                m.agenteReceptor,
+                dm.cantidadAfectada,
+                i.descripcion AS insumoDescripcion,
+                i.codigoInterno AS insumoCodigo,
+                COALESCE(u.username, 'Técnico de Guardia') AS operador
+            FROM Detalle_Movimientos dm
+            JOIN Movimientos m ON dm.idMovimiento = m.idMovimiento
+            JOIN Insumos i ON dm.idInsumo = i.idInsumo
+            LEFT JOIN Usuarios u ON m.idUsuario = u.idUsuario
+            WHERE dm.idEquipoDestino = ?
+            ORDER BY m.fechaHora DESC
+        `;
+
+        // 4. Auditoría de mantenimientos y cambios técnicos
+        const qLog = `
+            SELECT 
+                l.idLog,
+                l.fechaHora,
+                l.accionRealizada,
+                COALESCE(u.username, 'Administrador') AS operador
+            FROM Log_Auditoria l
+            LEFT JOIN Usuarios u ON l.idUsuario = u.idUsuario
+            WHERE l.moduloAfectado = 'Equipos'
+              AND (l.accionRealizada LIKE ? OR l.accionRealizada LIKE ?)
+              AND (l.accionRealizada LIKE '%Mantenimiento%' OR l.accionRealizada LIKE '%Reparación%')
+            ORDER BY l.fechaHora DESC
+        `;
+
+        db.query(qHist, [id], (errHist, histResults = []) => {
+            if (errHist) {
+                console.error('Error al obtener historial patrimonial:', errHist);
+                return res.status(500).json({ message: 'Error interno al consultar historial.' });
+            }
+
+            db.query(qMov, [id], (errMov, movResults = []) => {
+                if (errMov) {
+                    console.error('Error al obtener movimientos del equipo:', errMov);
+                    return res.status(500).json({ message: 'Error interno al consultar movimientos de insumos.' });
+                }
+
+                db.query(qLog, [`%equipo ID ${id} %`, `%equipo ID ${id}:%`], (errLog, logResults = []) => {
+                    if (errLog) {
+                        console.error('Error al obtener logs de mantenimiento:', errLog);
+                        return res.status(500).json({ message: 'Error interno al consultar auditoría técnica.' });
+                    }
+
+                    const hitos = [];
+
+                    // Procesar registros de Historial_Equipos
+                    (histResults || []).forEach((h) => {
+                        let tipoEvento = 'TRASLADO';
+                        let titulo = 'Traslado de Dependencia';
+                        let badgeColor = 'bg-amber-50 text-amber-600 border-amber-200';
+                        let dotColor = 'bg-amber-500';
+
+                        const motivoLower = (h.motivoBaja || '').toLowerCase();
+
+                        if (!h.idSectorAnterior) {
+                            tipoEvento = 'ALTA';
+                            titulo = 'Alta Inicial en Sistema';
+                            badgeColor = 'bg-emerald-50 text-emerald-600 border-emerald-200';
+                            dotColor = 'bg-emerald-500';
+                        } else if (!h.idSectorNuevo || motivoLower.includes('baja')) {
+                            tipoEvento = 'BAJA';
+                            titulo = 'Baja Patrimonial Definitiva';
+                            badgeColor = 'bg-rose-50 text-rose-600 border-rose-200';
+                            dotColor = 'bg-rose-500';
+                        } else if (motivoLower.includes('mantenimiento') || motivoLower.includes('reparación') || motivoLower.includes('técnico') || motivoLower.includes('retorno') || motivoLower.includes('operativo')) {
+                            const esRetorno = motivoLower.includes('retorno') || motivoLower.includes('operativo') || motivoLower.includes('restablecido');
+                            tipoEvento = 'MANTENIMIENTO';
+                            titulo = esRetorno ? 'Retorno a Servicio Operativo' : 'Envío a Mantenimiento Técnico';
+                            badgeColor = esRetorno ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-purple-50 text-purple-600 border-purple-200';
+                            dotColor = esRetorno ? 'bg-emerald-500' : 'bg-purple-500';
+                        } else if (motivoLower.includes('depósito') || motivoLower.includes('reserva')) {
+                            tipoEvento = 'DEPÓSITO';
+                            titulo = 'Reserva / Depósito Institucional';
+                            badgeColor = 'bg-blue-50 text-blue-600 border-blue-200';
+                            dotColor = 'bg-blue-500';
+                        } else if (h.idSectorAnterior !== h.idSectorNuevo) {
+                            tipoEvento = 'TRASLADO';
+                            titulo = 'Traslado de Dependencia';
+                            badgeColor = 'bg-amber-50 text-amber-600 border-amber-200';
+                            dotColor = 'bg-amber-500';
+                        }
+
+                        const esTraslado = tipoEvento === 'TRASLADO';
+
+                        hitos.push({
+                            id: `hist-${h.idHistorial}`,
+                            idHistorial: h.idHistorial,
+                            tipoEvento,
+                            titulo,
+                            badgeColor,
+                            dotColor,
+                            fechaRaw: h.fechaCambio,
+                            fecha: formatearFechaHito(h.fechaCambio),
+                            fechaCambio: formatearFechaHito(h.fechaCambio),
+                            descripcion: h.motivoBaja || (esTraslado ? `Reubicación física de ${h.sectorAnterior} a ${h.sectorNuevo}.` : 'Registro de movimiento patrimonial.'),
+                            origen: esTraslado ? (h.idSectorAnterior ? h.sectorAnterior : null) : null,
+                            destino: esTraslado ? (h.idSectorNuevo ? h.sectorNuevo : null) : null,
+                            sectorAnterior: h.sectorAnterior || 'Alta inicial',
+                            sectorNuevo: h.sectorNuevo || 'Baja patrimonial / Descarte',
+                            motivoBaja: h.motivoBaja,
+                            operador: 'Administración Patrimonial'
+                        });
+                    });
+
+                    // Procesar movimientos de insumos
+                    (movResults || []).forEach((m) => {
+                        hitos.push({
+                            id: `mov-${m.idDetalle}`,
+                            idHistorial: `mov-${m.idDetalle}`,
+                            tipoEvento: 'ENTREGA',
+                            titulo: `Asignación de ${m.insumoDescripcion}`,
+                            badgeColor: 'bg-blue-50 text-blue-600 border-blue-200',
+                            dotColor: 'bg-blue-500',
+                            fechaRaw: m.fechaHora,
+                            fecha: formatearFechaHito(m.fechaHora),
+                            fechaCambio: formatearFechaHito(m.fechaHora),
+                            descripcion: `Asignación de ${m.cantidadAfectada} unidad(es) de ${m.insumoDescripcion} (${m.insumoCodigo || 'S/C'}). Ref: ${m.comprobanteRef || 'S/N'}. Destino: ${m.agenteReceptor || equipo.nombreSector}.`,
+                            origen: 'Depósito Central',
+                            destino: m.agenteReceptor || equipo.nombreSector,
+                            sectorAnterior: 'Depósito Central',
+                            sectorNuevo: m.agenteReceptor || equipo.nombreSector,
+                            motivoBaja: `Asignación de insumo: ${m.insumoDescripcion}`,
+                            operador: m.operador || 'Técnico TEP'
+                        });
+                    });
+
+                    // Procesar logs de mantenimiento
+                    (logResults || []).forEach((l) => {
+                        const esIngreso = l.accionRealizada.toLowerCase().includes('en mantenimiento');
+                        hitos.push({
+                            id: `log-${l.idLog}`,
+                            idHistorial: `log-${l.idLog}`,
+                            tipoEvento: 'MANTENIMIENTO',
+                            titulo: esIngreso ? 'Envío a Mantenimiento Técnico' : 'Retorno a Servicio Operativo',
+                            badgeColor: esIngreso ? 'bg-purple-50 text-purple-600 border-purple-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200',
+                            dotColor: esIngreso ? 'bg-purple-500' : 'bg-emerald-500',
+                            fechaRaw: l.fechaHora,
+                            fecha: formatearFechaHito(l.fechaHora),
+                            fechaCambio: formatearFechaHito(l.fechaHora),
+                            descripcion: l.accionRealizada,
+                            origen: null,
+                            destino: null,
+                            sectorAnterior: 'Área Técnica',
+                            sectorNuevo: equipo.nombreSector,
+                            motivoBaja: l.accionRealizada,
+                            operador: l.operador || 'Administrador'
+                        });
+                    });
+
+                    // Si no tiene ningún hito de ALTA, sintetizar el hito inicial
+                    const tieneAlta = hitos.some((h) => h.tipoEvento === 'ALTA');
+                    if (!tieneAlta) {
+                        hitos.push({
+                            id: `alta-${equipo.idEquipo}`,
+                            idHistorial: 0,
+                            tipoEvento: 'ALTA',
+                            titulo: 'Alta Patrimonial en Sistema',
+                            badgeColor: 'bg-emerald-50 text-emerald-600 border-emerald-200',
+                            dotColor: 'bg-emerald-500',
+                            fechaRaw: new Date(0),
+                            fecha: 'Registro Inicial',
+                            fechaCambio: 'Registro Inicial',
+                            descripcion: `Ingreso al inventario patrimonial del TEP: ${equipo.tipoEquipo} ${equipo.marcaModelo} (S/N: ${equipo.numeroSerie || 'S/N'}). Dependencia inicial: ${equipo.nombreSector}.`,
+                            origen: null,
+                            destino: equipo.nombreSector,
+                            sectorAnterior: 'Alta patrimonial',
+                            sectorNuevo: equipo.nombreSector,
+                            motivoBaja: 'Ingreso inicial patrimonial',
+                            operador: 'Administración TEP'
+                        });
+                    }
+
+                    // Ordenar cronológicamente descendente
+                    hitos.sort((a, b) => {
+                        const dateA = a.fechaRaw ? new Date(a.fechaRaw).getTime() : 0;
+                        const dateB = b.fechaRaw ? new Date(b.fechaRaw).getTime() : 0;
+                        return dateB - dateA;
+                    });
+
+                    return res.status(200).json(hitos);
+                });
+            });
+        });
     });
 };
 
@@ -516,33 +740,58 @@ const actualizarEquipo = (req, res) => {
                     });
                 }
 
-                // 4. Side-effects: Disparar Historial de traslado o baja si hubo cambio
+                // 4. Side-effects: Disparar Historial de traslado, mantenimiento o baja si hubo cambio
                 try {
-                    const nuevoSectorId = idSector !== undefined ? parseInt(idSector, 10) : equipoPrevio.idSector;
+                    const usuarioId = req.body?.idUsuario || req.usuario?.idUsuario || 1;
+                    const previoSectorId = equipoPrevio.idSector !== null ? parseInt(equipoPrevio.idSector, 10) : null;
+                    const nuevoSectorId = idSector !== undefined && idSector !== null ? parseInt(idSector, 10) : previoSectorId;
+                    const estadoPrev = (equipoPrevio.estadoOperativo || '').trim();
+                    const estadoNuevo = (nuevoEstado || estadoPrev).trim();
 
                     // Caso A: Cambio de Sector físico (Traslado)
-                    if (idSector !== undefined && nuevoSectorId !== equipoPrevio.idSector) {
+                    if (idSector !== undefined && nuevoSectorId !== previoSectorId) {
                         await registrarHistorialEquipo(
                             id,
-                            equipoPrevio.idSector,
+                            previoSectorId,
                             nuevoSectorId,
                             motivoBaja || 'Traslado de sector'
                         );
                     }
 
                     // Caso B: El estado cambió a 'Baja'
-                    if (estadoOperativo !== undefined && nuevoEstado.toLowerCase() === 'baja' && equipoPrevio.estadoOperativo.toLowerCase() !== 'baja') {
+                    if (estadoOperativo !== undefined && estadoNuevo.toLowerCase() === 'baja' && estadoPrev.toLowerCase() !== 'baja') {
                         await registrarHistorialEquipo(
                             id,
-                            equipoPrevio.idSector,
+                            previoSectorId,
                             null,
                             motivoBaja || 'Baja definitiva del equipo (RN-02)'
+                        );
+                    } else if (estadoOperativo !== undefined && estadoNuevo.toLowerCase() !== estadoPrev.toLowerCase()) {
+                        // Caso C: El estado cambió (e.g. En Mantenimiento, Operativo, En Depósito)
+                        let motivoEstado = motivoBaja;
+                        if (!motivoEstado) {
+                            if (estadoNuevo.toLowerCase() === 'en mantenimiento') {
+                                motivoEstado = 'Envío a mantenimiento técnico / reparación';
+                            } else if (estadoNuevo.toLowerCase() === 'operativo' && estadoPrev.toLowerCase() === 'en mantenimiento') {
+                                motivoEstado = 'Retorno de servicio técnico - Restablecido a Operativo';
+                            } else if (estadoNuevo.toLowerCase() === 'en depósito') {
+                                motivoEstado = 'Puesto en depósito / reserva técnica';
+                            } else {
+                                motivoEstado = `Cambio de estado operativo a ${estadoNuevo}`;
+                            }
+                        }
+
+                        await registrarHistorialEquipo(
+                            id,
+                            previoSectorId,
+                            previoSectorId,
+                            motivoEstado
                         );
                     }
 
                     // Registro en Log_Auditoria
                     await registrarAuditoria(
-                        idUsuario,
+                        usuarioId,
                         `Actualización de equipo ID ${id} [${tipoEquipo || equipoPrevio.tipoEquipo}]: ${marcaModelo || equipoPrevio.marcaModelo} (Estado: ${nuevoEstado})`,
                         'Equipos'
                     );
