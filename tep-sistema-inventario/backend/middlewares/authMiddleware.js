@@ -85,7 +85,11 @@ const verificarRol = (rolesPermitidos = []) => {
             return res.status(403).json({ message: 'No se encontraron permisos asociados al usuario.' });
         }
 
-        if (!rolesPermitidos.includes(req.usuario.rolAcceso)) {
+        const normalizar = str => (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+        const rolUsuarioNorm = normalizar(req.usuario.rolAcceso);
+        const permitidosNorm = rolesPermitidos.map(r => normalizar(r));
+
+        if (!permitidosNorm.includes(rolUsuarioNorm)) {
             return res.status(403).json({ 
                 message: `Acceso denegado: El rol "${req.usuario.rolAcceso}" no cuenta con los privilegios suficientes para esta acción.` 
             });

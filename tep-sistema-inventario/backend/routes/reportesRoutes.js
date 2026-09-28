@@ -7,10 +7,10 @@ const authMiddleware = require('../middlewares/authMiddleware');
 // GET /api/reportes - Métricas analíticas consolidadas y transacciones filtradas (Requiere autenticación)
 router.get('/', reportesController.obtenerReporteConsolidado);
 
-// GET /api/reportes/pdf-equipos - Reporte institucional oficial en PDF (Administrador y Auditor)
+// GET /api/reportes/pdf-equipos - Reporte institucional oficial en PDF (Administrador, Técnico y Auditor)
 router.get(
     '/pdf-equipos', 
-    authMiddleware.verificarRol(['Administrador', 'Auditor']), 
+    authMiddleware.verificarRol(['Administrador', 'Tecnico', 'Auditor']), 
     reportesController.exportarPDF
 );
 

@@ -102,3 +102,28 @@ export async function eliminarCompatibilidad(idRegla, idUsuario = 1) {
   return data;
 }
 
+/**
+ * Descargar reporte oficial institucional de la matriz de compatibilidad en PDF (PDFKit)
+ * GET /api/compatibilidad/pdf
+ */
+export async function descargarMatrizPDF() {
+  const response = await authFetch(`${BASE_URL}/pdf`);
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Error al descargar la matriz de compatibilidad en PDF.');
+  }
+
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const fechaStr = new Date().toISOString().slice(0, 10);
+  a.download = `Matriz_Compatibilidad_TEP_${fechaStr}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+}
+
+

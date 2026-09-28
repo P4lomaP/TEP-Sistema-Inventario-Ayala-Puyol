@@ -20,7 +20,9 @@ export default function ModalDetalleInsumo({
   insumo, 
   onClose, 
   onUpdate, 
-  onDelete 
+  onDelete,
+  readOnly = false,
+  canDelete = true
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -463,17 +465,29 @@ export default function ModalDetalleInsumo({
                 <span>Guardar Cambios</span>
               </button>
             </>
-          ) : (
-            <>
+          ) : readOnly ? (
+            <div className="flex items-center justify-end w-full">
               <button
                 type="button"
-                onClick={() => setShowDeleteConfirm(true)}
-                disabled={showDeleteConfirm}
-                className="px-3.5 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 rounded-xl transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                onClick={onClose}
+                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
               >
-                <Trash2 size={14} />
-                <span>Eliminar Insumo</span>
+                Cerrar
               </button>
+            </div>
+          ) : (
+            <>
+              {canDelete && (
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  disabled={showDeleteConfirm}
+                  className="px-3.5 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 rounded-xl transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <Trash2 size={14} />
+                  <span>Eliminar Insumo</span>
+                </button>
+              )}
 
               <div className="flex items-center gap-2">
                 <button

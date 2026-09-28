@@ -26,8 +26,10 @@ import {
   FileText
 } from 'lucide-react';
 import MainLayout from '../components/MainLayout';
+import BannerAuditorReadOnly from '../components/BannerAuditorReadOnly';
 import ModalNuevoEquipo from '../components/ModalNuevoEquipo';
 import ModalDetalleEquipo from '../components/ModalDetalleEquipo';
+import { getStoredUser } from '../services/authService';
 import { 
   listarEquipos, 
   crearEquipo, 
@@ -40,6 +42,15 @@ import { listarInsumos } from '../services/insumosService';
 import { descargarReporteEquiposPDF } from '../services/reportesService';
 
 export default function Equipos() {
+  const user = getStoredUser();
+  const rolNormalizado = (user?.rolAcceso || user?.rol || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+  const isAdmin = rolNormalizado === 'administrador';
+  const isAuditor = rolNormalizado === 'auditor';
+  const isTecnico = rolNormalizado === 'tecnico';
+
   // Pestaña activa ('equipos' | 'sectores')
   const [activeTab, setActiveTab] = useState('equipos');
   const [searchTerm, setSearchTerm] = useState('');
@@ -440,16 +451,23 @@ export default function Equipos() {
               {exportando ? <Loader2 size={15} className="animate-spin text-blue-600" /> : <FileDown size={15} />}
               <span>{exportando ? 'Exportando...' : 'Exportar PDF'}</span>
             </button>
-            <button
-              type="button"
-              onClick={() => activeTab === 'equipos' ? setIsModalNuevoEquipoOpen(true) : setIsModalSectorOpen(true)}
-              className="flex items-center gap-2 px-3.5 sm:px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-xs transition shadow-blue-500/20 cursor-pointer"
-            >
-              <Plus size={16} />
-              <span>{activeTab === 'equipos' ? 'Nuevo Equipo' : 'Nuevo Sector'}</span>
-            </button>
+            {!isAuditor && (activeTab === 'equipos' || isAdmin) && (
+              <button
+                type="button"
+                onClick={() => activeTab === 'equipos' ? setIsModalNuevoEquipoOpen(true) : setIsModalSectorOpen(true)}
+                className="flex items-center gap-2 px-3.5 sm:px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-xs transition shadow-blue-500/20 cursor-pointer"
+              >
+                <Plus size={16} />
+                <span>{activeTab === 'equipos' ? 'Nuevo Equipo' : 'Nuevo Sector'}</span>
+              </button>
+            )}
           </div>
         </div>
+
+        {/* Banner de Modo Auditoría Solo Lectura */}
+        {isAuditor && (
+          <BannerAuditorReadOnly modulo="Gestión de Equipamiento Patrimonial y Dependencias" />
+        )}
 
         {/* Selector de Pestañas (Equipos Informáticos / Sectores Físicos) */}
         <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200/80">
@@ -530,7 +548,7 @@ export default function Equipos() {
           <div className="flex items-center gap-2 px-4 py-2.5 bg-blue-50/60 border border-blue-100 text-blue-800 rounded-xl text-xs">
             <Info size={15} className="text-blue-600 shrink-0" />
             <span>
-              <strong>Operación de Inventario:</strong> Presione <strong>doble clic</strong> sobre cualquier equipo para ver o editar su ficha técnica completa. Presione el ícono del <strong className="text-rose-600">corazón</strong> para consultar su trazabilidad y ciclo de vida patrimonial en base de datos.
+              <strong>Operación de Inventario:</strong> Presione <strong>doble clic</strong> sobre cualquier equipo para {isAuditor ? 'consultar su ficha técnica institucional.' : 'ver o editar su ficha técnica completa.'} Presione el ícono del <strong className="text-rose-600">corazón</strong> para consultar su trazabilidad y ciclo de vida patrimonial en base de datos.
             </span>
           </div>
         )}
@@ -575,7 +593,7 @@ export default function Equipos() {
                           setIsDetalleModalOpen(true);
                         }}
                         className="hover:bg-blue-50/40 transition cursor-pointer select-none group"
-                        title="Doble clic para ver ficha técnica completa, editar o dar de baja"
+                        title={isAuditor ? "Doble clic para consultar ficha técnica" : "Doble clic para ver ficha técnica completa, editar o dar de baja"}
                       >
                         {/* Código Patrimonial */}
                         <td className="py-4 px-6 font-mono font-medium">
@@ -625,19 +643,21 @@ export default function Equipos() {
                         {/* Acciones Rápidas con el Corazón de Ciclo de Vida */}
                         <td className="py-4 px-6 text-right">
                           <div className="flex items-center justify-end gap-1.5">
-                            {/* Botón Poner en Reparación / Restablecer */}
-                            <button
-                              type="button"
-                              onClick={(e) => handleToggleMantenimiento(e, item)}
-                              className={`p-1.5 rounded-lg border transition cursor-pointer ${
-                                item.estadoOperativo === 'En Mantenimiento'
-                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                                  : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
-                              }`}
-                              title={item.estadoOperativo === 'En Mantenimiento' ? 'Marcar como Operativo' : 'Enviar a Mantenimiento / Reparación'}
-                            >
-                              {item.estadoOperativo === 'En Mantenimiento' ? <CheckCircle2 size={14} /> : <Wrench size={14} />}
-                            </button>
+                            {/* Botón Poner en Reparación / Restablecer (Solo Admin y Técnico) */}
+                            {!isAuditor && (
+                              <button
+                                type="button"
+                                onClick={(e) => handleToggleMantenimiento(e, item)}
+                                className={`p-1.5 rounded-lg border transition cursor-pointer ${
+                                  item.estadoOperativo === 'En Mantenimiento'
+                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                    : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                                }`}
+                                title={item.estadoOperativo === 'En Mantenimiento' ? 'Marcar como Operativo' : 'Enviar a Mantenimiento / Reparación'}
+                              >
+                                {item.estadoOperativo === 'En Mantenimiento' ? <CheckCircle2 size={14} /> : <Wrench size={14} />}
+                              </button>
+                            )}
 
                             {/* Botón Ciclo de Vida / Salud del Activo (Corazón) */}
                             <button
@@ -1014,6 +1034,8 @@ export default function Equipos() {
         sectores={sectores}
         insumos={insumos}
         equipos={equipos}
+        readOnly={isAuditor}
+        canDelete={isAdmin}
         onClose={() => {
           setIsDetalleModalOpen(false);
           setEquipoSeleccionado(null);

@@ -27,6 +27,8 @@ import {
   Download
 } from 'lucide-react';
 import MainLayout from '../components/MainLayout';
+import BannerAuditorReadOnly from '../components/BannerAuditorReadOnly';
+import { getStoredUser } from '../services/authService';
 import { listarEquipos } from '../services/equiposService';
 import { listarInsumos } from '../services/insumosService';
 import { listarSectores } from '../services/sectoresService';
@@ -34,12 +36,19 @@ import {
   listarMovimientos, 
   crearMovimiento, 
   obtenerMovimientoPorId,
-  descargarComprobantePDF
+  descargarComprobantePDF,
+  descargarMovimientosPDF
 } from '../services/movimientosService';
 import { listarCompatibilidades } from '../services/compatibilidadService';
 
 export default function Movimientos() {
   const navigate = useNavigate();
+
+  const currentUser = getStoredUser();
+  const rol = currentUser?.rolAcceso;
+  const isAdmin = rol === 'Administrador';
+  const isAuditor = (rol || '').toLowerCase().includes('auditor');
+  const [exportandoPDF, setExportandoPDF] = useState(false);
 
   // 1. Catálogos cargados desde la base de datos (con fallback de seguridad)
   const [catalogoEquipos, setCatalogoEquipos] = useState([
@@ -448,6 +457,20 @@ export default function Movimientos() {
     mostrarToast('Formulario restablecido para un nuevo movimiento.');
   };
 
+  // Exportar reporte consolidado de movimientos en PDF (PDFKit)
+  const handleExportarPDF = async () => {
+    setExportandoPDF(true);
+    try {
+      mostrarToast('Generando reporte consolidado de movimientos en PDF...');
+      await descargarMovimientosPDF();
+      mostrarToast('✓ Reporte de movimientos en PDF descargado exitosamente.');
+    } catch (err) {
+      mostrarToast(`Error al exportar PDF: ${err.message}`);
+    } finally {
+      setExportandoPDF(false);
+    }
+  };
+
   return (
     <MainLayout activePage="movimientos" pageTitle="Panel de Movimientos y Egresos">
       <div className="space-y-6 max-w-7xl mx-auto select-none">
@@ -470,14 +493,29 @@ export default function Movimientos() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={handleNuevoMovimiento}
-              className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer"
+              onClick={handleExportarPDF}
+              disabled={exportandoPDF}
+              title="Descargar reporte oficial consolidado de movimientos en PDF (PDFKit)"
+              className="flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer disabled:opacity-50"
             >
-              <RefreshCw size={13} />
-              <span>Limpiar Formulario</span>
+              <Download size={14} className={exportandoPDF ? 'animate-spin text-blue-600' : ''} />
+              <span>{exportandoPDF ? 'Exportando...' : 'Reporte Movimientos PDF'}</span>
             </button>
+            {!isAuditor && (
+              <button
+                type="button"
+                onClick={handleNuevoMovimiento}
+                className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer"
+              >
+                <RefreshCw size={13} />
+                <span>Limpiar Formulario</span>
+              </button>
+            )}
           </div>
         </div>
+
+        {/* Banner de Modo Auditoría Solo Lectura */}
+        {isAuditor && <BannerAuditorReadOnly modulo="Registro y Trazabilidad de Movimientos" />}
 
         {/* Layout en Dos Columnas */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
@@ -802,13 +840,13 @@ export default function Movimientos() {
                     <button
                       type="button"
                       onClick={handleAgregarInsumoALaLista}
-                      disabled={alertaCompatibilidad?.tipo === 'incompatible'}
+                      disabled={alertaCompatibilidad?.tipo === 'incompatible' || isAuditor}
                       className={`px-4 py-2.5 text-xs font-bold rounded-xl shadow-xs transition flex items-center justify-center gap-2 ${
-                        alertaCompatibilidad?.tipo === 'incompatible'
+                        alertaCompatibilidad?.tipo === 'incompatible' || isAuditor
                           ? 'bg-rose-100 text-rose-700 border border-rose-200 cursor-not-allowed opacity-80'
                           : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer'
                       }`}
-                      title={alertaCompatibilidad?.tipo === 'incompatible' ? 'Insumo incompatible con el equipo destino seleccionado' : 'Añadir insumo a la orden'}
+                      title={isAuditor ? 'Perfil de auditoría: solo lectura' : (alertaCompatibilidad?.tipo === 'incompatible' ? 'Insumo incompatible con el equipo destino seleccionado' : 'Añadir insumo a la orden')}
                     >
                       {alertaCompatibilidad?.tipo === 'incompatible' ? (
                         <>
@@ -995,11 +1033,17 @@ export default function Movimientos() {
 
               {/* BOTONES PRINCIPALES DE CIERRE */}
               <div className="space-y-2.5 pt-2">
+                {isAuditor && (
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-[11px] text-amber-800 flex items-center gap-2">
+                    <AlertCircle size={14} className="shrink-0 text-amber-600" />
+                    <span>Perfil de Auditoría: Registro de salidas deshabilitado (solo lectura).</span>
+                  </div>
+                )}
                 {/* BOTÓN INDEPENDIENTE PARA FINALIZAR EL MOVIMIENTO (Limpia el formulario) */}
                 <button
                   type="button"
                   onClick={handleRegistrarMovimiento}
-                  disabled={articulos.length === 0 || enviandoMovimiento}
+                  disabled={articulos.length === 0 || enviandoMovimiento || isAuditor}
                   className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-blue-500/20"
                 >
                   {enviandoMovimiento ? (

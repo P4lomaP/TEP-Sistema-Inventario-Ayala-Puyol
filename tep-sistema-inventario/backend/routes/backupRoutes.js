@@ -11,11 +11,11 @@ router.get(
     backupController.exportarSQL
 );
 
-// GET /api/backup/pdf - Reporte de inventario en PDF (Compatibilidad retroactiva: Administrador y Auditor)
+// GET /api/backup/pdf - Reporte de inventario en PDF (Compatibilidad retroactiva: Administrador, Técnico y Auditor)
 router.get(
     '/pdf', 
     authMiddleware, 
-    authMiddleware.verificarRol(['Administrador', 'Auditor']), 
+    authMiddleware.verificarRol(['Administrador', 'Tecnico', 'Auditor']), 
     backupController.exportarPDF
 );
 

@@ -101,3 +101,28 @@ export async function darDeBajaInsumo(idInsumo) {
   return data;
 }
 
+/**
+ * Descargar reporte oficial institucional del catálogo de insumos en PDF (PDFKit)
+ * GET /api/insumos/pdf
+ */
+export async function descargarInsumosPDF() {
+  const response = await authFetch(`${BASE_URL}/pdf`);
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Error al descargar el catálogo de insumos en PDF.');
+  }
+
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const fechaStr = new Date().toISOString().slice(0, 10);
+  a.download = `Catalogo_Insumos_TEP_${fechaStr}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+}
+
+

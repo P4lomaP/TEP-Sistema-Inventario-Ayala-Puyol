@@ -25,24 +25,34 @@ import {
   Filter,
   CheckCircle2,
   SlidersHorizontal,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Download
 } from 'lucide-react';
 import MainLayout from '../components/MainLayout';
+import BannerAuditorReadOnly from '../components/BannerAuditorReadOnly';
+import { getStoredUser } from '../services/authService';
 import { listarInsumos } from '../services/insumosService';
 import { listarEquipos } from '../services/equiposService';
 import { 
   listarCompatibilidades, 
   crearCompatibilidad, 
-  eliminarCompatibilidad 
+  eliminarCompatibilidad,
+  descargarMatrizPDF
 } from '../services/compatibilidadService';
 
 export default function Compatibilidad() {
   const navigate = useNavigate();
 
+  const currentUser = getStoredUser();
+  const rol = currentUser?.rolAcceso;
+  const isAdmin = rol === 'Administrador';
+  const isAuditor = (rol || '').toLowerCase().includes('auditor');
+
   // Estados de datos desde el backend
   const [insumos, setInsumos] = useState([]);
   const [equipos, setEquipos] = useState([]);
   const [reglas, setReglas] = useState([]);
+  const [exportandoPDF, setExportandoPDF] = useState(false);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
   const [toastMessage, setToastMessage] = useState('');
@@ -223,6 +233,20 @@ export default function Compatibilidad() {
     }
   };
 
+  // Exportar matriz completa en PDF oficial (PDFKit)
+  const handleExportarPDF = async () => {
+    setExportandoPDF(true);
+    try {
+      mostrarToast('Generando matriz de compatibilidad en PDF...');
+      await descargarMatrizPDF();
+      mostrarToast('✓ Matriz de compatibilidad en PDF descargada con éxito.');
+    } catch (err) {
+      mostrarToast(`Error al exportar PDF: ${err.message}`);
+    } finally {
+      setExportandoPDF(false);
+    }
+  };
+
   // Filtrar insumos en la columna izquierda superior
   const insumosFiltrados = useMemo(() => {
     return insumos.filter(i => {
@@ -354,14 +378,29 @@ export default function Compatibilidad() {
             </button>
             <button
               type="button"
-              onClick={() => navigate('/insumos')}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer shadow-sm shadow-blue-500/20"
+              onClick={handleExportarPDF}
+              disabled={exportandoPDF}
+              title="Descargar matriz de compatibilidad técnica en PDF (PDFKit)"
+              className="px-3.5 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shadow-2xs disabled:opacity-50"
             >
-              <Plus size={14} />
-              <span>Registrar Insumo</span>
+              <Download size={14} className={exportandoPDF ? 'animate-spin text-blue-600' : ''} />
+              <span>{exportandoPDF ? 'Exportando...' : 'Exportar PDF'}</span>
             </button>
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => navigate('/insumos')}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer shadow-sm shadow-blue-500/20"
+              >
+                <Plus size={14} />
+                <span>Registrar Insumo</span>
+              </button>
+            )}
           </div>
         </div>
+
+        {/* Banner de Modo Auditoría Solo Lectura */}
+        {isAuditor && <BannerAuditorReadOnly modulo="Matriz de Compatibilidad Técnica" />}
 
         {/* ================= BANNER INFORMATIVO ================= */}
         <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3 flex items-center justify-between gap-3 text-xs text-slate-600 shadow-2xs">
@@ -697,14 +736,20 @@ export default function Compatibilidad() {
                         {/* Botón Toggle interactivo */}
                         <button
                           type="button"
-                          disabled={deshabilitarToggle}
-                          onClick={() => handleToggleEquipo(eq)}
+                          disabled={deshabilitarToggle || !isAdmin}
+                          onClick={() => {
+                            if (!isAdmin) {
+                              mostrarToast('Modo Consulta: Solo el Administrador puede vincular o desvincular equipos.');
+                              return;
+                            }
+                            handleToggleEquipo(eq);
+                          }}
                           className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors duration-200 ease-in-out ${
-                            deshabilitarToggle 
-                              ? 'bg-slate-200 cursor-not-allowed opacity-50' 
+                            deshabilitarToggle || !isAdmin
+                              ? 'bg-slate-200 cursor-not-allowed opacity-60' 
                               : (isCompatible ? 'bg-emerald-600 cursor-pointer' : 'bg-slate-300 cursor-pointer')
                           }`}
-                          title={deshabilitarToggle ? inconsistencia : (isCompatible ? 'Desactivar compatibilidad' : 'Habilitar compatibilidad')}
+                          title={deshabilitarToggle ? inconsistencia : (!isAdmin ? 'Modo Consulta: Solo Administrador' : (isCompatible ? 'Desactivar compatibilidad' : 'Habilitar compatibilidad'))}
                         >
                           <div
                             className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${
@@ -990,14 +1035,16 @@ export default function Compatibilidad() {
                                     </span>
 
                                     {/* Botón para remover vinculación directamente */}
-                                    <button
-                                      type="button"
-                                      onClick={() => handleDesvincularDesdeTabla(ins.idRegla, eq.marcaModelo, ins.descripcion)}
-                                      className="text-slate-400 hover:text-rose-600 p-0.5 rounded transition cursor-pointer ml-0.5"
-                                      title="Desvincular este insumo del equipo"
-                                    >
-                                      <X size={12} />
-                                    </button>
+                                    {isAdmin && (
+                                      <button
+                                        type="button"
+                                        onClick={() => handleDesvincularDesdeTabla(ins.idRegla, eq.marcaModelo, ins.descripcion)}
+                                        className="text-slate-400 hover:text-rose-600 p-0.5 rounded transition cursor-pointer ml-0.5"
+                                        title="Desvincular este insumo del equipo"
+                                      >
+                                        <X size={12} />
+                                      </button>
+                                    )}
                                   </div>
                                 );
                               })}

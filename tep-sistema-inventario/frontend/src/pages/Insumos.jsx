@@ -17,21 +17,30 @@ import {
   Inbox
 } from 'lucide-react';
 import MainLayout from '../components/MainLayout';
+import BannerAuditorReadOnly from '../components/BannerAuditorReadOnly';
 import ModalNuevoInsumo from '../components/ModalNuevoInsumo';
 import ModalDetalleInsumo from '../components/ModalDetalleInsumo';
 import ModalObservacion from '../components/ModalObservacion';
+import { getStoredUser } from '../services/authService';
 import { 
   listarInsumos, 
   crearInsumo, 
   actualizarInsumo, 
-  darDeBajaInsumo 
+  darDeBajaInsumo,
+  descargarInsumosPDF
 } from '../services/insumosService';
 
 export default function Insumos() {
+  const currentUser = getStoredUser();
+  const rol = currentUser?.rolAcceso;
+  const isAdmin = rol === 'Administrador';
+  const isAuditor = (rol || '').toLowerCase().includes('auditor');
+
   // 1. ZONA JAVASCRIPT: Estados vinculados al Backend
   const [insumos, setInsumos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [exportandoPDF, setExportandoPDF] = useState(false);
 
   const [isModalNuevoOpen, setIsModalNuevoOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -105,6 +114,20 @@ export default function Insumos() {
     await darDeBajaInsumo(idInsumo);
     setInsumos((prev) => prev.filter((item) => item.idInsumo !== idInsumo));
     mostrarToast(`Insumo ${itemEncontrado?.codigoInterno || ''} dado de baja con éxito.`);
+  };
+
+  // Manejador para exportar el catálogo oficial en PDF (PDFKit)
+  const handleExportarPDF = async () => {
+    setExportandoPDF(true);
+    try {
+      mostrarToast('Generando catálogo oficial de insumos en PDF...');
+      await descargarInsumosPDF();
+      mostrarToast('✓ Catálogo de insumos en PDF descargado con éxito.');
+    } catch (err) {
+      mostrarToast(`Error al exportar PDF: ${err.message}`);
+    } finally {
+      setExportandoPDF(false);
+    }
   };
 
   // Cálculo dinámico del estado de observación para cada insumo
@@ -235,22 +258,29 @@ export default function Insumos() {
             </button>
             <button
               type="button"
-              onClick={() => mostrarToast('Generando reporte institucional en PDF...')}
-              className="flex items-center gap-2 px-3.5 sm:px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer"
+              onClick={handleExportarPDF}
+              disabled={exportandoPDF}
+              title="Descargar catálogo oficial de insumos en PDF (PDFKit)"
+              className="flex items-center gap-2 px-3.5 sm:px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer disabled:opacity-50"
             >
-              <Download size={15} />
-              <span>Exportar</span>
+              <Download size={15} className={exportandoPDF ? 'animate-spin text-blue-600' : ''} />
+              <span>{exportandoPDF ? 'Exportando...' : 'Exportar PDF'}</span>
             </button>
-            <button
-              type="button"
-              onClick={() => setIsModalNuevoOpen(true)}
-              className="flex items-center gap-2 px-3.5 sm:px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-xs transition shadow-blue-500/20 cursor-pointer"
-            >
-              <Plus size={16} />
-              <span>Nuevo Insumo</span>
-            </button>
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => setIsModalNuevoOpen(true)}
+                className="flex items-center gap-2 px-3.5 sm:px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-xs transition shadow-blue-500/20 cursor-pointer"
+              >
+                <Plus size={16} />
+                <span>Nuevo Insumo</span>
+              </button>
+            )}
           </div>
         </div>
+
+        {/* Banner de Modo Auditoría Solo Lectura */}
+        {isAuditor && <BannerAuditorReadOnly modulo="Catálogo de Insumos y Periféricos" />}
 
         {/* Notificación de Error con botón de reintentar */}
         {error && (
@@ -466,6 +496,8 @@ export default function Insumos() {
       <ModalDetalleInsumo
         isOpen={isDetalleModalOpen}
         insumo={insumoSeleccionado}
+        readOnly={isAuditor}
+        canDelete={isAdmin}
         onClose={() => {
           setIsDetalleModalOpen(false);
           setInsumoSeleccionado(null);

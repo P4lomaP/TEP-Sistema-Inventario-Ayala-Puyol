@@ -1,3 +1,4 @@
+const PDFDocument = require('pdfkit');
 const db = require('../database');
 const { registrarAuditoria } = require('../utils/auditoriaHelper');
 
@@ -388,10 +389,154 @@ const eliminarCompatibilidad = async (req, res) => {
     }
 };
 
+/**
+ * Exportar Matriz Oficial de Compatibilidad Técnica en formato PDF (PDFKit)
+ * GET /api/compatibilidad/pdf
+ */
+const exportarPDFMatriz = async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                e.marcaModelo,
+                COALESCE(e.codPatrimonial, 'S/C') AS codPatrimonial,
+                COALESCE(e.tipoEquipo, 'Hardware') AS tipoEquipo,
+                COALESCE(s.nombreOficina, 'Almacén / Sin sector') AS nombreSector,
+                i.codigoInterno,
+                i.descripcion AS insumoDescripcion,
+                i.categoria AS insumoCategoria
+            FROM matriz_compatibilidad m
+            JOIN Equipos e ON m.idEquipo = e.idEquipo
+            LEFT JOIN Sectores s ON e.idSector = s.idSector
+            JOIN Insumos i ON m.idInsumo = i.idInsumo
+            ORDER BY e.marcaModelo ASC, i.descripcion ASC
+        `;
+
+        const reglas = await executeQuery(query);
+        const fechaHoy = new Date().toISOString().slice(0, 10);
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `inline; filename="Matriz_Compatibilidad_TEP_${fechaHoy}.pdf"`);
+
+        const doc = new PDFDocument({ 
+            size: 'A4', 
+            margin: 40,
+            bufferPages: true,
+            info: {
+                Title: 'Tribunal Electoral Permanente - Matriz de Compatibilidad',
+                Author: 'Sistema de Inventario TEP',
+                Subject: 'Matriz Oficial de Compatibilidad Técnica'
+            }
+        });
+
+        doc.pipe(res);
+
+        const renderEncabezado = () => {
+            doc.rect(40, 40, 515, 4).fill('#1A365D');
+
+            doc.fillColor('#1A365D')
+               .fontSize(13)
+               .font('Helvetica-Bold')
+               .text('Tribunal Electoral Permanente - Matriz Oficial de Compatibilidad', 40, 52, { align: 'center' });
+
+            doc.fillColor('#4A5568')
+               .fontSize(8.5)
+               .font('Helvetica')
+               .text(`Fecha de emisión: ${new Date().toLocaleDateString('es-AR')} ${new Date().toLocaleTimeString('es-AR')} | Total de asociaciones válidas: ${reglas.length}`, 40, 72, { align: 'center' });
+
+            doc.moveTo(40, 88).lineTo(555, 88).lineWidth(1).strokeColor('#CBD5E0').stroke();
+        };
+
+        const renderCabeceraTabla = (y) => {
+            doc.rect(40, y, 515, 20).fill('#2B6CB0');
+            doc.fillColor('#FFFFFF').fontSize(8).font('Helvetica-Bold');
+            doc.text('N°', 45, y + 6, { width: 25, align: 'center' });
+            doc.text('EQUIPO (MARCA / MODELO)', 75, y + 6, { width: 130 });
+            doc.text('CÓD. PATRIMONIAL', 210, y + 6, { width: 80 });
+            doc.text('TIPO', 295, y + 6, { width: 65 });
+            doc.text('SECTOR ASIGNADO', 365, y + 6, { width: 85 });
+            doc.text('INSUMO COMPATIBLE', 455, y + 6, { width: 100 });
+            return y + 20;
+        };
+
+        renderEncabezado();
+        let currentY = renderCabeceraTabla(98);
+
+        if (reglas.length === 0) {
+            doc.rect(40, currentY, 515, 25).fillAndStroke('#FFFFFF', '#E2E8F0');
+            doc.fillColor('#718096')
+               .fontSize(9)
+               .font('Helvetica-Oblique')
+               .text('No se encontraron reglas de compatibilidad configuradas en la matriz.', 50, currentY + 8);
+        } else {
+            reglas.forEach((regla, index) => {
+                if (currentY + 22 > 780) {
+                    doc.addPage();
+                    renderEncabezado();
+                    currentY = renderCabeceraTabla(98);
+                }
+
+                const isEven = index % 2 === 0;
+                const rowHeight = 20;
+
+                doc.rect(40, currentY, 515, rowHeight)
+                   .fillAndStroke(isEven ? '#FFFFFF' : '#F7FAFC', '#E2E8F0');
+
+                doc.fillColor('#2D3748').fontSize(8).font('Helvetica');
+                doc.text(String(index + 1), 45, currentY + 6, { width: 25, align: 'center' });
+
+                doc.font('Helvetica-Bold').text(regla.marcaModelo || 'Equipo', 75, currentY + 6, { width: 130, lineBreak: false, ellipsis: true });
+                doc.font('Helvetica');
+
+                doc.text(regla.codPatrimonial, 210, currentY + 6, { width: 80 });
+                doc.text(regla.tipoEquipo, 295, currentY + 6, { width: 65 });
+                doc.text(regla.nombreSector, 365, currentY + 6, { width: 85, lineBreak: false, ellipsis: true });
+
+                doc.font('Helvetica-Bold')
+                   .fillColor('#2B6CB0')
+                   .text(`${regla.codigoInterno ? `[${regla.codigoInterno}] ` : ''}${regla.insumoDescripcion}`, 455, currentY + 6, { width: 100, lineBreak: false, ellipsis: true });
+
+                currentY += rowHeight;
+            });
+        }
+
+        const range = doc.bufferedPageRange();
+        for (let i = 0; i < range.count; i++) {
+            doc.switchToPage(i);
+            doc.moveTo(40, 800).lineTo(555, 800).lineWidth(0.5).strokeColor('#E2E8F0').stroke();
+            doc.fillColor('#A0AEC0')
+               .fontSize(7)
+               .font('Helvetica')
+               .text(
+                   `Página ${i + 1} de ${range.count} - Sistema de Inventario TEP - Matriz Técnica de Compatibilidad`,
+                   40,
+                   806,
+                   { align: 'center', width: 515 }
+               );
+        }
+
+        registrarAuditoria(
+            req.usuario?.idUsuario,
+            `Generación de matriz oficial de compatibilidad en PDF (${reglas.length} reglas)`,
+            'Compatibilidad'
+        ).catch(() => {});
+
+        doc.end();
+    } catch (error) {
+        console.error('Error al generar PDF de compatibilidad:', error);
+        if (!res.headersSent) {
+            return res.status(500).json({
+                message: 'Error interno al generar el PDF de la matriz de compatibilidad.',
+                error: error.message
+            });
+        }
+    }
+};
+
 module.exports = {
     obtenerTodasLasCompatibilidades,
     obtenerInsumosPorEquipo,
     obtenerEquiposPorInsumo,
     crearCompatibilidad,
-    eliminarCompatibilidad
+    eliminarCompatibilidad,
+    exportarPDFMatriz
 };

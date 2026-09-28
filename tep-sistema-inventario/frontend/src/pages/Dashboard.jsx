@@ -16,9 +16,18 @@ import {
   Inbox
 } from 'lucide-react';
 import MainLayout from '../components/MainLayout';
+import BannerAuditorReadOnly from '../components/BannerAuditorReadOnly';
 import { getDashboardData } from '../services/dashboardService';
+import { getStoredUser } from '../services/authService';
 
 export default function Dashboard() {
+  const user = getStoredUser();
+  const rolNormalizado = (user?.rolAcceso || user?.rol || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+  const isAuditor = rolNormalizado === 'auditor';
+
   // 1. Estados de datos reales desde el Backend
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -121,6 +130,11 @@ export default function Dashboard() {
             </p>
           </div>
         </div>
+
+        {/* Banner de Modo Auditoría Solo Lectura */}
+        {isAuditor && (
+          <BannerAuditorReadOnly modulo="Panel de Control y Supervisión Global" />
+        )}
 
         {/* Notificación de Error con botón de reintentar */}
         {error && (

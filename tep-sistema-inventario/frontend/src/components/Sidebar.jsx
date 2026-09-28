@@ -15,7 +15,11 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
   const navigate = useNavigate();
 
   const currentUser = getStoredUser();
-  const isAdmin = currentUser?.rolAcceso === 'Administrador';
+  const rolNormalizado = (currentUser?.rolAcceso || currentUser?.rol || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+  const isAdmin = rolNormalizado === 'administrador';
 
   const allMenuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid, path: '/dashboard' },

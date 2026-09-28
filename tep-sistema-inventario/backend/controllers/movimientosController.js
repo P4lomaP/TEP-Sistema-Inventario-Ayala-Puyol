@@ -1,3 +1,4 @@
+const PDFDocument = require('pdfkit');
 const db = require('../database');
 const { registrarAuditoria } = require('../utils/auditoriaHelper');
 
@@ -533,10 +534,162 @@ const eliminarMovimiento = async (req, res) => {
     }
 };
 
+/**
+ * Exportar Reporte Consolidado de Movimientos de Almacén en formato PDF (PDFKit)
+ * GET /api/movimientos/pdf
+ */
+const exportarPDFMovimientos = async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                m.comprobanteRef,
+                DATE_FORMAT(m.fechaHora, '%d/%m/%Y %H:%i') AS fechaHora,
+                m.tipoMovimiento,
+                m.agenteReceptor,
+                m.estado,
+                COALESCE(u.username, 'Operador') AS usuarioNombre
+            FROM Movimientos m
+            LEFT JOIN Usuarios u ON m.idUsuario = u.idUsuario
+            ORDER BY m.fechaHora DESC
+        `;
+
+        const movimientos = await executeQuery(query);
+        const fechaHoy = new Date().toISOString().slice(0, 10);
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `inline; filename="Reporte_Movimientos_TEP_${fechaHoy}.pdf"`);
+
+        const doc = new PDFDocument({ 
+            size: 'A4', 
+            margin: 40,
+            bufferPages: true,
+            info: {
+                Title: 'Tribunal Electoral Permanente - Reporte de Movimientos',
+                Author: 'Sistema de Inventario TEP',
+                Subject: 'Registro Oficial de Movimientos de Almacén'
+            }
+        });
+
+        doc.pipe(res);
+
+        const renderEncabezado = () => {
+            doc.rect(40, 40, 515, 4).fill('#1A365D');
+
+            doc.fillColor('#1A365D')
+               .fontSize(13)
+               .font('Helvetica-Bold')
+               .text('Tribunal Electoral Permanente - Registro Oficial de Movimientos', 40, 52, { align: 'center' });
+
+            doc.fillColor('#4A5568')
+               .fontSize(8.5)
+               .font('Helvetica')
+               .text(`Fecha de emisión: ${new Date().toLocaleDateString('es-AR')} ${new Date().toLocaleTimeString('es-AR')} | Total de transacciones: ${movimientos.length}`, 40, 72, { align: 'center' });
+
+            doc.moveTo(40, 88).lineTo(555, 88).lineWidth(1).strokeColor('#CBD5E0').stroke();
+        };
+
+        const renderCabeceraTabla = (y) => {
+            doc.rect(40, y, 515, 20).fill('#2B6CB0');
+            doc.fillColor('#FFFFFF').fontSize(8).font('Helvetica-Bold');
+            doc.text('N°', 45, y + 6, { width: 25, align: 'center' });
+            doc.text('COMPROBANTE', 75, y + 6, { width: 85 });
+            doc.text('FECHA / HORA', 165, y + 6, { width: 85 });
+            doc.text('TIPO', 255, y + 6, { width: 50, align: 'center' });
+            doc.text('DESTINO / AGENTE RECEPTOR', 310, y + 6, { width: 145 });
+            doc.text('ESTADO', 460, y + 6, { width: 45, align: 'center' });
+            doc.text('OPERADOR', 510, y + 6, { width: 45, align: 'right' });
+            return y + 20;
+        };
+
+        renderEncabezado();
+        let currentY = renderCabeceraTabla(98);
+
+        if (movimientos.length === 0) {
+            doc.rect(40, currentY, 515, 25).fillAndStroke('#FFFFFF', '#E2E8F0');
+            doc.fillColor('#718096')
+               .fontSize(9)
+               .font('Helvetica-Oblique')
+               .text('No se encontraron movimientos registrados en la base de datos.', 50, currentY + 8);
+        } else {
+            movimientos.forEach((mov, index) => {
+                if (currentY + 22 > 780) {
+                    doc.addPage();
+                    renderEncabezado();
+                    currentY = renderCabeceraTabla(98);
+                }
+
+                const isEven = index % 2 === 0;
+                const rowHeight = 20;
+
+                doc.rect(40, currentY, 515, rowHeight)
+                   .fillAndStroke(isEven ? '#FFFFFF' : '#F7FAFC', '#E2E8F0');
+
+                doc.fillColor('#2D3748').fontSize(8).font('Helvetica');
+                doc.text(String(index + 1), 45, currentY + 6, { width: 25, align: 'center' });
+
+                doc.font('Helvetica-Bold').text(mov.comprobanteRef || 'S/N', 75, currentY + 6, { width: 85 });
+                doc.font('Helvetica');
+
+                doc.text(mov.fechaHora || '', 165, currentY + 6, { width: 85 });
+
+                const esEgreso = (mov.tipoMovimiento || '').toLowerCase() === 'egreso';
+                doc.font('Helvetica-Bold')
+                   .fillColor(esEgreso ? '#C05621' : '#2F855A')
+                   .text(mov.tipoMovimiento || 'Mov', 255, currentY + 6, { width: 50, align: 'center' });
+
+                doc.fillColor('#2D3748').font('Helvetica');
+                doc.text(mov.agenteReceptor || 'No especificado', 310, currentY + 6, { width: 145, lineBreak: false, ellipsis: true });
+
+                const esActivo = (mov.estado || 'Activo') === 'Activo';
+                doc.font('Helvetica-Bold')
+                   .fillColor(esActivo ? '#2F855A' : '#E53E3E')
+                   .text(mov.estado || 'Activo', 460, currentY + 6, { width: 45, align: 'center' });
+
+                doc.fillColor('#718096').font('Helvetica');
+                doc.text(mov.usuarioNombre || 'Sistema', 510, currentY + 6, { width: 45, align: 'right', lineBreak: false, ellipsis: true });
+
+                currentY += rowHeight;
+            });
+        }
+
+        const range = doc.bufferedPageRange();
+        for (let i = 0; i < range.count; i++) {
+            doc.switchToPage(i);
+            doc.moveTo(40, 800).lineTo(555, 800).lineWidth(0.5).strokeColor('#E2E8F0').stroke();
+            doc.fillColor('#A0AEC0')
+               .fontSize(7)
+               .font('Helvetica')
+               .text(
+                   `Página ${i + 1} de ${range.count} - Sistema de Inventario TEP - Historial de Movimientos de Almacén`,
+                   40,
+                   806,
+                   { align: 'center', width: 515 }
+               );
+        }
+
+        registrarAuditoria(
+            req.usuario?.idUsuario,
+            `Generación de reporte consolidado de movimientos en PDF (${movimientos.length} transacciones)`,
+            'Movimientos'
+        ).catch(() => {});
+
+        doc.end();
+    } catch (error) {
+        console.error('Error al generar PDF de movimientos:', error);
+        if (!res.headersSent) {
+            return res.status(500).json({
+                message: 'Error interno al generar el PDF de movimientos.',
+                error: error.message
+            });
+        }
+    }
+};
+
 module.exports = {
     obtenerMovimientos,
     obtenerMovimientoPorId,
     registrarMovimiento,
     actualizarMovimiento,
-    eliminarMovimiento
+    eliminarMovimiento,
+    exportarPDFMovimientos
 };

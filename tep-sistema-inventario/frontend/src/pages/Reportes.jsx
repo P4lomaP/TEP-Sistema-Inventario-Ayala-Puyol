@@ -23,10 +23,16 @@ import {
   Filter
 } from 'lucide-react';
 import MainLayout from '../components/MainLayout';
+import BannerAuditorReadOnly from '../components/BannerAuditorReadOnly';
+import { getStoredUser } from '../services/authService';
 import { obtenerReporte, obtenerLogsAuditoria, descargarBackupSQL, descargarReporteEquiposPDF } from '../services/reportesService';
 import { listarSectores } from '../services/sectoresService';
 
 export default function Reportes() {
+  const currentUser = getStoredUser();
+  const rol = currentUser?.rolAcceso;
+  const isAdmin = rol === 'Administrador';
+  const isAuditor = (rol || '').toLowerCase().includes('auditor');
   // 1. Estados de filtros
   const [fechaDesde, setFechaDesde] = useState('');
   const [fechaHasta, setFechaHasta] = useState('');
@@ -243,16 +249,18 @@ export default function Reportes() {
 
           {/* Botones de Acción y Exportación */}
           <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={handleDescargarBackup}
-              disabled={descargandoBackup}
-              title="Descargar volcado SQL completo de la base de datos"
-              className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 transition cursor-pointer shadow-2xs"
-            >
-              <Database size={14} className={descargandoBackup ? 'animate-spin text-blue-600' : 'text-slate-500'} />
-              <span>{descargandoBackup ? 'Generando...' : 'Backup SQL'}</span>
-            </button>
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={handleDescargarBackup}
+                disabled={descargandoBackup}
+                title="Descargar volcado SQL completo de la base de datos (Exclusivo Administrador)"
+                className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 transition cursor-pointer shadow-2xs"
+              >
+                <Database size={14} className={descargandoBackup ? 'animate-spin text-blue-600' : 'text-slate-500'} />
+                <span>{descargandoBackup ? 'Generando...' : 'Backup SQL'}</span>
+              </button>
+            )}
 
             <button
               type="button"
@@ -284,6 +292,9 @@ export default function Reportes() {
             </button>
           </div>
         </div>
+
+        {/* Banner informativo de modo auditoría solo lectura */}
+        {isAuditor && <BannerAuditorReadOnly modulo="Reportes y Auditoría" />}
 
         {/* ================= CRITERIOS DE FILTRADO ================= */}
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs space-y-4">

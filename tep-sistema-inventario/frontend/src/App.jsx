@@ -34,7 +34,11 @@ function RegisterPage() {
 // Guardián exclusivo para vistas de Administrador
 function AdminRoute({ children }) {
   const user = getStoredUser();
-  if (user?.rolAcceso !== 'Administrador') {
+  const rolNormalizado = (user?.rolAcceso || user?.rol || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+  if (rolNormalizado !== 'administrador') {
     return <Navigate to="/dashboard" replace />;
   }
   return children;

@@ -123,3 +123,28 @@ export async function descargarComprobantePDF(idMovimiento, comprobanteRef = '')
   window.URL.revokeObjectURL(url);
 }
 
+/**
+ * Descargar reporte oficial consolidado de movimientos en PDF (PDFKit)
+ * GET /api/movimientos/pdf
+ */
+export async function descargarMovimientosPDF() {
+  const response = await authFetch(`${BASE_URL}/pdf`);
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Error al descargar el reporte de movimientos en PDF.');
+  }
+
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const fechaStr = new Date().toISOString().slice(0, 10);
+  a.download = `Reporte_Movimientos_TEP_${fechaStr}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+}
+
+
