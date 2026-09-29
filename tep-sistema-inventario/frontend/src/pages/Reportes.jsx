@@ -30,9 +30,14 @@ import { listarSectores } from '../services/sectoresService';
 
 export default function Reportes() {
   const currentUser = getStoredUser();
-  const rol = currentUser?.rolAcceso;
-  const isAdmin = rol === 'Administrador';
-  const isAuditor = (rol || '').toLowerCase().includes('auditor');
+  const rolNormalizado = (currentUser?.rolAcceso || currentUser?.rol || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
+  const isAdmin = rolNormalizado === 'administrador';
+  const isAuditor = rolNormalizado === 'auditor';
+  const canViewLogs = isAdmin || isAuditor;
   // 1. Estados de filtros
   const [fechaDesde, setFechaDesde] = useState('');
   const [fechaHasta, setFechaHasta] = useState('');
@@ -114,6 +119,7 @@ export default function Reportes() {
 
   // Cargar logs reales al abrir el modal de auditoría
   const handleAbrirLogs = async () => {
+    if (!canViewLogs) return;
     setShowLogsModal(true);
     try {
       const logs = await obtenerLogsAuditoria();
@@ -604,28 +610,30 @@ export default function Reportes() {
 
         </div>
 
-        {/* ================= BARRA INFERIOR: ACCESO A LOGS DE AUDITORÍA ================= */}
-        <div className="bg-[#1b2d45] text-white rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-blue-500/20 border border-blue-400/30 rounded-xl text-blue-400 shrink-0">
-              <ShieldCheck size={22} />
+        {/* ================= BARRA INFERIOR: ACCESO A LOGS DE AUDITORÍA (Solo Admin y Auditor) ================= */}
+        {canViewLogs && (
+          <div className="bg-[#1b2d45] text-white rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-blue-500/20 border border-blue-400/30 rounded-xl text-blue-400 shrink-0">
+                <ShieldCheck size={22} />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold tracking-wide">Registro de Actividad y Auditoría</h4>
+                <p className="text-[11px] text-slate-300">
+                  Historial de operaciones y acciones realizadas por los usuarios del sistema.
+                </p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-xs font-bold tracking-wide">Registro de Actividad y Auditoría</h4>
-              <p className="text-[11px] text-slate-300">
-                Historial de operaciones y acciones realizadas por los usuarios del sistema.
-              </p>
-            </div>
-          </div>
 
-          <button
-            type="button"
-            onClick={handleAbrirLogs}
-            className="w-full sm:w-auto px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-semibold rounded-xl transition cursor-pointer"
-          >
-            Ver Registro de Auditoría
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={handleAbrirLogs}
+              className="w-full sm:w-auto px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-semibold rounded-xl transition cursor-pointer"
+            >
+              Ver Registro de Auditoría
+            </button>
+          </div>
+        )}
 
         {/* Footer Institucional */}
         <div className="text-center pt-2 pb-2 text-[11px] text-slate-400 tracking-wider">
@@ -635,7 +643,7 @@ export default function Reportes() {
       </div>
 
       {/* ================= MODAL: LOG DE AUDITORÍA ================= */}
-      {showLogsModal && (
+      {showLogsModal && canViewLogs && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
           <div className="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-slate-200 max-h-[85vh] flex flex-col space-y-4">
             
