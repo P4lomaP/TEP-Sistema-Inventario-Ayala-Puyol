@@ -235,15 +235,9 @@ export default function Insumos() {
         {/* Encabezado de la Sección con botones de acción */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                Conectado a MySQL (/api/insumos)
-              </span>
-            </div>
             <h2 className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">Catálogo de Insumos</h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Administre el inventario completo de activos y suministros institucionales con persistencia en base de datos.
+              Administre el inventario completo de insumos y suministros institucionales del Tribunal.
             </p>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
@@ -342,7 +336,7 @@ export default function Insumos() {
         <div className="flex items-center gap-2 px-4 py-2.5 bg-blue-50/60 border border-blue-100 text-blue-800 rounded-xl text-xs">
           <Info size={15} className="text-blue-600 shrink-0" />
           <span>
-            <strong>Gestión Integral:</strong> Presione <strong>doble clic</strong> en cualquier insumo para abrir su ficha técnica, <strong>modificar</strong> sus datos o <strong>darlo de baja</strong> en MySQL. Haga clic en <strong>Observar</strong> para verificar alertas preventivas.
+            <strong>Gestión Integral:</strong> Presione <strong>doble clic</strong> en cualquier insumo para abrir su ficha técnica, <strong>modificar</strong> sus datos o <strong>darlo de baja</strong>. Haga clic en <strong>Observar</strong> para verificar alertas preventivas.
           </span>
         </div>
 
@@ -366,7 +360,7 @@ export default function Insumos() {
                     <td colSpan={6} className="py-12 text-center text-slate-400">
                       <div className="flex items-center justify-center gap-2 text-xs">
                         <RefreshCw size={16} className="animate-spin text-blue-600" />
-                        <span>Cargando insumos desde el servidor MySQL...</span>
+                        <span>Cargando catálogo de insumos...</span>
                       </div>
                     </td>
                   </tr>

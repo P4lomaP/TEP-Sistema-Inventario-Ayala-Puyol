@@ -118,12 +118,6 @@ export default function Dashboard() {
             className="absolute inset-0 w-full h-full object-cover object-center opacity-30 mix-blend-luminosity"
           />
           <div className="relative z-10 max-w-2xl">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                Datos en tiempo real (API REST)
-              </span>
-            </div>
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight mb-1.5 sm:mb-2">Panel de Control Institucional</h2>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-light">
               Bienvenido al sistema centralizado de gestión del Tribunal Electoral Permanente. Monitoreo en vivo de inventario, flota patrimonial y trazabilidad de movimientos.
@@ -279,14 +273,9 @@ export default function Dashboard() {
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <div className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 gap-3">
             <div>
-              <div className="flex items-center gap-2">
-                <h4 className="text-sm sm:text-base font-bold text-slate-800 tracking-tight">Últimos 5 Movimientos</h4>
-                <span className="text-[10px] font-mono font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-100">
-                  API Transaccional
-                </span>
-              </div>
+              <h4 className="text-sm sm:text-base font-bold text-slate-800 tracking-tight">Últimos 5 Movimientos</h4>
               <p className="text-xs text-slate-400 mt-0.5">
-                Registro de altas y bajas transaccionales de almacén (GET /api/movimientos)
+                Registro de ingresos y egresos recientes del almacén
               </p>
             </div>
             <button
@@ -318,7 +307,7 @@ export default function Dashboard() {
                     <td colSpan={6} className="py-10 text-center text-slate-400">
                       <div className="flex items-center justify-center gap-2 text-xs">
                         <RefreshCw size={16} className="animate-spin text-blue-600" />
-                        <span>Consultando movimientos al servidor...</span>
+                        <span>Cargando movimientos...</span>
                       </div>
                     </td>
                   </tr>

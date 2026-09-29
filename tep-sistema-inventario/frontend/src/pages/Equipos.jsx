@@ -421,12 +421,6 @@ export default function Equipos() {
         {/* Encabezado y Botones Principales */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full">
-                <ShieldCheck size={12} />
-                Parque Patrimonial Institucional
-              </span>
-            </div>
             <h2 className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">Gestión de Equipamiento</h2>
             <p className="text-xs text-slate-500 mt-0.5">
               Administración de activos informáticos, trazabilidad y control de ciclo de vida del Tribunal Electoral.

@@ -407,7 +407,7 @@ export default function Compatibilidad() {
           <div className="flex items-center gap-2">
             <Info size={16} className="text-blue-600 shrink-0" />
             <span>
-              <strong>Consulta interactiva:</strong> Puede configurar asociaciones en el selector superior haciendo clic en los interruptores, o revisar abajo la <strong>tabla visual consolidada por equipo</strong>. Haga <strong>doble clic</strong> en cualquier elemento para abrir su ficha técnica.
+              <strong>Consulta interactiva:</strong> Puede configurar asociaciones en el selector superior haciendo clic en los interruptores, o revisar abajo la <strong>vista de equipamiento</strong>. Haga <strong>doble clic</strong> en cualquier elemento para abrir su ficha técnica.
             </span>
           </div>
         </div>
@@ -797,11 +797,11 @@ export default function Compatibilidad() {
               <div className="flex items-center gap-2 mb-1">
                 <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full">
                   <FileSpreadsheet size={13} />
-                  Vista Consolidada de Equipamiento
+                  Vista de Equipamiento
                 </span>
               </div>
               <h3 className="text-base sm:text-lg font-bold text-slate-800 tracking-tight">
-                Mapa Consolidado de Compatibilidad por Equipo
+                Compatibilidad por Equipo
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
                 Consulte en una sola vista qué insumos, tóners o periféricos están autorizados para cada equipo del Tribunal.

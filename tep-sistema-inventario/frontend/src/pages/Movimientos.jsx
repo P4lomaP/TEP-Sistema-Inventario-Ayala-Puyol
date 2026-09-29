@@ -1129,7 +1129,7 @@ export default function Movimientos() {
               <div>
                 <h3 className="text-sm font-bold text-slate-800">Últimos Movimientos de Almacén Registrados</h3>
                 <p className="text-[11px] text-slate-400">
-                  Consulte las salidas asentadas en la base de datos oficial con su comprobante de remito.
+                  Historial de entregas y remitos oficiales generados.
                 </p>
               </div>
             </div>
@@ -1158,7 +1158,7 @@ export default function Movimientos() {
                   {historialMovimientos.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="py-8 text-center text-slate-400 text-xs">
-                        No hay movimientos registrados en la base de datos aún.
+                        No hay movimientos registrados aún.
                       </td>
                     </tr>
                   ) : (

@@ -235,15 +235,9 @@ export default function Reportes() {
         {/* ================= ENCABEZADO Y BOTONES DE EXPORTACIÓN ================= */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-0.5 rounded-full">
-                <FileText size={12} />
-                Inteligencia y Control de Gestión
-              </span>
-            </div>
             <h2 className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">Reportes y Métricas</h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Consulte consumos reales, distribución de suministros por sector y trazabilidad de operaciones.
+              Consulte consumos de insumos, distribución por sector y registros operativos.
             </p>
           </div>
 
@@ -617,9 +611,9 @@ export default function Reportes() {
               <ShieldCheck size={22} />
             </div>
             <div>
-              <h4 className="text-xs font-bold tracking-wide">Trazabilidad y Respaldo Legal</h4>
+              <h4 className="text-xs font-bold tracking-wide">Registro de Actividad y Auditoría</h4>
               <p className="text-[11px] text-slate-300">
-                Cada movimiento y modificación está registrado de forma inmutable en el log de auditoría del sistema (RF-07.2).
+                Historial de operaciones y acciones realizadas por los usuarios del sistema.
               </p>
             </div>
           </div>
@@ -629,7 +623,7 @@ export default function Reportes() {
             onClick={handleAbrirLogs}
             className="w-full sm:w-auto px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-semibold rounded-xl transition cursor-pointer"
           >
-            Ver Logs de Auditoría
+            Ver Registro de Auditoría
           </button>
         </div>
 
@@ -640,7 +634,7 @@ export default function Reportes() {
 
       </div>
 
-      {/* ================= MODAL: LOG INMUTABLE DE AUDITORÍA ================= */}
+      {/* ================= MODAL: LOG DE AUDITORÍA ================= */}
       {showLogsModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
           <div className="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-slate-200 max-h-[85vh] flex flex-col space-y-4">
@@ -651,8 +645,8 @@ export default function Reportes() {
                   <ShieldCheck size={20} />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-800">Log Inmutable de Auditoría</h3>
-                  <p className="text-xs text-slate-400">Registro cronológico de seguridad y operaciones</p>
+                  <h3 className="text-base font-bold text-slate-800">Registro de Auditoría</h3>
+                  <p className="text-xs text-slate-400">Historial cronológico de operaciones del sistema</p>
                 </div>
               </div>
               <button 
