@@ -31,6 +31,7 @@ export async function loginService(username, password) {
   if (data.token) {
     localStorage.setItem('token', data.token);
     localStorage.setItem('tep_last_activity', Date.now().toString());
+    sessionStorage.setItem('tep_session_active', 'true');
   }
   if (data.usuario) {
     localStorage.setItem('usuario', JSON.stringify(data.usuario));
@@ -74,6 +75,39 @@ export function logoutService() {
   localStorage.removeItem('token');
   localStorage.removeItem('usuario');
   localStorage.removeItem('tep_last_activity');
+  sessionStorage.removeItem('tep_session_active');
+}
+
+/**
+ * Comprobar de forma segura y síncrona si un token JWT ha expirado
+ * @param {string} token
+ * @returns {boolean}
+ */
+export function isTokenExpired(token) {
+  if (!token || typeof token !== 'string') return true;
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return true;
+
+    let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    while (base64.length % 4) {
+      base64 += '=';
+    }
+
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+
+    const decoded = JSON.parse(jsonPayload);
+    if (!decoded.exp) return false;
+
+    return Date.now() >= decoded.exp * 1000;
+  } catch {
+    return true;
+  }
 }
 
 /**
@@ -138,13 +172,17 @@ export async function authFetch(url, options = {}) {
 
   // Si la sesión expiró en el servidor por inactividad prolongada (401)
   if (response.status === 401) {
+    const wasActiveSession = sessionStorage.getItem('tep_session_active') === 'true';
     const cloned = response.clone();
     const data = await cloned.json().catch(() => ({}));
     logoutService();
-    sessionStorage.setItem(
-      'tep_inactivity_message',
-      data.message || 'Su sesión se ha cerrado automáticamente tras 30 minutos sin actividad.'
-    );
+    // Solo mostrar aviso de inactividad si el operador estaba efectivamente en una sesión activa
+    if (wasActiveSession && data.expired) {
+      sessionStorage.setItem(
+        'tep_inactivity_message',
+        data.message || 'Su sesión se ha cerrado automáticamente tras 30 minutos sin actividad.'
+      );
+    }
     window.dispatchEvent(new CustomEvent('session-expired', { detail: data.message }));
   }
 

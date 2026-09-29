@@ -165,13 +165,13 @@ export default function Register({ onSwitchToLogin }) {
           {/* Campo: Nombre de Usuario */}
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">
-              Nombre de Usuario / Correo
+              Nombre de Usuario 
             </label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="operador.tep@organismo.gob.ar"
+              placeholder="operador.tep o admin.tep"
               required
               className="w-full pb-2 text-sm text-gray-800 placeholder-gray-400 border-b border-gray-300 focus:border-indigo-600 focus:outline-none transition"
             />

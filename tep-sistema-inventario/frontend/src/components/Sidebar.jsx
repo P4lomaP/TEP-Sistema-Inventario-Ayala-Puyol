@@ -66,7 +66,7 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
               <LayoutGrid size={22} />
             </div>
             <div>
-              <h1 className="text-white text-sm font-bold tracking-wide leading-tight">Institutional</h1>
+              <h1 className="text-white text-sm font-bold tracking-wide leading-tight">Sistema Institucional</h1>
               <p className="text-[11px] sm:text-xs text-slate-400">Tribunal Electoral</p>
             </div>
           </div>

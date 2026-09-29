@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { logoutService, getAuthToken } from '../services/authService';
+import { logoutService, getAuthToken, isTokenExpired } from '../services/authService';
 
 const DEFAULT_TIMEOUT_MINUTES = 30;
 const CHECK_INTERVAL_MS = 10 * 1000; // Chequear cada 10 segundos
@@ -17,8 +17,9 @@ export function useInactivityTimer(timeoutMinutes = DEFAULT_TIMEOUT_MINUTES) {
   const limitMs = timeoutMinutes * 60 * 1000;
 
   useEffect(() => {
-    // Si no hay token de autenticación activo, no monitorear
-    if (!getAuthToken()) return;
+    // Si no hay token de autenticación activo o ya está vencido, no monitorear
+    const token = getAuthToken();
+    if (!token || isTokenExpired(token)) return;
 
     // Inicializar timestamp de última actividad si aún no está guardado
     if (!localStorage.getItem('tep_last_activity')) {
@@ -46,10 +47,16 @@ export function useInactivityTimer(timeoutMinutes = DEFAULT_TIMEOUT_MINUTES) {
 
     // Comprobar si transcurrieron 30 minutos sin interacción
     const checkInactivity = () => {
-      if (!getAuthToken()) return;
+      const currentToken = getAuthToken();
+      if (!currentToken || isTokenExpired(currentToken)) return;
 
       const rawLast = localStorage.getItem('tep_last_activity');
-      const lastActivity = rawLast ? Number(rawLast) : Date.now();
+      if (!rawLast) {
+        localStorage.setItem('tep_last_activity', Date.now().toString());
+        return;
+      }
+
+      const lastActivity = Number(rawLast);
       const elapsed = Date.now() - lastActivity;
 
       if (elapsed >= limitMs) {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   X, 
   Eye, 
@@ -16,7 +16,10 @@ import {
   loginService, 
   verificarPinService, 
   solicitarPinService, 
-  recuperarPasswordService 
+  recuperarPasswordService,
+  logoutService,
+  getAuthToken,
+  isTokenExpired
 } from '../services/authService';
 
 export default function Login({ onSwitchToRegister, onLoginSuccess }) {
@@ -36,6 +39,15 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
     }
     return '';
   });
+
+  // Limpieza silenciosa si hay un token viejo o expirado al entrar al login
+  useEffect(() => {
+    const token = getAuthToken();
+    if (token && isTokenExpired(token)) {
+      logoutService();
+      sessionStorage.removeItem('tep_inactivity_message');
+    }
+  }, []);
 
   // Estados para el Modal de Recuperación por PIN
   const [mostrarModalRecuperacion, setMostrarModalRecuperacion] = useState(false);
@@ -230,7 +242,7 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="example.email@gmail.com"
+              placeholder="operador.tep o admin.tep"
               required
               className="w-full pb-2 text-sm text-gray-800 placeholder-gray-400 border-b border-gray-300 focus:border-indigo-600 focus:outline-none transition"
             />
@@ -240,7 +252,7 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="text-xs font-semibold text-gray-600">
-                Password
+                Contraseña
               </label>
               <button
                 type="button"
@@ -255,7 +267,7 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter at least 8+ characters"
+                placeholder="Mínimo 8 caracteres"
                 required
                 className="w-full pb-2 pr-8 text-sm text-gray-800 placeholder-gray-400 border-b border-gray-300 focus:border-indigo-600 focus:outline-none transition"
               />
@@ -576,4 +588,4 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
 
     </div>
   );
-}
+}

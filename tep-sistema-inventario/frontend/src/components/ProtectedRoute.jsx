@@ -1,20 +1,29 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { getAuthToken } from '../services/authService';
+import { getAuthToken, logoutService, isTokenExpired } from '../services/authService';
 import { useInactivityTimer } from '../hooks/useInactivityTimer';
 
 /**
  * Componente guardián de rutas protegidas:
- * 1. Verifica si el usuario tiene un token de autenticación válido.
- * 2. Activa el monitoreo de inactividad de 30 minutos.
- * 3. Si no hay sesión o transcurrieron 30 minutos sin actividad, redirige a /login.
+ * 1. Verifica si el usuario tiene un token de autenticación válido y no expirado.
+ * 2. Si no hay token o ya expiró antes de entrar al sistema, limpia credenciales silenciosamente y redirige a /login.
+ * 3. Si la sesión está activa y vigente, inicia el monitoreo de inactividad de 30 minutos.
  */
 export default function ProtectedRoute({ children }) {
   const token = getAuthToken();
-  useInactivityTimer(30);
+  const expired = isTokenExpired(token);
 
-  if (!token) {
+  // Si no hay sesión o el token almacenado ya expiró antes de iniciar:
+  // Limpiar silenciosamente sin disparar el cartel de inactividad
+  if (!token || expired) {
+    if (token && expired) {
+      logoutService();
+      sessionStorage.removeItem('tep_inactivity_message');
+    }
     return <Navigate to="/login" replace />;
   }
+
+  // Activa el temporizador de inactividad solo para sesiones válidas y activas
+  useInactivityTimer(30);
 
   return children ? children : <Outlet />;
 }
