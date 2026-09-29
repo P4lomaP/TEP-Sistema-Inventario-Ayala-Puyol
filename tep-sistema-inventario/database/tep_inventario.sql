@@ -213,7 +213,8 @@ CREATE TABLE `usuarios` (
   `rolAcceso` varchar(255) NOT NULL,
   `estadoActivo` tinyint NOT NULL,
   `pinRecuperacion` varchar(50) DEFAULT NULL,
-  `fechaUltimoPin` datetime DEFAULT NULL
+  `fechaUltimoPin` datetime DEFAULT NULL,
+  `solicitaPin` tinyint NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
