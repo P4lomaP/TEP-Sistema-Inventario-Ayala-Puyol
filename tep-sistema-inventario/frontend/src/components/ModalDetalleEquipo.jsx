@@ -17,9 +17,12 @@ import {
   ArrowRightLeft,
   Building2,
   ShieldCheck,
-  History
+  History,
+  Boxes
 } from 'lucide-react';
 import { obtenerHistorialEquipo } from '../services/equiposService';
+import ModalSelectorEstante from './ModalSelectorEstante';
+import { cargarEquiposEstante, guardarEquipoEstante } from '../utils/shelfHelper';
 
 export default function ModalDetalleEquipo({ 
   isOpen, 
@@ -39,6 +42,8 @@ export default function ModalDetalleEquipo({
   const [formData, setFormData] = useState(null);
   const [historial, setHistorial] = useState([]);
   const [cargandoHistorial, setCargandoHistorial] = useState(false);
+  const [casillaEstante, setCasillaEstante] = useState(null);
+  const [isSelectorOpen, setIsSelectorOpen] = useState(false);
 
   useEffect(() => {
     if (equipo) {
@@ -46,6 +51,9 @@ export default function ModalDetalleEquipo({
       setIsEditing(false);
       setShowBajaConfirm(false);
       setMotivoBajaInput('');
+
+      const map = cargarEquiposEstante();
+      setCasillaEstante(map[equipo.idEquipo] || null);
 
       if (equipo.idEquipo) {
         setCargandoHistorial(true);
@@ -120,6 +128,15 @@ export default function ModalDetalleEquipo({
       return;
     }
     await onUpdate(formData);
+
+    // Guardar o actualizar ubicación en estantería para equipos en depósito
+    if (formData.estadoOperativo === 'En Depósito') {
+      guardarEquipoEstante(equipo.idEquipo, casillaEstante);
+    } else if (equipo.estadoOperativo === 'En Depósito' && formData.estadoOperativo !== 'En Depósito') {
+      guardarEquipoEstante(equipo.idEquipo, null);
+      setCasillaEstante(null);
+    }
+
     setIsEditing(false);
 
     // Recargar historial del equipo de inmediato para reflejar traslados o cambios
@@ -321,6 +338,32 @@ export default function ModalDetalleEquipo({
                   </select>
                 </div>
               </div>
+
+              {/* Casilla en depósito en modo edición */}
+              {formData.estadoOperativo === 'En Depósito' && (
+                <div className="p-3 bg-blue-50/70 border border-blue-200/80 rounded-xl flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 bg-blue-600 text-white rounded-lg">
+                      <Boxes size={15} />
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold text-slate-800">
+                        {casillaEstante ? `Casilla de Estante: ${casillaEstante}` : 'Sin casilla física asignada'}
+                      </span>
+                      <p className="text-[11px] text-slate-500">
+                        Ubicación física en el pañol institucional
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsSelectorOpen(true)}
+                    className="px-3 py-1.5 text-xs font-semibold bg-white border border-blue-300 text-blue-700 hover:bg-blue-50 rounded-lg shadow-2xs transition cursor-pointer"
+                  >
+                    {casillaEstante ? 'Cambiar Casilla' : 'Elegir en Estante'}
+                  </button>
+                </div>
+              )}
 
               {/* Campos condicionales en modo edición */}
               {esComputadora && (
@@ -524,6 +567,35 @@ export default function ModalDetalleEquipo({
                 </div>
               </div>
 
+              {/* Ubicación en Estantería para equipos en depósito */}
+              {(formData.estadoOperativo === 'En Depósito' || casillaEstante) && (
+                <div className="p-3.5 bg-blue-50/70 border border-blue-200/80 rounded-xl shadow-2xs flex items-center justify-between gap-2.5">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 bg-blue-600 text-white rounded-lg shrink-0">
+                      <Boxes size={16} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-blue-700 tracking-wider">Ubicación Física en Estantería</span>
+                      <p className="font-bold text-slate-800 mt-0.5">
+                        {casillaEstante ? `Casilla ${casillaEstante}` : 'Sin casilla asignada'}
+                      </p>
+                      <p className="text-[11px] text-slate-500">
+                        Depósito / Pañol institucional
+                      </p>
+                    </div>
+                  </div>
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      onClick={() => setIsSelectorOpen(true)}
+                      className="px-3 py-1.5 text-xs font-semibold bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 rounded-lg shadow-2xs transition cursor-pointer"
+                    >
+                      {casillaEstante ? 'Cambiar Casilla' : 'Asignar Casilla'}
+                    </button>
+                  )}
+                </div>
+              )}
+
               {/* ESPECIFICACIONES TÉCNICAS SEGÚN TIPO */}
               {esComputadora && (
                 <div className="p-4 bg-slate-50/80 border border-slate-100 rounded-2xl space-y-3">
@@ -690,6 +762,20 @@ export default function ModalDetalleEquipo({
             </>
           )}
         </div>
+
+        {/* Modal Selector de Casilla de Estante */}
+        <ModalSelectorEstante
+          isOpen={isSelectorOpen}
+          onClose={() => setIsSelectorOpen(false)}
+          coordenadaActual={casillaEstante}
+          onSelect={(info) => {
+            const coord = info ? info.coordenada : null;
+            setCasillaEstante(coord);
+            if (!isEditing && equipo?.idEquipo) {
+              guardarEquipoEstante(equipo.idEquipo, coord);
+            }
+          }}
+        />
 
       </div>
     </div>

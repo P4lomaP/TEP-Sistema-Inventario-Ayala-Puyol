@@ -29,6 +29,7 @@ import MainLayout from '../components/MainLayout';
 import BannerAuditorReadOnly from '../components/BannerAuditorReadOnly';
 import ModalNuevoEquipo from '../components/ModalNuevoEquipo';
 import ModalDetalleEquipo from '../components/ModalDetalleEquipo';
+import { guardarEquipoEstante } from '../utils/shelfHelper';
 import { getStoredUser } from '../services/authService';
 import { 
   listarEquipos, 
@@ -126,7 +127,11 @@ export default function Equipos() {
   // Manejador para registrar nuevo equipo
   const handleGuardarEquipo = async (nuevo) => {
     try {
-      await crearEquipo(nuevo);
+      const resp = await crearEquipo(nuevo);
+      const idCreado = resp?.equipo?.idEquipo || resp?.idEquipo;
+      if (nuevo.casillaEstante && idCreado) {
+        guardarEquipoEstante(idCreado, nuevo.casillaEstante);
+      }
       mostrarToast(`Equipo ${nuevo.codPatrimonial || nuevo.marcaModelo} registrado exitosamente.`);
       await cargarDatos();
     } catch (err) {
@@ -138,6 +143,13 @@ export default function Equipos() {
   const handleUpdateEquipo = async (actualizado) => {
     try {
       await actualizarEquipo(actualizado.idEquipo, actualizado);
+      if (actualizado.casillaEstante !== undefined) {
+        if (actualizado.estadoOperativo === 'En Depósito') {
+          guardarEquipoEstante(actualizado.idEquipo, actualizado.casillaEstante);
+        } else {
+          guardarEquipoEstante(actualizado.idEquipo, null);
+        }
+      }
       mostrarToast(`Equipo ${actualizado.codPatrimonial || actualizado.marcaModelo} actualizado.`);
       await cargarDatos();
     } catch (err) {
@@ -149,6 +161,7 @@ export default function Equipos() {
   const handleDeleteEquipo = async (idEquipo, motivoBaja) => {
     try {
       await darDeBajaEquipo(idEquipo, motivoBaja);
+      guardarEquipoEstante(idEquipo, null);
       mostrarToast('Equipo dado de baja patrimonial.');
       await cargarDatos();
     } catch (err) {

@@ -9,6 +9,7 @@ import Compatibilidad from './pages/Compatibilidad';
 import Reportes from './pages/Reportes';
 import Usuarios from './pages/Usuarios';
 import Perfil from './pages/Perfil';
+import Almacen from './pages/Almacen';
 import ProtectedRoute from './components/ProtectedRoute';
 import { getStoredUser } from './services/authService';
 
@@ -63,6 +64,12 @@ export default function App() {
           
           <Route path="/insumos" element={<Insumos />} />
           <Route path="/catalogo-insumos" element={<Navigate to="/insumos" replace />} />
+          
+          {/* Módulo de Depósito y Estantes (Cuadrícula Física) */}
+          <Route path="/almacen" element={<Almacen />} />
+          <Route path="/mapa-almacen" element={<Almacen />} />
+          <Route path="/deposito" element={<Navigate to="/almacen" replace />} />
+          <Route path="/estantes" element={<Navigate to="/almacen" replace />} />
           
           <Route path="/movimientos" element={<Movimientos />} />
           <Route path="/movement" element={<Navigate to="/movimientos" replace />} />

@@ -12,8 +12,11 @@ import {
   Save, 
   RotateCcw,
   AlertCircle,
-  Info
+  Info,
+  Grid
 } from 'lucide-react';
+import ModalSelectorEstante from './ModalSelectorEstante';
+import { parsearUbicacion } from '../utils/shelfHelper';
 
 export default function ModalDetalleInsumo({ 
   isOpen, 
@@ -24,6 +27,7 @@ export default function ModalDetalleInsumo({
   readOnly = false,
   canDelete = true
 }) {
+  const [isSelectorOpen, setIsSelectorOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [formData, setFormData] = useState(null);
@@ -235,30 +239,49 @@ export default function ModalDetalleInsumo({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Ubicación Fila / Depósito</label>
-                  <input
-                    type="text"
-                    name="ubicacionFila"
-                    value={formData.ubicacionFila}
-                    onChange={handleChange}
-                    placeholder="Ej. Almacén A-1"
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Ubicación Columna / Estante</label>
-                  <input
-                    type="text"
-                    name="ubicacionColumna"
-                    value={formData.ubicacionColumna}
-                    onChange={handleChange}
-                    placeholder="Ej. Estante 3"
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
-                  />
-                </div>
+              {/* Ubicación física en depósito / Estantería */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1">
+                  Ubicación Física en Estantería (Depósito)
+                </label>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                  <div className="flex items-center gap-2.5">
+                    <div className={`p-2 rounded-lg ${parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna) ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500'}`}>
+                      <MapPin size={16} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-800">
+                          {parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna) 
+                            ? `Casilla ${parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna).coordenada}`
+                            : 'Sin casilla asignada'}
+                        </span>
+                        {parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna) && (
+                          <span className="text-[10px] font-mono bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded">
+                            Estante {parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna).fila} - Columna {parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna).columna}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-400">
+                        {formData.ubicacionFila || formData.ubicacionColumna 
+                          ? `${formData.ubicacionFila || 'S/F'} • ${formData.ubicacionColumna || 'S/C'}`
+                          : 'Haga clic para seleccionar una coordenada física del estante'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                  type="button"
+                  onClick={() => setIsSelectorOpen(true)}
+                  className="px-3.5 py-1.5 text-xs font-semibold bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 rounded-lg shadow-2xs transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Grid size={13} className="text-blue-600" />
+                  <span>{parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna) ? 'Cambiar Casilla' : 'Seleccionar en Estante'}</span>
+                </button>
               </div>
+            </div>
+          </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
                 <div>
@@ -396,11 +419,18 @@ export default function ModalDetalleInsumo({
                   <div className="p-2 bg-blue-50 text-blue-600 rounded-lg shrink-0">
                     <MapPin size={16} />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Ubicación Física</span>
-                    <p className="font-semibold text-slate-700 mt-0.5">
-                      {formData.ubicacionFila || 'Sin depósito asignado'}
-                    </p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <p className="font-semibold text-slate-700">
+                        {formData.ubicacionFila || 'Sin depósito asignado'}
+                      </p>
+                      {parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna) && (
+                        <span className="text-[10px] font-mono bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded">
+                          Casilla {parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna).coordenada}
+                        </span>
+                      )}
+                    </div>
                     {formData.ubicacionColumna && (
                       <p className="text-[11px] text-slate-400">Estante / Col: {formData.ubicacionColumna}</p>
                     )}
@@ -509,6 +539,28 @@ export default function ModalDetalleInsumo({
             </>
           )}
         </div>
+
+        {/* Modal Selector Interactivo de Casilla de Estante */}
+        <ModalSelectorEstante
+          isOpen={isSelectorOpen}
+          onClose={() => setIsSelectorOpen(false)}
+          coordenadaActual={parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna)?.coordenada}
+          onSelect={(info) => {
+            if (info) {
+              setFormData((prev) => ({
+                ...prev,
+                ubicacionFila: info.ubicacionFila,
+                ubicacionColumna: info.ubicacionColumna
+              }));
+            } else {
+              setFormData((prev) => ({
+                ...prev,
+                ubicacionFila: '',
+                ubicacionColumna: ''
+              }));
+            }
+          }}
+        />
 
       </div>
     </div>
