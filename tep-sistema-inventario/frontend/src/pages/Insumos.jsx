@@ -156,7 +156,7 @@ export default function Insumos() {
         tipo: 'doble-alerta',
         label: isVencido ? 'Crítico / Vencido' : 'Stock Crítico / Vence pronto',
         botonTexto: 'Observar (2 Alertas)',
-        clase: 'bg-rose-100 text-rose-700 hover:bg-rose-200/80 border-rose-300 ring-rose-200',
+        clase: 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-200 hover:bg-rose-200/80 dark:hover:bg-rose-900/80 border-rose-300 dark:border-rose-800 ring-rose-200',
         icono: AlertTriangle,
         puntoPulsante: true
       };
@@ -167,7 +167,7 @@ export default function Insumos() {
         tipo: 'vencido',
         label: 'Insumo Vencido',
         botonTexto: 'Observar Vencido',
-        clase: 'bg-rose-50 text-rose-600 hover:bg-rose-100 border-rose-200 ring-rose-100',
+        clase: 'bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 border-rose-200 dark:border-rose-800 ring-rose-100',
         icono: AlertCircle,
         puntoPulsante: true
       };
@@ -178,7 +178,7 @@ export default function Insumos() {
         tipo: 'critico',
         label: 'Stock Crítico',
         botonTexto: 'Observar Stock',
-        clase: 'bg-rose-50 text-rose-600 hover:bg-rose-100 border-rose-200 ring-rose-100',
+        clase: 'bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 border-rose-200 dark:border-rose-800 ring-rose-100',
         icono: AlertTriangle,
         puntoPulsante: true
       };
@@ -189,7 +189,7 @@ export default function Insumos() {
         tipo: 'proximo',
         label: `Vence en ${diasRestantes}d`,
         botonTexto: `Observar (${diasRestantes}d)`,
-        clase: 'bg-amber-50 text-amber-700 hover:bg-amber-100 border-amber-200 ring-amber-100',
+        clase: 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60 border-amber-200 dark:border-amber-800 ring-amber-100',
         icono: Clock,
         puntoPulsante: true
       };
@@ -199,7 +199,7 @@ export default function Insumos() {
       tipo: 'optimo',
       label: 'Sin Observaciones',
       botonTexto: 'Observar',
-      clase: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-200 ring-emerald-100',
+      clase: 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border-emerald-200 dark:border-emerald-800 ring-emerald-100',
       icono: CheckCircle2,
       puntoPulsante: false
     };
@@ -235,8 +235,8 @@ export default function Insumos() {
         {/* Encabezado de la Sección con botones de acción */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">Catálogo de Insumos</h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-gray-100 tracking-tight">Catálogo de Insumos</h2>
+            <p className="text-xs text-slate-500 dark:text-gray-300 mt-0.5">
               Administre el inventario completo de insumos y suministros institucionales del Tribunal.
             </p>
           </div>
@@ -245,7 +245,7 @@ export default function Insumos() {
               type="button"
               onClick={cargarInsumos}
               title="Refrescar catálogo"
-              className="flex items-center gap-1.5 px-3 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-gray-200 text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer"
             >
               <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
               <span className="hidden sm:inline">Refrescar</span>
@@ -255,7 +255,7 @@ export default function Insumos() {
               onClick={handleExportarPDF}
               disabled={exportandoPDF}
               title="Descargar catálogo oficial de insumos en PDF (PDFKit)"
-              className="flex items-center gap-2 px-3.5 sm:px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-2 px-3.5 sm:px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-gray-200 text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer disabled:opacity-50"
             >
               <Download size={15} className={exportandoPDF ? 'animate-spin text-blue-600' : ''} />
               <span>{exportandoPDF ? 'Exportando...' : 'Exportar PDF'}</span>
@@ -295,27 +295,27 @@ export default function Insumos() {
         )}
 
         {/* Barra de Filtros y Buscador */}
-        <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 sm:gap-4">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 sm:gap-4">
           {/* Input de búsqueda */}
           <div className="relative flex-1 max-w-md">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-400" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Buscar por código o descripción..."
-              className="w-full pl-10 pr-4 py-2.5 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/50 focus:bg-white transition"
+              className="w-full pl-10 pr-4 py-2.5 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/50 focus:bg-white transition dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
             />
           </div>
 
           {/* Filtro por Categoría y Contador */}
           <div className="flex items-center gap-3 justify-between md:justify-end flex-wrap">
             <div className="flex items-center gap-2">
-              <SlidersHorizontal size={14} className="text-slate-400 hidden sm:block" />
+              <SlidersHorizontal size={14} className="text-slate-400 dark:text-gray-400 hidden sm:block" />
               <select
                 value={categoriaFiltro}
                 onChange={(e) => setCategoriaFiltro(e.target.value)}
-                className="px-3 py-2 border border-slate-200 rounded-xl text-xs font-medium text-slate-600 bg-white hover:bg-slate-50 focus:outline-none focus:border-blue-600 transition cursor-pointer"
+                className="px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-600 dark:text-gray-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 focus:outline-none focus:border-blue-600 transition cursor-pointer"
               >
                 <option value="Todas">Todas las Categorías</option>
                 <option value="Insumo">Insumos (Consumibles)</option>
@@ -323,9 +323,9 @@ export default function Insumos() {
               </select>
             </div>
 
-            <div className="text-xs text-slate-500 font-medium flex items-center gap-1.5">
+            <div className="text-xs text-slate-500 dark:text-gray-300 font-medium flex items-center gap-1.5">
               <span>Mostrando:</span>
-              <span className="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md font-semibold text-[11px]">
+              <span className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-200 px-2.5 py-1 rounded-md font-semibold text-[11px]">
                 {insumosFiltrados.length} Items
               </span>
             </div>
@@ -333,18 +333,18 @@ export default function Insumos() {
         </div>
 
         {/* Guía visual interactiva de doble clic */}
-        <div className="flex items-center gap-2 px-4 py-2.5 bg-blue-50/60 border border-blue-100 text-blue-800 rounded-xl text-xs">
-          <Info size={15} className="text-blue-600 shrink-0" />
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-blue-50/60 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/60 text-blue-800 dark:text-blue-200 rounded-xl text-xs">
+          <Info size={15} className="text-blue-600 dark:text-blue-400 shrink-0" />
           <span>
             <strong>Gestión Integral:</strong> Presione <strong>doble clic</strong> en cualquier insumo para abrir su ficha técnica, <strong>modificar</strong> sus datos o <strong>darlo de baja</strong>. Haga clic en <strong>Observar</strong> para verificar alertas preventivas.
           </span>
         </div>
 
         {/* Tabla Principal */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs min-w-[720px]">
-              <thead className="bg-slate-50/60 text-slate-400 uppercase font-semibold border-b border-slate-100 select-none">
+              <thead className="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 uppercase font-semibold border-b border-slate-200 dark:border-slate-700 select-none">
                 <tr>
                   <th className="py-4 px-6">Código</th>
                   <th className="py-4 px-6">Descripción</th>
@@ -354,10 +354,10 @@ export default function Insumos() {
                   <th className="py-4 px-6 text-center">Observación</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-slate-700 dark:text-slate-200">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="py-12 text-center text-slate-400">
+                    <td colSpan={6} className="py-12 text-center text-slate-400 dark:text-slate-400">
                       <div className="flex items-center justify-center gap-2 text-xs">
                         <RefreshCw size={16} className="animate-spin text-blue-600" />
                         <span>Cargando catálogo de insumos...</span>
@@ -366,13 +366,13 @@ export default function Insumos() {
                   </tr>
                 ) : insumosFiltrados.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-12 text-center text-slate-400">
+                    <td colSpan={6} className="py-12 text-center text-slate-400 dark:text-slate-400">
                       <div className="flex flex-col items-center justify-center gap-2">
-                        <div className="p-3 bg-slate-50 rounded-2xl text-slate-300">
+                        <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-2xl text-slate-300">
                           <Inbox size={28} />
                         </div>
-                        <p className="text-xs font-semibold text-slate-500">No se encontraron insumos activos.</p>
-                        <p className="text-[11px] text-slate-400 max-w-sm">
+                        <p className="text-xs font-semibold text-slate-500 dark:text-slate-300">No se encontraron insumos activos.</p>
+                        <p className="text-[11px] text-slate-400 dark:text-slate-400 max-w-sm">
                           {searchTerm || categoriaFiltro !== 'Todas'
                             ? 'Pruebe modificando los términos de búsqueda o el filtro de categoría.'
                             : 'Utilice el botón "+ Nuevo Insumo" para registrar el primer artículo en la base de datos.'}
@@ -390,33 +390,33 @@ export default function Insumos() {
                       <tr 
                         key={item.idInsumo} 
                         onDoubleClick={() => handleFilaDoubleClick(item)}
-                        className="hover:bg-blue-50/40 transition cursor-pointer select-none group"
+                        className="hover:bg-blue-50/40 dark:hover:bg-slate-700/60 transition cursor-pointer select-none group"
                         title="Doble clic para editar datos o dar de baja este insumo"
                       >
                         {/* Código con formato de etiqueta */}
                         <td className="py-4 px-6 font-mono font-medium">
-                          <span className="bg-slate-100 group-hover:bg-blue-100/70 text-slate-700 group-hover:text-blue-800 px-2 py-1 rounded text-[11px] font-bold transition">
+                          <span className="bg-slate-100 dark:bg-slate-700/60 group-hover:bg-blue-100/70 dark:group-hover:bg-blue-900/40 text-slate-700 dark:text-slate-200 group-hover:text-blue-800 dark:group-hover:text-blue-300 px-2 py-1 rounded text-[11px] font-bold transition">
                             {item.codigoInterno}
                           </span>
                         </td>
 
                         {/* Descripción */}
-                        <td className="py-4 px-6 font-semibold text-slate-800">
+                        <td className="py-4 px-6 font-semibold text-slate-800 dark:text-white">
                           {item.descripcion}
                         </td>
 
                         {/* Categoría */}
                         <td className="py-4 px-6">
-                          <div className="flex items-center gap-1.5 text-slate-500">
-                            <Box size={14} className="text-slate-400" />
+                          <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                            <Box size={14} className="text-slate-400 dark:text-slate-400" />
                             <span>{item.categoria}</span>
                           </div>
                         </td>
 
                         {/* Ubicación */}
                         <td className="py-4 px-6">
-                          <div className="flex items-center gap-1.5 text-slate-500">
-                            <MapPin size={14} className="text-blue-500" />
+                          <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                            <MapPin size={14} className="text-blue-500 dark:text-blue-400" />
                             <span>
                               {item.ubicacionFila || 'Sin depósito'} {item.ubicacionColumna || ''}
                             </span>
@@ -425,10 +425,10 @@ export default function Insumos() {
 
                         {/* Stock Actual */}
                         <td className="py-4 px-6 font-medium">
-                          <span className={`text-sm font-bold ${isCritico ? 'text-rose-600' : 'text-slate-800'}`}>
+                          <span className={`text-sm font-bold ${isCritico ? 'text-rose-600 dark:text-rose-400' : 'text-slate-800 dark:text-white'}`}>
                             {item.stockActual}
                           </span>
-                          <span className="text-slate-400 text-[11px] ml-1">uds.</span>
+                          <span className="text-slate-400 dark:text-slate-400 text-[11px] ml-1">uds.</span>
                         </td>
 
                         {/* Columna Observación */}
@@ -459,21 +459,21 @@ export default function Insumos() {
           </div>
 
           {/* Paginación al pie */}
-          <div className="p-4 border-t border-slate-100 flex items-center justify-end gap-1 select-none">
-            <button type="button" className="p-1.5 border border-slate-200 rounded-lg text-slate-400 hover:bg-slate-50 cursor-pointer">
+          <div className="p-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-end gap-1 select-none">
+            <button type="button" className="p-1.5 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-400 dark:text-gray-400 hover:bg-slate-50 dark:hover:bg-slate-700/60 cursor-pointer">
               <ChevronLeft size={16} />
             </button>
             <button type="button" className="w-8 h-8 rounded-lg bg-blue-600 text-white font-semibold text-xs cursor-pointer">
               1
             </button>
-            <button type="button" className="p-1.5 border border-slate-200 rounded-lg text-slate-400 hover:bg-slate-50 cursor-pointer">
+            <button type="button" className="p-1.5 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-400 dark:text-gray-400 hover:bg-slate-50 dark:hover:bg-slate-700/60 cursor-pointer">
               <ChevronRight size={16} />
             </button>
           </div>
         </div>
 
         {/* Footer Institucional */}
-        <div className="text-center pt-4 pb-2 text-[11px] text-slate-400 tracking-wider">
+        <div className="text-center pt-4 pb-2 text-[11px] text-slate-400 dark:text-gray-400 tracking-wider">
           © 2026 TRIBUNAL ELECTORAL PERMANENTE
         </div>
 

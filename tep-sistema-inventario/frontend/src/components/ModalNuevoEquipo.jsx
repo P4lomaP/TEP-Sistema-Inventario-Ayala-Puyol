@@ -153,21 +153,21 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
       onClick={onClose}
     >
       <div 
-        className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100 max-h-[90vh] flex flex-col"
+        className="relative w-full max-w-2xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-700 max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ENCABEZADO */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/70 dark:bg-slate-800">
           <div>
-            <h3 className="text-base font-bold text-slate-800">Registrar Equipo Patrimonial</h3>
-            <p className="text-xs text-slate-400">
+            <h3 className="text-base font-bold text-slate-800 dark:text-gray-100">Registrar Equipo Patrimonial</h3>
+            <p className="text-xs text-slate-400 dark:text-gray-400">
               Seleccione si registrará una Computadora o una Impresora institucional
             </p>
           </div>
           <button 
             type="button" 
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+            className="text-slate-400 dark:text-gray-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/60 transition cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -184,7 +184,7 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
 
           {/* SELECTOR DE TIPO DE EQUIPO (SOLO 2 OPCIONES: COMPUTADORA O IMPRESORA) */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-gray-300 mb-2">
               1. Tipo de Dispositivo a Inventariar
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -194,16 +194,16 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
                 onClick={() => setTipoEquipo('computadora')}
                 className={`p-3.5 rounded-xl border text-left flex items-center gap-3 transition cursor-pointer ${
                   tipoEquipo === 'computadora'
-                    ? 'border-blue-600 bg-blue-50/60 text-blue-950 shadow-xs ring-1 ring-blue-600/30'
-                    : 'border-slate-200 hover:border-slate-300 bg-white text-slate-600'
+                    ? 'border-blue-600 bg-blue-50/60 dark:bg-blue-600 text-blue-950 dark:text-white shadow-xs ring-1 ring-blue-600/30 dark:border-blue-500'
+                    : 'border-slate-200 hover:border-slate-300 dark:border-slate-600/80 bg-white dark:bg-slate-700 text-slate-600 dark:text-gray-300'
                 }`}
               >
-                <div className={`p-2.5 rounded-xl ${tipoEquipo === 'computadora' ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-100 text-slate-500'}`}>
+                <div className={`p-2.5 rounded-xl ${tipoEquipo === 'computadora' ? 'bg-blue-600 dark:bg-blue-700 text-white shadow-xs' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-gray-400'}`}>
                   <Laptop size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-slate-800">Computadora / Laptop</p>
-                  <p className="text-[11px] text-slate-400">PC Escritorio, All-in-One, Notebook</p>
+                  <p className={`text-xs font-bold ${tipoEquipo === 'computadora' ? 'text-slate-800 dark:text-white' : 'text-slate-800 dark:text-gray-100'}`}>Computadora / Laptop</p>
+                  <p className={`text-[11px] ${tipoEquipo === 'computadora' ? 'text-slate-400 dark:text-blue-100' : 'text-slate-400 dark:text-gray-400'}`}>PC Escritorio, All-in-One, Notebook</p>
                 </div>
               </button>
 
@@ -213,16 +213,16 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
                 onClick={() => setTipoEquipo('impresora')}
                 className={`p-3.5 rounded-xl border text-left flex items-center gap-3 transition cursor-pointer ${
                   tipoEquipo === 'impresora'
-                    ? 'border-amber-600 bg-amber-50/60 text-amber-950 shadow-xs ring-1 ring-amber-600/30'
-                    : 'border-slate-200 hover:border-slate-300 bg-white text-slate-600'
+                    ? 'border-amber-600 bg-amber-50/60 dark:bg-blue-600 text-amber-950 dark:text-white shadow-xs ring-1 ring-amber-600/30 dark:border-blue-500'
+                    : 'border-slate-200 hover:border-slate-300 dark:border-slate-600/80 bg-white dark:bg-slate-700 text-slate-600 dark:text-gray-300'
                 }`}
               >
-                <div className={`p-2.5 rounded-xl ${tipoEquipo === 'impresora' ? 'bg-amber-600 text-white shadow-xs' : 'bg-slate-100 text-slate-500'}`}>
+                <div className={`p-2.5 rounded-xl ${tipoEquipo === 'impresora' ? 'bg-amber-600 dark:bg-blue-700 text-white shadow-xs' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-gray-400'}`}>
                   <Printer size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-slate-800">Impresora / Escáner</p>
-                  <p className="text-[11px] text-slate-400">Láser, Térmica para Actas, Multifunción</p>
+                  <p className={`text-xs font-bold ${tipoEquipo === 'impresora' ? 'text-slate-800 dark:text-white' : 'text-slate-800 dark:text-gray-100'}`}>Impresora / Escáner</p>
+                  <p className={`text-[11px] ${tipoEquipo === 'impresora' ? 'text-slate-400 dark:text-blue-100' : 'text-slate-400 dark:text-gray-400'}`}>Láser, Térmica para Actas, Multifunción</p>
                 </div>
               </button>
             </div>
@@ -230,13 +230,13 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
 
           {/* DATOS GENERALES / PATRIMONIALES (Comunes a ambos) */}
           <div className="pt-1">
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-gray-300 mb-2">
               2. Datos Patrimoniales e Institucionales
             </label>
             <div className="space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Código Patrimonial</label>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Código Patrimonial</label>
                   <input
                     type="text"
                     name="codPatrimonial"
@@ -257,7 +257,7 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
                   )}
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Marca y Modelo (*)</label>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Marca y Modelo (*)</label>
                   <input
                     type="text"
                     name="marcaModelo"
@@ -268,14 +268,14 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
                       tipoEquipo === 'computadora' ? 'Ej. Dell OptiPlex 3080 / Lenovo ThinkCentre' :
                       'Ej. HP LaserJet Pro M402dn / Brother HL-1212W'
                     }
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Número de Serie (SN) (*)</label>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Número de Serie (SN) (*)</label>
                   <input
                     type="text"
                     name="numeroSerie"
@@ -297,12 +297,12 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
                   )}
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Sector Asignado</label>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Sector Asignado</label>
                   <select
                     name="idSector"
                     value={formData.idSector}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                   >
                     {sectores.map((sec) => (
                       <option key={sec.idSector} value={sec.idSector}>
@@ -312,12 +312,12 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Estado Operativo</label>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Estado Operativo</label>
                   <select
                     name="estadoOperativo"
                     value={formData.estadoOperativo}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white font-medium"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white font-medium dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                   >
                     <option value="Operativo">🟢 Operativo</option>
                     <option value="En Mantenimiento">🟡 En Mantenimiento</option>
@@ -335,10 +335,10 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
                       <Boxes size={15} />
                     </div>
                     <div>
-                      <span className="text-xs font-bold text-slate-800">
+                      <span className="text-xs font-bold text-slate-800 dark:text-gray-100">
                         {casillaEstante ? `Casilla de Estante: ${casillaEstante}` : 'Sin casilla física asignada'}
                       </span>
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-[11px] text-slate-500 dark:text-gray-300">
                         Ubicación física en el pañol institucional
                       </p>
                     </div>
@@ -346,7 +346,7 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
                   <button
                     type="button"
                     onClick={() => setIsSelectorOpen(true)}
-                    className="px-3 py-1.5 text-xs font-semibold bg-white border border-blue-300 text-blue-700 hover:bg-blue-50 rounded-lg shadow-2xs transition cursor-pointer"
+                    className="px-3 py-1.5 text-xs font-semibold bg-white dark:bg-slate-800 border border-blue-300 text-blue-700 hover:bg-blue-50 rounded-lg shadow-2xs transition cursor-pointer"
                   >
                     {casillaEstante ? 'Cambiar Casilla' : 'Elegir en Estante'}
                   </button>
@@ -357,7 +357,7 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
 
           {/* CAMPOS CONDICIONALES: COMPUTADORAS */}
           {tipoEquipo === 'computadora' && (
-            <div className="pt-2 border-t border-slate-100">
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-700">
               <label className="block text-xs font-bold uppercase tracking-wider text-blue-700 mb-2 flex items-center gap-1.5">
                 <Cpu size={14} />
                 <span>3. Especificaciones de Cómputo y Hardware</span>
@@ -366,23 +366,23 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
               <div className="space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1">Procesador</label>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Procesador</label>
                     <input
                       type="text"
                       name="procesador"
                       value={formData.procesador}
                       onChange={handleChange}
                       placeholder="Ej. Intel Core i5-10400 / AMD Ryzen 5"
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1">Memoria RAM</label>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Memoria RAM</label>
                     <select
                       name="memoriaRAM"
                       value={formData.memoriaRAM}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white"
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                     >
                       <option value="4GB DDR4">4GB DDR4</option>
                       <option value="8GB DDR4">8GB DDR4</option>
@@ -395,32 +395,32 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1">Disco / Almacenamiento</label>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Disco / Almacenamiento</label>
                     <input
                       type="text"
                       name="almacenamiento"
                       value={formData.almacenamiento}
                       onChange={handleChange}
                       placeholder="Ej. 512GB SSD NVMe / 1TB HDD"
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1">Sistema Operativo</label>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Sistema Operativo</label>
                     <input
                       type="text"
                       name="sistemaOperativo"
                       value={formData.sistemaOperativo}
                       onChange={handleChange}
                       placeholder="Ej. Windows 10 Pro 64-bit / Windows 11"
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1">IP Fija Asignada</label>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">IP Fija Asignada</label>
                     <input
                       type="text"
                       name="ipFija"
@@ -441,25 +441,25 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
                     )}
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1">Máscara Subred</label>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Máscara Subred</label>
                     <input
                       type="text"
                       name="mascaraSubred"
                       value={formData.mascaraSubred}
                       onChange={handleChange}
                       placeholder="255.255.255.0"
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 font-mono"
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 font-mono dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1">Workgroup / Dominio</label>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Workgroup / Dominio</label>
                     <input
                       type="text"
                       name="workgroup"
                       value={formData.workgroup}
                       onChange={handleChange}
                       placeholder="TRIBUNAL_SEC"
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                     />
                   </div>
                 </div>
@@ -469,7 +469,7 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
 
           {/* CAMPOS CONDICIONALES: IMPRESORAS Y ESCÁNERES */}
           {tipoEquipo === 'impresora' && (
-            <div className="pt-2 border-t border-slate-100">
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-700">
               <label className="block text-xs font-bold uppercase tracking-wider text-amber-700 mb-2 flex items-center gap-1.5">
                 <Printer size={14} />
                 <span>3. Especificaciones de Impresión y Suministros</span>
@@ -478,12 +478,12 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
               <div className="space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1">Tecnología de Impresión</label>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Tecnología de Impresión</label>
                     <select
                       name="tipoImpresion"
                       value={formData.tipoImpresion}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white"
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                     >
                       <option value="Láser Monocromática">Láser Monocromática (Oficina)</option>
                       <option value="Láser Color">Láser Color (Documentos Gráficos)</option>
@@ -493,14 +493,14 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1">
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">
                       Insumo / Tóner Compatible (Catálogo TEP)
                     </label>
                     <select
                       name="idInsumoCompatible"
                       value={formData.idInsumoCompatible}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white"
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                     >
                       <option value="">-- Sin insumo asignado --</option>
                       {insumos.map((ins) => (
@@ -514,12 +514,12 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1">Tipo de Conexión</label>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Tipo de Conexión</label>
                     <select
                       name="conexionImpresora"
                       value={formData.conexionImpresora}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white"
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                     >
                       <option value="Red Ethernet (RJ-45)">Red Ethernet (Cable RJ-45)</option>
                       <option value="Wi-Fi Inalámbrico">Wi-Fi Inalámbrico</option>
@@ -527,7 +527,7 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1">IP Fija en Red</label>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">IP Fija en Red</label>
                     <input
                       type="text"
                       name="ipFija"
@@ -548,12 +548,12 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
                     )}
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1">Formato de Papel</label>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Formato de Papel</label>
                     <select
                       name="formatoPapel"
                       value={formData.formatoPapel}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white"
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                     >
                       <option value="A4 / Oficio / Legal">A4 / Oficio / Legal</option>
                       <option value="Solo A4">Solo A4</option>
@@ -566,11 +566,11 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
           )}
 
           {/* BOTONES PIE */}
-          <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
+          <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-100 dark:border-slate-700">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+              className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 rounded-xl transition cursor-pointer"
             >
               Cancelar
             </button>

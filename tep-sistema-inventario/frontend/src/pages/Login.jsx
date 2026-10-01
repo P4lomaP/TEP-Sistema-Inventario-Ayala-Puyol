@@ -205,10 +205,10 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center bg-slate-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.25),rgba(255,255,255,0))] p-4 sm:p-6">
       {/* Tarjeta Modal Blanca */}
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-xl sm:shadow-2xl p-6 sm:p-10 my-4 sm:my-0">
+      <div className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl sm:shadow-2xl p-6 sm:p-10 my-4 sm:my-0">
         
         {/* Título Principal */}
-        <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 mb-6 sm:mb-8 tracking-tight">
+        <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 dark:text-gray-100 mb-6 sm:mb-8 tracking-tight">
           Inicia Sesión
         </h2>
 
@@ -235,7 +235,7 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
           
           {/* Campo: Nombre de Usuario */}
           <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">
+            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
               Nombre de Usuario
             </label>
             <input
@@ -244,14 +244,14 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="operador.tep o admin.tep"
               required
-              className="w-full pb-2 text-sm text-gray-800 placeholder-gray-400 border-b border-gray-300 focus:border-indigo-600 focus:outline-none transition"
+              className="w-full pb-2 text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 border-b border-gray-300 dark:border-slate-700 focus:border-indigo-600 focus:outline-none transition"
             />
           </div>
 
           {/* Campo: Password con enlace a ¿Olvidaste tu contraseña? */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-semibold text-gray-600">
+              <label className="text-xs font-semibold text-gray-600 dark:text-gray-300">
                 Contraseña
               </label>
               <button
@@ -269,12 +269,12 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Mínimo 8 caracteres"
                 required
-                className="w-full pb-2 pr-8 text-sm text-gray-800 placeholder-gray-400 border-b border-gray-300 focus:border-indigo-600 focus:outline-none transition"
+                className="w-full pb-2 pr-8 text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 border-b border-gray-300 dark:border-slate-700 focus:border-indigo-600 focus:outline-none transition"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-0 bottom-2 text-gray-400 hover:text-gray-600 transition"
+                className="absolute right-0 bottom-2 text-gray-400 dark:text-gray-400 hover:text-gray-600 transition"
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -299,7 +299,7 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
         </form>
 
         {/* Enlace Inferior para Registrarse */}
-        <div className="mt-8 text-center text-xs text-gray-500">
+        <div className="mt-8 text-center text-xs text-gray-500 dark:text-gray-300">
           ¿No tienes una cuenta?{' '}
           <button
             type="button"
@@ -317,13 +317,13 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
       {/* ========================================================================= */}
       {mostrarModalRecuperacion && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 sm:p-8 animate-scale-in border border-slate-100">
+          <div className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 sm:p-8 animate-scale-in border border-slate-100 dark:border-slate-700">
             
             {/* Botón Cerrar */}
             <button
               type="button"
               onClick={cerrarModalRecuperacion}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 transition cursor-pointer"
+              className="absolute top-4 right-4 text-slate-400 dark:text-gray-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700/60 transition cursor-pointer"
             >
               <X size={18} />
             </button>
@@ -334,8 +334,8 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
                 <KeyRound size={18} />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-800">Recuperar Contraseña</h3>
-                <p className="text-[11px] text-slate-400">Verificación de seguridad mediante PIN</p>
+                <h3 className="text-base font-bold text-slate-800 dark:text-gray-100">Recuperar Contraseña</h3>
+                <p className="text-[11px] text-slate-400 dark:text-gray-400">Verificación de seguridad mediante PIN</p>
               </div>
             </div>
 
@@ -350,13 +350,13 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
             {/* PASO 1: VALIDAR EL PIN */}
             {pasoRecuperacion === 1 && (
               <form onSubmit={handleVerificarPin} className="space-y-4 mt-4">
-                <p className="text-xs text-slate-500 leading-relaxed">
+                <p className="text-xs text-slate-500 dark:text-gray-300 leading-relaxed">
                   Ingresá tu nombre de usuario y el PIN de 6 dígitos que te asignó el sistema al registrarte.
                 </p>
 
                 {/* Input Username */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-gray-200 mb-1">
                     Nombre de Usuario
                   </label>
                   <input
@@ -368,13 +368,13 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
                     }}
                     placeholder="operador.tep"
                     required
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600 transition"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600 transition dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                   />
                 </div>
 
                 {/* Input PIN */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-gray-200 mb-1">
                     PIN de Recuperación (6 dígitos)
                   </label>
                   <input
@@ -387,7 +387,7 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
                     }}
                     placeholder="Ej: 849201"
                     required
-                    className="w-full px-3 py-2 font-mono text-center tracking-widest text-sm font-bold border border-slate-200 rounded-xl focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600 transition"
+                    className="w-full px-3 py-2 font-mono text-center tracking-widest text-sm font-bold border border-slate-200 rounded-xl focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600 transition dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                   />
                 </div>
 
@@ -436,7 +436,7 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
                         <button
                           type="button"
                           disabled
-                          className="w-full bg-slate-200 text-slate-400 text-xs font-bold py-2 px-3 rounded-lg cursor-not-allowed border border-slate-300 flex items-center justify-center gap-1.5"
+                          className="w-full bg-slate-200 text-slate-400 dark:text-gray-400 text-xs font-bold py-2 px-3 rounded-lg cursor-not-allowed border border-slate-300 flex items-center justify-center gap-1.5"
                         >
                           <Clock size={13} />
                           <span>Solicitud bloqueada ({cooldownDiasRestantes}d restantes)</span>
@@ -496,7 +496,7 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
 
                 {/* Nueva Contraseña */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-gray-200 mb-1">
                     Nueva Contraseña
                   </label>
                   <div className="relative">
@@ -506,12 +506,12 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
                       onChange={(e) => setNuevaPassword(e.target.value)}
                       placeholder="Mínimo 8 caracteres"
                       required
-                      className="w-full px-3 py-2 pr-8 text-xs border border-slate-200 rounded-xl focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600 transition"
+                      className="w-full px-3 py-2 pr-8 text-xs border border-slate-200 rounded-xl focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600 transition dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                     />
                     <button
                       type="button"
                       onClick={() => setShowNuevaPassword(!showNuevaPassword)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-400 hover:text-slate-600 transition"
                     >
                       {showNuevaPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                     </button>
@@ -520,7 +520,7 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
 
                 {/* Confirmar Nueva Contraseña */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-gray-200 mb-1">
                     Confirmar Nueva Contraseña
                   </label>
                   <div className="relative">
@@ -530,12 +530,12 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
                       onChange={(e) => setConfirmarNuevaPassword(e.target.value)}
                       placeholder="Repite la nueva contraseña"
                       required
-                      className="w-full px-3 py-2 pr-8 text-xs border border-slate-200 rounded-xl focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600 transition"
+                      className="w-full px-3 py-2 pr-8 text-xs border border-slate-200 rounded-xl focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600 transition dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmarPassword(!showConfirmarPassword)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-400 hover:text-slate-600 transition"
                     >
                       {showConfirmarPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                     </button>
@@ -567,8 +567,8 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
                   <CheckCircle2 size={32} />
                 </div>
                 <div>
-                  <h4 className="text-base font-bold text-slate-800">¡Contraseña Actualizada!</h4>
-                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  <h4 className="text-base font-bold text-slate-800 dark:text-gray-100">¡Contraseña Actualizada!</h4>
+                  <p className="text-xs text-slate-500 dark:text-gray-300 mt-1 leading-relaxed">
                     Tu contraseña ha sido restablecida exitosamente. Ya podés ingresar al sistema con tu nueva clave.
                   </p>
                 </div>

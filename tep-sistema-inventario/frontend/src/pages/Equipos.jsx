@@ -378,33 +378,33 @@ export default function Equipos() {
     switch (estado) {
       case 'Operativo':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
             <CheckCircle2 size={11} />
             OPERATIVO
           </span>
         );
       case 'En Mantenimiento':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
             <Wrench size={11} />
             EN REPARACIÓN
           </span>
         );
       case 'En Depósito':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
             EN DEPÓSITO
           </span>
         );
       case 'Baja':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
             BAJA
           </span>
         );
       default:
         return (
-          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">
+          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
             {estado || 'N/D'}
           </span>
         );
@@ -434,8 +434,8 @@ export default function Equipos() {
         {/* Encabezado y Botones Principales */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">Gestión de Equipamiento</h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-gray-100 tracking-tight">Gestión de Equipamiento</h2>
+            <p className="text-xs text-slate-500 dark:text-gray-300 mt-0.5">
               Administración de activos informáticos, trazabilidad y control de ciclo de vida del Tribunal Electoral.
             </p>
           </div>
@@ -444,7 +444,7 @@ export default function Equipos() {
               type="button"
               onClick={cargarDatos}
               disabled={cargando}
-              className="p-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl shadow-xs transition cursor-pointer"
+              className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-600 dark:text-gray-300 rounded-xl shadow-xs transition cursor-pointer"
               title="Refrescar catálogo"
             >
               <RefreshCw size={15} className={cargando ? 'animate-spin text-blue-600' : ''} />
@@ -453,7 +453,7 @@ export default function Equipos() {
               type="button"
               onClick={handleExportarPDF}
               disabled={exportando}
-              className="flex items-center gap-2 px-3.5 sm:px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-2 px-3.5 sm:px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-gray-200 text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer disabled:opacity-50"
             >
               {exportando ? <Loader2 size={15} className="animate-spin text-blue-600" /> : <FileDown size={15} />}
               <span>{exportando ? 'Exportando...' : 'Exportar PDF'}</span>
@@ -477,14 +477,14 @@ export default function Equipos() {
         )}
 
         {/* Selector de Pestañas (Equipos Informáticos / Sectores Físicos) */}
-        <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200/80">
+        <div className="inline-flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-700">
           <button
             type="button"
             onClick={() => { setActiveTab('equipos'); setSearchTerm(''); }}
             className={`px-4 sm:px-5 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
               activeTab === 'equipos'
                 ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                : 'text-slate-600 hover:text-slate-900 dark:bg-slate-700 dark:text-gray-300'
             }`}
           >
             Equipos Informáticos ({equipos.length})
@@ -495,7 +495,7 @@ export default function Equipos() {
             className={`px-4 sm:px-5 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
               activeTab === 'sectores'
                 ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                : 'text-slate-600 hover:text-slate-900 dark:bg-slate-700 dark:text-gray-300'
             }`}
           >
             Sectores Físicos ({sectores.length})
@@ -503,15 +503,15 @@ export default function Equipos() {
         </div>
 
         {/* Barra de Filtros y Buscador */}
-        <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 sm:gap-4">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 sm:gap-4">
           <div className="relative flex-1 max-w-md">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-400" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={activeTab === 'equipos' ? 'Buscar por código, marca/modelo, sector o IP...' : 'Buscar sector por nombre o responsable...'}
-              className="w-full pl-10 pr-4 py-2.5 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/50 focus:bg-white transition"
+              className="w-full pl-10 pr-4 py-2.5 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/50 focus:bg-white transition dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
             />
           </div>
 
@@ -521,7 +521,7 @@ export default function Equipos() {
               <select
                 value={filtroTipo}
                 onChange={(e) => setFiltroTipo(e.target.value)}
-                className="px-3 py-2 border border-slate-200 rounded-xl text-xs font-medium text-slate-600 bg-white hover:bg-slate-50 focus:outline-none focus:border-blue-600 transition cursor-pointer"
+                className="px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-600 dark:text-gray-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 focus:outline-none focus:border-blue-600 transition cursor-pointer"
               >
                 <option value="todos">Todos los Tipos</option>
                 <option value="computadora">Computadoras / Laptops</option>
@@ -532,7 +532,7 @@ export default function Equipos() {
               <select
                 value={filtroEstado}
                 onChange={(e) => setFiltroEstado(e.target.value)}
-                className="px-3 py-2 border border-slate-200 rounded-xl text-xs font-medium text-slate-600 bg-white hover:bg-slate-50 focus:outline-none focus:border-blue-600 transition cursor-pointer"
+                className="px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-600 dark:text-gray-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 focus:outline-none focus:border-blue-600 transition cursor-pointer"
               >
                 <option value="todos">Todos los Estados</option>
                 <option value="Operativo">🟢 Operativo</option>
@@ -541,8 +541,8 @@ export default function Equipos() {
                 <option value="Baja">⚪ Baja</option>
               </select>
 
-              <div className="text-xs text-slate-500 font-medium flex items-center gap-1.5">
-                <span className="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md font-semibold text-[11px]">
+              <div className="text-xs text-slate-500 dark:text-gray-300 font-medium flex items-center gap-1.5">
+                <span className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-200 px-2.5 py-1 rounded-md font-semibold text-[11px]">
                   {equiposFiltrados.length} Registros
                 </span>
               </div>
@@ -552,8 +552,8 @@ export default function Equipos() {
 
         {/* Guía visual interactiva */}
         {activeTab === 'equipos' && (
-          <div className="flex items-center gap-2 px-4 py-2.5 bg-blue-50/60 border border-blue-100 text-blue-800 rounded-xl text-xs">
-            <Info size={15} className="text-blue-600 shrink-0" />
+          <div className="flex items-center gap-2 px-4 py-2.5 bg-blue-50/60 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 text-blue-800 dark:text-blue-300 rounded-xl text-xs">
+            <Info size={15} className="text-blue-600 dark:text-blue-400 shrink-0" />
             <span>
               <strong>Operación de Inventario:</strong> Presione <strong>doble clic</strong> sobre cualquier equipo para {isAuditor ? 'consultar su ficha técnica institucional.' : 'ver o editar su ficha técnica completa.'} Presione el ícono del <strong className="text-rose-600">corazón</strong> para consultar su trazabilidad y ciclo de vida patrimonial en base de datos.
             </span>
@@ -562,10 +562,10 @@ export default function Equipos() {
 
         {/* TABLA 1: Vista de Equipos Informáticos */}
         {activeTab === 'equipos' && (
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs min-w-[750px]">
-                <thead className="bg-slate-50/60 text-slate-400 uppercase font-semibold border-b border-slate-100 select-none">
+                <thead className="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 uppercase font-semibold border-b border-slate-200 dark:border-slate-700 select-none">
                   <tr>
                     <th className="py-4 px-6">Cód. Patrimonial</th>
                     <th className="py-4 px-6">Dispositivo / Modelo</th>
@@ -575,10 +575,10 @@ export default function Equipos() {
                     <th className="py-4 px-6 text-right">Acciones Rápidas</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-slate-700 dark:text-slate-200">
                   {cargando ? (
                     <tr>
-                      <td colSpan={6} className="py-12 text-center text-slate-400">
+                      <td colSpan={6} className="py-12 text-center text-slate-400 dark:text-gray-400">
                         <div className="flex flex-col items-center justify-center gap-2">
                           <Loader2 size={24} className="animate-spin text-blue-600" />
                           <span>Cargando catálogo de equipos desde base de datos...</span>
@@ -587,7 +587,7 @@ export default function Equipos() {
                     </tr>
                   ) : equiposFiltrados.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-10 text-center text-slate-400">
+                      <td colSpan={6} className="py-10 text-center text-slate-400 dark:text-gray-400">
                         No se encontraron equipos que coincidan con los filtros aplicados.
                       </td>
                     </tr>
@@ -599,14 +599,14 @@ export default function Equipos() {
                           setEquipoSeleccionado(item);
                           setIsDetalleModalOpen(true);
                         }}
-                        className="hover:bg-blue-50/40 transition cursor-pointer select-none group"
+                        className="hover:bg-blue-50/40 dark:hover:bg-slate-700/60 transition cursor-pointer select-none group"
                         title={isAuditor ? "Doble clic para consultar ficha técnica" : "Doble clic para ver ficha técnica completa, editar o dar de baja"}
                       >
                         {/* Código Patrimonial */}
                         <td className="py-4 px-6 font-mono font-medium">
                           <div className="flex items-center gap-2">
                             {renderTipoIcono(item.tipoEquipo)}
-                            <span className="font-bold text-slate-800 group-hover:text-blue-700 transition">
+                            <span className="font-bold text-slate-800 dark:text-white group-hover:text-blue-700 dark:group-hover:text-blue-400 transition">
                               {item.codPatrimonial || 'S/N Patrimonial'}
                             </span>
                           </div>
@@ -614,11 +614,11 @@ export default function Equipos() {
 
                         {/* Marca y Modelo */}
                         <td className="py-4 px-6">
-                          <p className="font-bold text-slate-800">{item.marcaModelo}</p>
-                          <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+                          <p className="font-bold text-slate-800 dark:text-white">{item.marcaModelo}</p>
+                          <p className="text-[11px] text-slate-400 dark:text-gray-400 font-mono mt-0.5">
                             SN: {item.numeroSerie}
                             {item.procesador && item.procesador !== 'No aplica' && (
-                              <span className="ml-1.5 text-slate-500 font-sans">• {item.procesador}</span>
+                              <span className="ml-1.5 text-slate-500 dark:text-gray-300 font-sans">• {item.procesador}</span>
                             )}
                             {item.insumoCompatibleDescripcion && (
                               <span className="ml-1.5 text-amber-600 font-sans">• {item.insumoCompatibleDescripcion}</span>
@@ -628,7 +628,7 @@ export default function Equipos() {
 
                         {/* Sector Asignado */}
                         <td className="py-4 px-6">
-                          <div className="flex items-center gap-1.5 text-slate-700">
+                          <div className="flex items-center gap-1.5 text-slate-700 dark:text-gray-200">
                             <MapPin size={14} className="text-blue-500 shrink-0" />
                             <span className="font-medium">{item.nombreSector || item.nombreOficina || 'Sin sector'}</span>
                           </div>
@@ -636,8 +636,8 @@ export default function Equipos() {
 
                         {/* IP Fija */}
                         <td className="py-4 px-6">
-                          <div className="flex items-center gap-1.5 font-mono text-[11px] text-slate-600">
-                            <Network size={13} className="text-slate-400 shrink-0" />
+                          <div className="flex items-center gap-1.5 font-mono text-[11px] text-slate-600 dark:text-gray-300">
+                            <Network size={13} className="text-slate-400 dark:text-gray-400 shrink-0" />
                             <span>{item.ipFija || '0.0.0.0'}</span>
                           </div>
                         </td>
@@ -685,7 +685,7 @@ export default function Equipos() {
             </div>
 
             {/* Paginación y Resumen */}
-            <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 select-none">
+            <div className="p-4 border-t border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-3 select-none">
               <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600">
                 <CheckCircle2 size={16} />
                 <span className="tracking-wider uppercase text-[11px]">Inventario Sincronizado en Tiempo Real</span>
@@ -695,18 +695,18 @@ export default function Equipos() {
                   type="button" 
                   disabled={paginaActual <= 1}
                   onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))}
-                  className="p-1.5 border border-slate-200 rounded-lg text-slate-500 hover:bg-slate-50 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="p-1.5 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-500 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700/60 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <ChevronLeft size={16} />
                 </button>
-                <span className="text-xs text-slate-600 font-semibold px-2">
+                <span className="text-xs text-slate-600 dark:text-gray-300 font-semibold px-2">
                   Página {paginaActual} de {totalPaginas}
                 </span>
                 <button 
                   type="button" 
                   disabled={paginaActual >= totalPaginas}
                   onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))}
-                  className="p-1.5 border border-slate-200 rounded-lg text-slate-500 hover:bg-slate-50 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="p-1.5 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-500 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700/60 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <ChevronRight size={16} />
                 </button>
@@ -717,10 +717,10 @@ export default function Equipos() {
 
         {/* TABLA 2: Vista de Sectores Físicos */}
         {activeTab === 'sectores' && (
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs min-w-[650px]">
-                <thead className="bg-slate-50/60 text-slate-400 uppercase font-semibold border-b border-slate-100 select-none">
+                <thead className="bg-slate-50/60 dark:bg-slate-700/50 text-slate-400 dark:text-gray-400 uppercase font-semibold border-b border-slate-100 dark:border-slate-700 select-none">
                   <tr>
                     <th className="py-4 px-6">Código de Sector</th>
                     <th className="py-4 px-6">Nombre de la Dependencia</th>
@@ -729,10 +729,10 @@ export default function Equipos() {
                     <th className="py-4 px-6 text-right">Equipos Asignados</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-slate-700 dark:text-gray-200">
                   {cargando ? (
                     <tr>
-                      <td colSpan={5} className="py-10 text-center text-slate-400">
+                      <td colSpan={5} className="py-10 text-center text-slate-400 dark:text-gray-400">
                         <div className="flex items-center justify-center gap-2">
                           <Loader2 size={20} className="animate-spin text-blue-600" />
                           <span>Cargando dependencias...</span>
@@ -741,7 +741,7 @@ export default function Equipos() {
                     </tr>
                   ) : sectoresFiltrados.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="py-10 text-center text-slate-400">
+                      <td colSpan={5} className="py-10 text-center text-slate-400 dark:text-gray-400">
                         No se encontraron sectores registrados.
                       </td>
                     </tr>
@@ -758,16 +758,16 @@ export default function Equipos() {
                               {item.codigoSector || `SEC-${String(item.idSector).padStart(3, '0')}`}
                             </span>
                           </td>
-                          <td className="py-4 px-6 font-bold text-slate-800">{item.nombreOficina || item.nombreSector}</td>
+                          <td className="py-4 px-6 font-bold text-slate-800 dark:text-gray-100">{item.nombreOficina || item.nombreSector}</td>
                           <td className="py-4 px-6">
-                            <div className="flex items-center gap-1.5 text-slate-600">
-                              <MapPin size={14} className="text-slate-400" />
+                            <div className="flex items-center gap-1.5 text-slate-600 dark:text-gray-300">
+                              <MapPin size={14} className="text-slate-400 dark:text-gray-400" />
                               <span>{item.ubicacion || 'Edificio Tribunal Electoral'}</span>
                             </div>
                           </td>
-                          <td className="py-4 px-6 text-slate-700 font-medium">{item.responsable || 'A cargo de Dependencia'}</td>
+                          <td className="py-4 px-6 text-slate-700 dark:text-gray-200 font-medium">{item.responsable || 'A cargo de Dependencia'}</td>
                           <td className="py-4 px-6 text-right">
-                            <span className="bg-slate-100 text-slate-700 font-bold px-2.5 py-1 rounded-full text-[11px]">
+                            <span className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-200 font-bold px-2.5 py-1 rounded-full text-[11px]">
                               {cantEquipos} equipos
                             </span>
                           </td>
@@ -782,7 +782,7 @@ export default function Equipos() {
         )}
 
         {/* Footer Institucional */}
-        <div className="text-center pt-4 pb-2 text-[11px] text-slate-400 tracking-wider">
+        <div className="text-center pt-4 pb-2 text-[11px] text-slate-400 dark:text-gray-400 tracking-wider">
           © 2026 TRIBUNAL ELECTORAL PERMANENTE • MÓDULO DE CONTROL DE EQUIPOS
         </div>
 
@@ -800,20 +800,20 @@ export default function Equipos() {
           }}
         >
           <div 
-            className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl border border-slate-100 max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            className="bg-white dark:bg-slate-800 rounded-3xl max-w-4xl w-full shadow-2xl border border-slate-100 dark:border-slate-700 max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Cabecera del Modal */}
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-rose-50 text-rose-600 rounded-2xl">
                   <HeartPulse size={20} />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-800">
+                  <h3 className="text-base font-bold text-slate-800 dark:text-gray-100">
                     Ciclo de Vida Patrimonial
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-400 dark:text-gray-400">
                     Trazabilidad histórica completa y eventos de vida del activo institucional en base de datos.
                   </p>
                 </div>
@@ -824,7 +824,7 @@ export default function Equipos() {
                   setIsCicloModalOpen(false);
                   setEquipoCicloVida(null);
                 }}
-                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+                className="p-2 text-slate-400 dark:text-gray-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/60 rounded-xl transition cursor-pointer"
               >
                 <X size={18} />
               </button>
@@ -834,10 +834,10 @@ export default function Equipos() {
             <div className="p-6 overflow-y-auto flex-1 grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
               
               {/* Columna Izquierda (4/12): Resumen Físico del Activo con Tarjeta Técnica */}
-              <div className="md:col-span-4 bg-slate-50/70 border border-slate-200/70 rounded-2xl p-5 space-y-4">
+              <div className="md:col-span-4 bg-slate-50/70 dark:bg-slate-700/50 border border-slate-200/70 rounded-2xl p-5 space-y-4">
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  <span className="text-[10px] font-bold text-slate-400 dark:text-gray-400 uppercase tracking-wider">
                     Ficha Técnica Oficial
                   </span>
                   <span className="font-mono text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
@@ -862,10 +862,10 @@ export default function Equipos() {
                       <Laptop size={32} />
                     )}
                   </div>
-                  <strong className="text-sm font-bold text-slate-800 text-center px-3 leading-snug">
+                  <strong className="text-sm font-bold text-slate-800 dark:text-gray-100 text-center px-3 leading-snug">
                     {equipoCicloVida.marcaModelo}
                   </strong>
-                  <span className="text-[11px] font-mono text-slate-500 font-medium mt-0.5">
+                  <span className="text-[11px] font-mono text-slate-500 dark:text-gray-300 font-medium mt-0.5">
                     S/N: {equipoCicloVida.numeroSerie}
                   </span>
                   <div className="mt-2.5">
@@ -874,28 +874,28 @@ export default function Equipos() {
                 </div>
 
                 {/* Especificaciones Técnicas Clave */}
-                <div className="space-y-2.5 text-xs text-slate-600 pt-1">
+                <div className="space-y-2.5 text-xs text-slate-600 dark:text-gray-300 pt-1">
                   <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Tipo de Activo</span>
-                    <strong className="text-slate-800">{equipoCicloVida.tipoEquipo || 'Equipo Informático'}</strong>
+                    <span className="text-[10px] font-bold text-slate-400 dark:text-gray-400 uppercase block">Tipo de Activo</span>
+                    <strong className="text-slate-800 dark:text-gray-100">{equipoCicloVida.tipoEquipo || 'Equipo Informático'}</strong>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Dependencia Asignada</span>
-                    <span className="font-medium text-slate-700">{equipoCicloVida.nombreSector || equipoCicloVida.nombreOficina || 'Sin sector asignado'}</span>
+                    <span className="text-[10px] font-bold text-slate-400 dark:text-gray-400 uppercase block">Dependencia Asignada</span>
+                    <span className="font-medium text-slate-700 dark:text-gray-200">{equipoCicloVida.nombreSector || equipoCicloVida.nombreOficina || 'Sin sector asignado'}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Dirección IP en Red</span>
-                    <span className="font-mono text-slate-800">{equipoCicloVida.ipFija || '0.0.0.0'}</span>
+                    <span className="text-[10px] font-bold text-slate-400 dark:text-gray-400 uppercase block">Dirección IP en Red</span>
+                    <span className="font-mono text-slate-800 dark:text-gray-100">{equipoCicloVida.ipFija || '0.0.0.0'}</span>
                   </div>
                   {equipoCicloVida.procesador && (
                     <div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase block">Procesador / Memoria</span>
+                      <span className="text-[10px] font-bold text-slate-400 dark:text-gray-400 uppercase block">Procesador / Memoria</span>
                       <span>{equipoCicloVida.procesador} • {equipoCicloVida.memoriaRAM || 'RAM'}</span>
                     </div>
                   )}
                   {equipoCicloVida.insumoCompatibleDescripcion && (
                     <div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase block">Insumo Compatible</span>
+                      <span className="text-[10px] font-bold text-slate-400 dark:text-gray-400 uppercase block">Insumo Compatible</span>
                       <span className="text-amber-700 font-medium">{equipoCicloVida.insumoCompatibleDescripcion}</span>
                     </div>
                   )}
@@ -905,9 +905,9 @@ export default function Equipos() {
                 <button
                   type="button"
                   onClick={() => handleDescargarHojaVida(equipoCicloVida, historialCiclo)}
-                  className="w-full py-2.5 px-3 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition shadow-xs cursor-pointer"
+                  className="w-full py-2.5 px-3 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/60 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-gray-200 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition shadow-xs cursor-pointer"
                 >
-                  <Download size={14} className="text-slate-500" />
+                  <Download size={14} className="text-slate-500 dark:text-gray-300" />
                   <span>Imprimir / Hoja de Vida</span>
                 </button>
               </div>
@@ -916,14 +916,14 @@ export default function Equipos() {
               <div className="md:col-span-8 space-y-4">
                 <div className="flex items-center justify-between pb-1">
                   <div>
-                    <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                    <h4 className="text-xs font-bold text-slate-800 dark:text-gray-100 uppercase tracking-wider">
                       Línea de Tiempo Patrimonial
                     </h4>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-slate-400 dark:text-gray-400">
                       Historial cronológico de eventos registrados en base de datos
                     </p>
                   </div>
-                  <span className="text-[11px] text-slate-600 font-semibold bg-slate-100 px-2.5 py-1 rounded-lg">
+                  <span className="text-[11px] text-slate-600 dark:text-gray-300 font-semibold bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg">
                     {historialCiclo.length} Hitos Registrados
                   </span>
                 </div>
@@ -931,12 +931,12 @@ export default function Equipos() {
                 {/* Contenedor Vertical de la Línea de Tiempo */}
                 <div className="relative pl-6 space-y-6 before:content-[''] before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
                   {cargandoCiclo ? (
-                    <div className="py-12 text-center text-xs text-slate-400 flex flex-col items-center justify-center gap-2">
+                    <div className="py-12 text-center text-xs text-slate-400 dark:text-gray-400 flex flex-col items-center justify-center gap-2">
                       <Loader2 size={24} className="animate-spin text-blue-600" />
                       <span>Consultando trazabilidad institucional en base de datos...</span>
                     </div>
                   ) : historialCiclo.length === 0 ? (
-                    <div className="py-8 text-center text-xs text-slate-400 italic bg-slate-50 rounded-xl border border-slate-100 p-4">
+                    <div className="py-8 text-center text-xs text-slate-400 dark:text-gray-400 italic bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-700 p-4">
                       Sin eventos registrados en la línea de tiempo.
                     </div>
                   ) : (
@@ -947,46 +947,46 @@ export default function Equipos() {
                         <span className={`absolute -left-6 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-white shadow-xs ${hito.dotColor}`} />
 
                         {/* Tarjeta del Hito */}
-                        <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs group-hover:border-slate-300 transition space-y-2">
+                        <div className="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 rounded-2xl p-4 shadow-xs group-hover:border-slate-300 transition space-y-2">
                           
                           {/* Cabecera del hito con tipo de evento y fecha */}
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                             <div className="flex items-center gap-2">
-                              <h5 className="text-xs font-bold text-slate-800">{hito.titulo}</h5>
+                              <h5 className="text-xs font-bold text-slate-800 dark:text-gray-100">{hito.titulo}</h5>
                               <span className={`text-[9px] font-extrabold uppercase px-2 py-0.5 rounded border ${hito.badgeColor}`}>
                                 {hito.tipoEvento}
                               </span>
                             </div>
-                            <span className="flex items-center gap-1 text-[11px] text-slate-400 font-medium">
+                            <span className="flex items-center gap-1 text-[11px] text-slate-400 dark:text-gray-400 font-medium">
                               <Calendar size={12} />
                               {hito.fecha}
                             </span>
                           </div>
 
                           {/* Descripción del evento */}
-                          <p className="text-xs text-slate-600 leading-relaxed">
+                          <p className="text-xs text-slate-600 dark:text-gray-300 leading-relaxed">
                             {hito.descripcion}
                           </p>
 
                           {/* Detalle especial para Traslados o Entregas (Origen -> Destino) */}
                           {hito.origen && hito.destino && (
-                            <div className="flex items-center gap-3 py-1.5 px-3 bg-slate-50 border border-slate-200/60 rounded-xl text-xs text-slate-700">
+                            <div className="flex items-center gap-3 py-1.5 px-3 bg-slate-50 dark:bg-slate-700/50 border border-slate-200/60 rounded-xl text-xs text-slate-700 dark:text-gray-200">
                               <div>
-                                <span className="text-[10px] text-slate-400 font-semibold uppercase block">Origen</span>
-                                <span className="font-semibold text-slate-700">{hito.origen}</span>
+                                <span className="text-[10px] text-slate-400 dark:text-gray-400 font-semibold uppercase block">Origen</span>
+                                <span className="font-semibold text-slate-700 dark:text-gray-200">{hito.origen}</span>
                               </div>
                               <ArrowRight size={14} className="text-blue-500 mt-2 shrink-0" />
                               <div>
-                                <span className="text-[10px] text-slate-400 font-semibold uppercase block">Destino</span>
+                                <span className="text-[10px] text-slate-400 dark:text-gray-400 font-semibold uppercase block">Destino</span>
                                 <span className="font-semibold text-blue-700">{hito.destino}</span>
                               </div>
                             </div>
                           )}
 
                           {/* Responsable técnico */}
-                          <div className="pt-1 flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-100">
+                          <div className="pt-1 flex items-center justify-between text-[11px] text-slate-400 dark:text-gray-400 border-t border-slate-100 dark:border-slate-700">
                             <span className="flex items-center gap-1.5">
-                              <User size={12} className="text-slate-400" />
+                              <User size={12} className="text-slate-400 dark:text-gray-400" />
                               Registrado por <strong>{hito.operador || 'Sistema'}</strong>
                             </span>
                           </div>
@@ -998,7 +998,7 @@ export default function Equipos() {
                   )}
                 </div>
 
-                <div className="text-center pt-2 pb-1 text-[11px] text-slate-400 italic">
+                <div className="text-center pt-2 pb-1 text-[11px] text-slate-400 dark:text-gray-400 italic">
                   Fin de los registros históricos del activo {equipoCicloVida.codPatrimonial || equipoCicloVida.marcaModelo}.
                 </div>
 
@@ -1007,7 +1007,7 @@ export default function Equipos() {
             </div>
 
             {/* Pie del Modal */}
-            <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-2">
+            <div className="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-700/50 flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => {
@@ -1058,37 +1058,37 @@ export default function Equipos() {
           onClick={() => setIsModalSectorOpen(false)}
         >
           <div 
-            className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-100"
+            className="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-100 dark:border-slate-700"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
+            <div className="flex justify-between items-center mb-4 border-b border-slate-100 dark:border-slate-700 pb-3">
               <div>
-                <h3 className="text-base font-bold text-slate-800">Registrar Dependencia / Sector</h3>
-                <p className="text-xs text-slate-400">Agregue una oficina física institucional al Tribunal</p>
+                <h3 className="text-base font-bold text-slate-800 dark:text-gray-100">Registrar Dependencia / Sector</h3>
+                <p className="text-xs text-slate-400 dark:text-gray-400">Agregue una oficina física institucional al Tribunal</p>
               </div>
               <button 
                 type="button" 
                 onClick={() => setIsModalSectorOpen(false)} 
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="text-slate-400 dark:text-gray-400 hover:text-slate-600 cursor-pointer"
               >
                 <X size={18} />
               </button>
             </div>
             <form onSubmit={handleGuardarSector} className="space-y-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Nombre de la Dependencia u Oficina</label>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Nombre de la Dependencia u Oficina</label>
                 <input 
                   name="nombreOficina" 
                   required 
                   placeholder="Ej. Secretaría Electoral / Juzgado Civil" 
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none" 
+                  className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:outline-none dark:bg-slate-700 dark:text-white dark:placeholder-gray-400" 
                 />
               </div>
-              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-700">
                 <button 
                   type="button" 
                   onClick={() => setIsModalSectorOpen(false)} 
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 rounded-xl cursor-pointer"
                 >
                   Cancelar
                 </button>

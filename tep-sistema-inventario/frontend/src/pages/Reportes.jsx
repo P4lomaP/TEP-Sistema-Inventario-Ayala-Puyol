@@ -241,8 +241,8 @@ export default function Reportes() {
         {/* ================= ENCABEZADO Y BOTONES DE EXPORTACIÓN ================= */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">Reportes y Métricas</h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-gray-100 tracking-tight">Reportes y Métricas</h2>
+            <p className="text-xs text-slate-500 dark:text-gray-300 mt-0.5">
               Consulte consumos de insumos, distribución por sector y registros operativos.
             </p>
           </div>
@@ -255,7 +255,7 @@ export default function Reportes() {
                 onClick={handleDescargarBackup}
                 disabled={descargandoBackup}
                 title="Descargar volcado SQL completo de la base de datos (Exclusivo Administrador)"
-                className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 transition cursor-pointer shadow-2xs"
+                className="flex items-center gap-1.5 px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-gray-200 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700 transition cursor-pointer shadow-2xs"
               >
                 <Database size={14} className={descargandoBackup ? 'animate-spin text-blue-600' : 'text-slate-500'} />
                 <span>{descargandoBackup ? 'Generando...' : 'Backup SQL'}</span>
@@ -267,7 +267,7 @@ export default function Reportes() {
               onClick={handleDescargarPDFEquipos}
               disabled={descargandoPDFEquipos}
               title="Descargar reporte institucional de equipos activos en PDF (PDFKit)"
-              className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 transition cursor-pointer shadow-2xs"
+              className="flex items-center gap-1.5 px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-gray-200 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700 transition cursor-pointer shadow-2xs"
             >
               <FileText size={14} className={descargandoPDFEquipos ? 'animate-spin text-blue-600' : 'text-blue-600'} />
               <span>{descargandoPDFEquipos ? 'Generando...' : 'Inventario PDF'}</span>
@@ -297,9 +297,9 @@ export default function Reportes() {
         {isAuditor && <BannerAuditorReadOnly modulo="Reportes y Auditoría" />}
 
         {/* ================= CRITERIOS DE FILTRADO ================= */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-            <div className="flex items-center gap-2 text-slate-700 font-bold text-xs uppercase tracking-wider">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700 shadow-xs space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700">
+            <div className="flex items-center gap-2 text-slate-700 dark:text-gray-200 font-bold text-xs uppercase tracking-wider">
               <Filter size={14} className="text-blue-600" />
               <span>Filtros de Búsqueda</span>
             </div>
@@ -313,41 +313,41 @@ export default function Reportes() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
             {/* Fecha Desde */}
             <div>
-              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-bold text-slate-500 dark:text-gray-300 uppercase tracking-wider mb-1">
                 Desde
               </label>
               <input
                 type="date"
                 value={fechaDesde}
                 onChange={(e) => setFechaDesde(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 focus:bg-white transition"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 dark:bg-slate-700/50 focus:bg-white transition"
               />
             </div>
 
             {/* Fecha Hasta */}
             <div>
-              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-bold text-slate-500 dark:text-gray-300 uppercase tracking-wider mb-1">
                 Hasta
               </label>
               <input
                 type="date"
                 value={fechaHasta}
                 onChange={(e) => setFechaHasta(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 focus:bg-white transition"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 dark:bg-slate-700/50 focus:bg-white transition"
               />
             </div>
 
             {/* Oficina / Sector */}
             <div>
-              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-bold text-slate-500 dark:text-gray-300 uppercase tracking-wider mb-1">
                 Oficina / Sector Destino
               </label>
               <div className="relative">
-                <Building2 size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Building2 size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-400" />
                 <select
                   value={sectorSeleccionado}
                   onChange={(e) => setSectorSeleccionado(e.target.value)}
-                  className="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 focus:bg-white text-slate-700 cursor-pointer"
+                  className="w-full pl-8 pr-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 dark:bg-slate-700/50 focus:bg-white text-slate-700 dark:text-gray-200 cursor-pointer"
                 >
                   <option value="Todos">Todas las Oficinas</option>
                   {sectores.map((s) => {
@@ -364,15 +364,15 @@ export default function Reportes() {
 
             {/* Tipo de Movimiento */}
             <div>
-              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-bold text-slate-500 dark:text-gray-300 uppercase tracking-wider mb-1">
                 Tipo de Movimiento
               </label>
               <div className="relative">
-                <ArrowLeftRight size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <ArrowLeftRight size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-400" />
                 <select
                   value={tipoMovimiento}
                   onChange={(e) => setTipoMovimiento(e.target.value)}
-                  className="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 focus:bg-white text-slate-700 cursor-pointer"
+                  className="w-full pl-8 pr-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 dark:bg-slate-700/50 focus:bg-white text-slate-700 dark:text-gray-200 cursor-pointer"
                 >
                   <option value="Todos">Todos los Movimientos</option>
                   <option value="Egreso">Salidas / Egresos de Stock</option>
@@ -383,11 +383,11 @@ export default function Reportes() {
           </div>
 
           {/* Botones de acción */}
-          <div className="flex justify-end items-center gap-2 pt-2 border-t border-slate-100">
+          <div className="flex justify-end items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-700">
             <button
               type="button"
               onClick={handleLimpiarFiltros}
-              className="px-3.5 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition cursor-pointer"
+              className="px-3.5 py-1.5 text-xs font-semibold text-slate-500 dark:text-gray-300 hover:text-slate-800 transition cursor-pointer"
             >
               Restablecer
             </button>
@@ -406,46 +406,46 @@ export default function Reportes() {
         {/* ================= 4 TARJETAS DE MÉTRICAS (KPIs) ================= */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Unidades Movidas</p>
-              <h4 className="text-xl sm:text-2xl font-bold text-slate-800 mt-0.5">{kpis.totalUnidades}</h4>
-              <p className="text-[11px] text-slate-400 mt-0.5">En {kpis.totalRegistros} transacciones</p>
+              <p className="text-[10px] font-bold text-slate-400 dark:text-gray-400 uppercase tracking-wider">Unidades Movidas</p>
+              <h4 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-gray-100 mt-0.5">{kpis.totalUnidades}</h4>
+              <p className="text-[11px] text-slate-400 dark:text-gray-400 mt-0.5">En {kpis.totalRegistros} transacciones</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shrink-0">
               <Package size={20} />
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Oficinas Atendidas</p>
-              <h4 className="text-xl sm:text-2xl font-bold text-slate-800 mt-0.5">{kpis.totalOficinasAtendidas}</h4>
-              <p className="text-[11px] text-slate-400 mt-0.5">Destinos habilitados</p>
+              <p className="text-[10px] font-bold text-slate-400 dark:text-gray-400 uppercase tracking-wider">Oficinas Atendidas</p>
+              <h4 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-gray-100 mt-0.5">{kpis.totalOficinasAtendidas}</h4>
+              <p className="text-[11px] text-slate-400 dark:text-gray-400 mt-0.5">Destinos habilitados</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
               <Building2 size={20} />
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Órdenes / Remitos</p>
-              <h4 className="text-xl sm:text-2xl font-bold text-slate-800 mt-0.5">{kpis.totalMovimientos}</h4>
-              <p className="text-[11px] text-slate-400 mt-0.5">Comprobantes válidos</p>
+              <p className="text-[10px] font-bold text-slate-400 dark:text-gray-400 uppercase tracking-wider">Órdenes / Remitos</p>
+              <h4 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-gray-100 mt-0.5">{kpis.totalMovimientos}</h4>
+              <p className="text-[11px] text-slate-400 dark:text-gray-400 mt-0.5">Comprobantes válidos</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
               <ArrowLeftRight size={20} />
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Alertas de Stock</p>
+              <p className="text-[10px] font-bold text-slate-400 dark:text-gray-400 uppercase tracking-wider">Alertas de Stock</p>
               <h4 className={`text-xl sm:text-2xl font-bold mt-0.5 ${kpis.insumosCriticos > 0 ? 'text-amber-600' : 'text-emerald-700'}`}>
                 {kpis.insumosCriticos}
               </h4>
-              <p className="text-[11px] text-slate-400 mt-0.5">Bajo stock de seguridad</p>
+              <p className="text-[11px] text-slate-400 dark:text-gray-400 mt-0.5">Bajo stock de seguridad</p>
             </div>
             <div className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 ${
               kpis.insumosCriticos > 0 ? 'bg-amber-50 border-amber-200 text-amber-600' : 'bg-slate-50 border-slate-200 text-slate-500'
@@ -460,14 +460,14 @@ export default function Reportes() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           {/* Gráfico de Consumo por Dependencia (5/12) */}
-          <div className="lg:col-span-5 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-5">
+          <div className="lg:col-span-5 bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-700 shadow-xs space-y-5">
             <div>
-              <h3 className="text-sm font-bold text-slate-800">Distribución de Consumo por Sector</h3>
-              <p className="text-xs text-slate-400">Porcentaje de insumos suministrados según destino</p>
+              <h3 className="text-sm font-bold text-slate-800 dark:text-gray-100">Distribución de Consumo por Sector</h3>
+              <p className="text-xs text-slate-400 dark:text-gray-400">Porcentaje de insumos suministrados según destino</p>
             </div>
 
             {distribucionSectores.length === 0 ? (
-              <div className="py-12 text-center text-slate-400 text-xs">
+              <div className="py-12 text-center text-slate-400 dark:text-gray-400 text-xs">
                 <Building2 size={24} className="mx-auto mb-2 text-slate-300" />
                 <p>No se registran consumos con los filtros seleccionados.</p>
               </div>
@@ -478,14 +478,14 @@ export default function Reportes() {
                   {distribucionSectores.map((s) => (
                     <div key={s.nombre} className="space-y-1">
                       <div className="flex justify-between text-xs">
-                        <span className="font-semibold text-slate-700 truncate max-w-[200px]" title={s.nombre}>
+                        <span className="font-semibold text-slate-700 dark:text-gray-200 truncate max-w-[200px]" title={s.nombre}>
                           {s.nombre}
                         </span>
-                        <span className="font-bold text-slate-900">
-                          {s.unidades} un. <span className="text-slate-400 font-normal">({s.porcentaje}%)</span>
+                        <span className="font-bold text-slate-900 dark:text-gray-100">
+                          {s.unidades} un. <span className="text-slate-400 dark:text-gray-400 font-normal">({s.porcentaje}%)</span>
                         </span>
                       </div>
-                      <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                         <div 
                           className="h-full rounded-full transition-all duration-500"
                           style={{ width: `${s.porcentaje}%`, backgroundColor: s.color }}
@@ -507,14 +507,14 @@ export default function Reportes() {
           </div>
 
           {/* Tabla de Registros del Reporte (7/12) */}
-          <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col justify-between">
+          <div className="lg:col-span-7 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700 shadow-xs overflow-hidden flex flex-col justify-between">
             <div>
-              <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+              <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-bold text-slate-800">Vista Previa de Transacciones</h3>
-                  <p className="text-xs text-slate-400">Detalle de movimientos en el período consultado</p>
+                  <h3 className="text-sm font-bold text-slate-800 dark:text-gray-100">Vista Previa de Transacciones</h3>
+                  <p className="text-xs text-slate-400 dark:text-gray-400">Detalle de movimientos en el período consultado</p>
                 </div>
-                <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                <span className="text-xs font-bold text-slate-600 dark:text-gray-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full">
                   {transacciones.length} registros
                 </span>
               </div>
@@ -522,7 +522,7 @@ export default function Reportes() {
               {/* Tabla de registros */}
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-[10px] border-b border-slate-100">
+                  <thead className="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-200 uppercase font-bold text-[10px] border-b border-slate-100 dark:border-slate-700">
                     <tr>
                       <th className="py-3 px-3.5">Comprobante</th>
                       <th className="py-3 px-3">Fecha</th>
@@ -532,11 +532,11 @@ export default function Reportes() {
                       <th className="py-3 px-3">Operador</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-700">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-slate-700 dark:text-slate-200">
                     {transaccionesPaginadas.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="py-12 text-center text-slate-400 text-xs">
-                          <Package size={24} className="mx-auto mb-2 text-slate-300" />
+                        <td colSpan={6} className="py-12 text-center text-slate-400 dark:text-slate-400 text-xs">
+                          <Package size={24} className="mx-auto mb-2 text-slate-300 dark:text-slate-600" />
                           <p>No se encontraron movimientos registrados para este filtro.</p>
                         </td>
                       </tr>
@@ -547,28 +547,28 @@ export default function Reportes() {
                           : (t.equipoSector || t.agenteReceptor || 'Sin destino');
 
                         return (
-                          <tr key={t.idDetalle || `${t.idMovimiento}-${t.idInsumo}`} className="hover:bg-slate-50/70 transition">
-                            <td className="py-3 px-3.5 font-mono font-bold text-blue-700 whitespace-nowrap">
+                          <tr key={t.idDetalle || `${t.idMovimiento}-${t.idInsumo}`} className="hover:bg-slate-50/70 dark:hover:bg-slate-700/50 transition">
+                            <td className="py-3 px-3.5 font-mono font-bold text-blue-700 dark:text-blue-400 whitespace-nowrap">
                               {t.comprobanteRef || 'S/N'}
                             </td>
-                            <td className="py-3 px-3 text-slate-500 whitespace-nowrap">
+                            <td className="py-3 px-3 text-slate-500 dark:text-slate-400 whitespace-nowrap">
                               {t.fechaCorta || t.fechaHora?.slice(0, 10)}
                             </td>
-                            <td className="py-3 px-3.5 font-semibold text-slate-800">
+                            <td className="py-3 px-3.5 font-semibold text-slate-800 dark:text-white">
                               <div className="truncate max-w-[160px]" title={t.insumoDescripcion}>
                                 {t.insumoDescripcion}
                               </div>
-                              <span className="font-mono text-[10px] text-slate-400">{t.codigoInterno}</span>
+                              <span className="font-mono text-[10px] text-slate-400 dark:text-slate-400">{t.codigoInterno}</span>
                             </td>
-                            <td className="py-3 px-2.5 text-center font-bold text-slate-900">
+                            <td className="py-3 px-2.5 text-center font-bold text-slate-900 dark:text-white">
                               {t.cantidadAfectada}
                             </td>
-                            <td className="py-3 px-3 text-slate-600">
+                            <td className="py-3 px-3 text-slate-600 dark:text-slate-300">
                               <span className="truncate block max-w-[140px]" title={destinoTexto}>
                                 {destinoTexto}
                               </span>
                             </td>
-                            <td className="py-3 px-3 font-medium text-slate-700 whitespace-nowrap">
+                            <td className="py-3 px-3 font-medium text-slate-700 dark:text-slate-200 whitespace-nowrap">
                               {t.usuarioNombre}
                             </td>
                           </tr>
@@ -582,7 +582,7 @@ export default function Reportes() {
 
             {/* Paginación */}
             {transacciones.length > registrosPorPagina && (
-              <div className="p-3.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 select-none">
+              <div className="p-3.5 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs text-slate-500 dark:text-gray-300 select-none">
                 <span>
                   Página <strong>{paginaActual}</strong> de {totalPaginas}
                 </span>
@@ -591,7 +591,7 @@ export default function Reportes() {
                     type="button"
                     disabled={paginaActual === 1}
                     onClick={() => setPaginaActual(p => Math.max(1, p - 1))}
-                    className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                    className="p-1.5 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/60 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
                   >
                     <ChevronLeft size={14} />
                   </button>
@@ -599,7 +599,7 @@ export default function Reportes() {
                     type="button"
                     disabled={paginaActual === totalPaginas}
                     onClick={() => setPaginaActual(p => Math.min(totalPaginas, p + 1))}
-                    className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                    className="p-1.5 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/60 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
                   >
                     <ChevronRight size={14} />
                   </button>
@@ -636,7 +636,7 @@ export default function Reportes() {
         )}
 
         {/* Footer Institucional */}
-        <div className="text-center pt-2 pb-2 text-[11px] text-slate-400 tracking-wider">
+        <div className="text-center pt-2 pb-2 text-[11px] text-slate-400 dark:text-gray-400 tracking-wider">
           © 2026 TRIBUNAL ELECTORAL PERMANENTE • MÓDULO DE REPORTES Y AUDITORÍA
         </div>
 
@@ -645,22 +645,22 @@ export default function Reportes() {
       {/* ================= MODAL: LOG DE AUDITORÍA ================= */}
       {showLogsModal && canViewLogs && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
-          <div className="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-slate-200 max-h-[85vh] flex flex-col space-y-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[85vh] flex flex-col space-y-4">
             
-            <div className="flex justify-between items-center pb-3 border-b border-slate-100">
+            <div className="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-700">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 bg-blue-50 text-blue-700 rounded-xl">
                   <ShieldCheck size={20} />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-800">Registro de Auditoría</h3>
-                  <p className="text-xs text-slate-400">Historial cronológico de operaciones del sistema</p>
+                  <h3 className="text-base font-bold text-slate-800 dark:text-gray-100">Registro de Auditoría</h3>
+                  <p className="text-xs text-slate-400 dark:text-gray-400">Historial cronológico de operaciones del sistema</p>
                 </div>
               </div>
               <button 
                 type="button"
                 onClick={() => setShowLogsModal(false)}
-                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer"
+                className="text-slate-400 dark:text-gray-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/60 cursor-pointer"
               >
                 <X size={18} />
               </button>
@@ -668,20 +668,20 @@ export default function Reportes() {
 
             {/* Buscador dentro de los logs */}
             <div className="relative">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-400" />
               <input
                 type="text"
                 value={busquedaLogs}
                 onChange={(e) => setBusquedaLogs(e.target.value)}
                 placeholder="Filtrar por usuario, acción o módulo..."
-                className="w-full pl-8 pr-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 focus:bg-white"
+                className="w-full pl-8 pr-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 dark:bg-slate-700/50 focus:bg-white"
               />
             </div>
 
             {/* Tabla de Logs */}
-            <div className="overflow-y-auto flex-1 border border-slate-100 rounded-xl max-h-[420px]">
+            <div className="overflow-y-auto flex-1 border border-slate-100 dark:border-slate-700 rounded-xl max-h-[420px]">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-[10px] sticky top-0 border-b border-slate-200">
+                <thead className="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-200 uppercase font-bold text-[10px] sticky top-0 border-b border-slate-200 dark:border-slate-700">
                   <tr>
                     <th className="py-2.5 px-3">Fecha y Hora</th>
                     <th className="py-2.5 px-3">Módulo</th>
@@ -689,28 +689,28 @@ export default function Reportes() {
                     <th className="py-2.5 px-3 text-right">Usuario</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-slate-700 dark:text-slate-200">
                   {logsFiltrados.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="py-10 text-center text-slate-400 text-xs">
+                      <td colSpan={4} className="py-10 text-center text-slate-400 dark:text-slate-400 text-xs">
                         No se encontraron registros de auditoría.
                       </td>
                     </tr>
                   ) : (
                     logsFiltrados.map((log) => (
-                      <tr key={log.idLog} className="hover:bg-slate-50/60 transition">
-                        <td className="py-2.5 px-3 font-mono text-[11px] text-slate-500 whitespace-nowrap">
+                      <tr key={log.idLog} className="hover:bg-slate-50/60 dark:hover:bg-slate-700/50 transition">
+                        <td className="py-2.5 px-3 font-mono text-[11px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
                           {log.fechaHora}
                         </td>
                         <td className="py-2.5 px-3">
-                          <span className="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded text-[10px] font-semibold">
+                          <span className="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/60 rounded text-[10px] font-semibold">
                             {log.moduloAfectado}
                           </span>
                         </td>
-                        <td className="py-2.5 px-3 font-medium text-slate-800">
+                        <td className="py-2.5 px-3 font-medium text-slate-800 dark:text-white">
                           {log.accionRealizada}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-700 whitespace-nowrap">
+                        <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-700 dark:text-slate-200 whitespace-nowrap">
                           {log.usuarioNombre}
                         </td>
                       </tr>
@@ -720,7 +720,7 @@ export default function Reportes() {
               </table>
             </div>
 
-            <div className="pt-2 flex justify-between items-center text-xs text-slate-400 border-t border-slate-100">
+            <div className="pt-2 flex justify-between items-center text-xs text-slate-400 dark:text-gray-400 border-t border-slate-100 dark:border-slate-700">
               <span>Total registros en log: {logsAuditoria.length}</span>
               <button
                 type="button"

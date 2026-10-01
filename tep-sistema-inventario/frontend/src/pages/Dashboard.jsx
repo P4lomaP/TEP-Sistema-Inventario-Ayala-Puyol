@@ -84,7 +84,7 @@ export default function Dashboard() {
   const renderTipoBadge = (tipo) => {
     if (tipo === 'Ingreso') {
       return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
           <ArrowDownLeft size={13} />
           Ingreso
         </span>
@@ -92,14 +92,14 @@ export default function Dashboard() {
     }
     if (tipo === 'Egreso') {
       return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
           <ArrowUpRight size={13} />
           Egreso
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
         <ArrowLeftRight size={13} />
         {tipo || 'Movimiento'}
       </span>
@@ -151,93 +151,93 @@ export default function Dashboard() {
         {/* Bloque de 3 KPIs conectados a endpoints reales */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* KPI 1: Equipos Activos (GET /api/equipos -> estadoOperativo === 'Operativo') */}
-          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-100 shadow-sm flex justify-between items-center">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-slate-100 dark:border-slate-700 shadow-sm flex justify-between items-center">
             <div>
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Equipos Activos</p>
+              <p className="text-[11px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-1">Equipos Activos</p>
               <div className="flex items-baseline gap-2">
-                <h3 className="text-2xl sm:text-3xl font-black text-slate-800">
+                <h3 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white">
                   {loading ? '...' : dashboardData.equiposActivos}
                 </h3>
-                <span className="text-xs text-slate-400 font-medium">
+                <span className="text-xs text-slate-400 dark:text-slate-400 font-medium">
                   {loading ? '' : `de ${dashboardData.totalEquipos} registrados`}
                 </span>
               </div>
-              <p className="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+              <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1 flex items-center gap-1">
                 <CheckCircle2 size={12} />
                 <span>En operación física</span>
               </p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/40 border border-blue-100 dark:border-blue-800/50 flex items-center justify-center text-blue-600 dark:text-blue-400">
               <Package size={22} />
             </div>
           </div>
 
           {/* KPI 2: Total Insumos en Catálogo (GET /api/insumos) */}
-          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-100 shadow-sm flex justify-between items-center">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-slate-100 dark:border-slate-700 shadow-sm flex justify-between items-center">
             <div>
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Catálogo de Insumos</p>
+              <p className="text-[11px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-1">Catálogo de Insumos</p>
               <div className="flex items-baseline gap-2">
-                <h3 className="text-2xl sm:text-3xl font-black text-slate-800">
+                <h3 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white">
                   {loading ? '...' : dashboardData.totalInsumos}
                 </h3>
-                <span className="text-xs text-slate-400 font-medium">
+                <span className="text-xs text-slate-400 dark:text-slate-400 font-medium">
                   {loading ? '' : `ítems activos`}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 font-medium mt-1">
+              <p className="text-[11px] text-slate-500 dark:text-slate-300 font-medium mt-1">
                 {loading ? '' : `${dashboardData.totalStockUnidades} unidades en depósito`}
               </p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600">
+            <div className="w-12 h-12 rounded-xl bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300">
               <Activity size={22} />
             </div>
           </div>
 
           {/* KPI 3: Alertas Críticas (GET /api/insumos -> stockActual <= stockSeguridad) */}
-          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-100 border-l-4 border-l-rose-500 shadow-sm flex justify-between items-center sm:col-span-2 lg:col-span-1">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-slate-100 dark:border-slate-700 border-l-4 border-l-rose-500 shadow-sm flex justify-between items-center sm:col-span-2 lg:col-span-1">
             <div>
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Alertas Críticas</p>
+              <p className="text-[11px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-1">Alertas Críticas</p>
               <div className="flex items-baseline gap-2">
-                <h3 className={`text-2xl sm:text-3xl font-black ${dashboardData.insumosCriticos > 0 ? 'text-rose-600' : 'text-slate-800'}`}>
+                <h3 className={`text-2xl sm:text-3xl font-black ${dashboardData.insumosCriticos > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-800 dark:text-white'}`}>
                   {loading ? '...' : dashboardData.insumosCriticos}
                 </h3>
-                <span className="text-xs text-slate-400 font-medium">
+                <span className="text-xs text-slate-400 dark:text-slate-400 font-medium">
                   {dashboardData.insumosCriticos === 1 ? 'insumo' : 'insumos'}
                 </span>
               </div>
-              <p className="text-xs text-rose-600 font-semibold mt-1">
+              <p className="text-xs text-rose-600 dark:text-rose-400 font-semibold mt-1">
                 {dashboardData.insumosCriticos > 0 ? 'Por debajo del umbral mínimo' : 'Inventario equilibrado'}
               </p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500">
+            <div className="w-12 h-12 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-100 dark:border-rose-900/50 flex items-center justify-center text-rose-500 dark:text-rose-400">
               <AlertTriangle size={22} />
             </div>
           </div>
         </div>
 
         {/* Sección: Distribución Mensual de Insumos (Gráfico de Barras) */}
-        <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-100 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 sm:pb-6 border-b border-slate-100 gap-3 sm:gap-4">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-slate-100 dark:border-slate-700 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 sm:pb-6 border-b border-slate-100 dark:border-slate-700 gap-3 sm:gap-4">
             <div>
-              <h4 className="text-sm sm:text-base font-bold text-slate-800 tracking-tight">Distribución Mensual de Insumos</h4>
-              <p className="text-xs text-slate-400">Histórico de suministros despachados durante el año actual</p>
+              <h4 className="text-sm sm:text-base font-bold text-slate-800 dark:text-white tracking-tight">Distribución Mensual de Insumos</h4>
+              <p className="text-xs text-slate-400 dark:text-slate-400">Histórico de suministros despachados durante el año actual</p>
             </div>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={cargarDatos}
                 title="Actualizar datos del servidor"
-                className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-2 rounded-xl transition cursor-pointer"
+                className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-xl transition cursor-pointer"
               >
                 <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
                 <span>Refrescar</span>
               </button>
               <button
                 type="button"
-                className="flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3.5 py-2 rounded-xl transition"
+                className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-gray-300 bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700/60 border border-slate-200 dark:border-slate-700 px-3.5 py-2 rounded-xl transition"
               >
                 <span>Año 2026</span>
-                <Filter size={14} className="text-slate-400" />
+                <Filter size={14} className="text-slate-400 dark:text-gray-400" />
               </button>
             </div>
           </div>
@@ -262,7 +262,7 @@ export default function Dashboard() {
                         : 'bg-slate-200 group-hover:bg-slate-300'
                     }`}
                   />
-                  <span className="text-[11px] text-slate-400 font-medium">{barra.mes}</span>
+                  <span className="text-[11px] text-slate-400 dark:text-gray-400 font-medium">{barra.mes}</span>
                 </div>
               ))}
             </div>
@@ -270,18 +270,18 @@ export default function Dashboard() {
         </div>
 
         {/* Sección: Últimos 5 Movimientos (GET /api/movimientos -> slice(0, 5)) */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 gap-3">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 dark:border-slate-700 gap-3">
             <div>
-              <h4 className="text-sm sm:text-base font-bold text-slate-800 tracking-tight">Últimos 5 Movimientos</h4>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <h4 className="text-sm sm:text-base font-bold text-slate-800 dark:text-white tracking-tight">Últimos 5 Movimientos</h4>
+              <p className="text-xs text-slate-400 dark:text-slate-400 mt-0.5">
                 Registro de ingresos y egresos recientes del almacén
               </p>
             </div>
             <button
               type="button"
               onClick={cargarDatos}
-              className="flex items-center self-start sm:self-auto gap-1.5 text-xs font-semibold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-2 rounded-xl transition cursor-pointer"
+              className="flex items-center self-start sm:self-auto gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-xl transition cursor-pointer"
             >
               <span>Actualizar lista</span>
               <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
@@ -291,7 +291,7 @@ export default function Dashboard() {
           {/* Tabla de Registros responsive con scroll horizontal asegurado */}
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs min-w-[680px]">
-              <thead className="bg-slate-50/60 text-slate-400 uppercase font-semibold border-b border-slate-100 select-none">
+              <thead className="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-200 uppercase font-bold text-[10px] border-b border-slate-100 dark:border-slate-700 select-none">
                 <tr>
                   <th className="py-3.5 px-6">Comprobante / Ref</th>
                   <th className="py-3.5 px-6">Fecha y Hora</th>
@@ -301,10 +301,10 @@ export default function Dashboard() {
                   <th className="py-3.5 px-6 text-right">Rol</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-slate-700 dark:text-slate-200">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="py-10 text-center text-slate-400">
+                    <td colSpan={6} className="py-10 text-center text-slate-400 dark:text-slate-400">
                       <div className="flex items-center justify-center gap-2 text-xs">
                         <RefreshCw size={16} className="animate-spin text-blue-600" />
                         <span>Cargando movimientos...</span>
@@ -313,13 +313,13 @@ export default function Dashboard() {
                   </tr>
                 ) : dashboardData.ultimosMovimientos.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-12 text-center text-slate-400">
+                    <td colSpan={6} className="py-12 text-center text-slate-400 dark:text-slate-400">
                       <div className="flex flex-col items-center justify-center gap-2">
-                        <div className="p-3 bg-slate-50 rounded-2xl text-slate-300">
+                        <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-2xl text-slate-300 dark:text-slate-600">
                           <Inbox size={28} />
                         </div>
-                        <p className="text-xs font-semibold text-slate-500">No hay movimientos registrados recientemente.</p>
-                        <p className="text-[11px] text-slate-400 max-w-sm">
+                        <p className="text-xs font-semibold text-slate-500 dark:text-slate-300">No hay movimientos registrados recientemente.</p>
+                        <p className="text-[11px] text-slate-400 dark:text-slate-400 max-w-sm">
                           Las transacciones de ingreso y egreso registradas aparecerán automáticamente aquí.
                         </p>
                       </div>
@@ -327,18 +327,18 @@ export default function Dashboard() {
                   </tr>
                 ) : (
                   dashboardData.ultimosMovimientos.map((mov) => (
-                    <tr key={mov.idMovimiento} className="hover:bg-slate-50/60 transition">
+                    <tr key={mov.idMovimiento} className="hover:bg-slate-50/60 dark:hover:bg-slate-700/50 transition">
                       {/* Comprobante */}
                       <td className="py-4 px-6 font-mono font-medium">
-                        <span className="bg-slate-100 text-slate-700 px-2 py-1 rounded text-[11px] font-bold">
+                        <span className="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-2 py-1 rounded text-[11px] font-bold border border-slate-200/60 dark:border-slate-600">
                           {mov.comprobanteRef || `MOV-#${mov.idMovimiento}`}
                         </span>
                       </td>
 
                       {/* Fecha y Hora */}
-                      <td className="py-4 px-6 text-slate-500 font-medium">
+                      <td className="py-4 px-6 text-slate-500 dark:text-slate-400 font-medium">
                         <div className="flex items-center gap-1.5">
-                          <Clock size={13} className="text-slate-400" />
+                          <Clock size={13} className="text-slate-400 dark:text-slate-400" />
                           <span>{mov.fechaHora}</span>
                         </div>
                       </td>
@@ -349,23 +349,23 @@ export default function Dashboard() {
                       </td>
 
                       {/* Receptor / Destino */}
-                      <td className="py-4 px-6 font-semibold text-slate-800">
+                      <td className="py-4 px-6 font-semibold text-slate-800 dark:text-white">
                         {mov.agenteReceptor || (
-                          <span className="text-slate-400 font-normal italic">Depósito Central (Ingreso)</span>
+                          <span className="text-slate-400 dark:text-slate-400 font-normal italic">Depósito Central (Ingreso)</span>
                         )}
                       </td>
 
                       {/* Operador */}
                       <td className="py-4 px-6">
-                        <div className="flex items-center gap-1.5 text-slate-700">
-                          <User size={13} className="text-slate-400" />
+                        <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-200">
+                          <User size={13} className="text-slate-400 dark:text-slate-400" />
                           <span className="font-medium">{mov.usuarioNombre || 'Sistema'}</span>
                         </div>
                       </td>
 
                       {/* Rol */}
                       <td className="py-4 px-6 text-right">
-                        <span className="bg-slate-100 text-slate-600 font-medium px-2.5 py-1 rounded-full text-[11px]">
+                        <span className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 font-medium px-2.5 py-1 rounded-full text-[11px] border border-slate-200/60 dark:border-slate-600">
                           {mov.usuarioRol || 'Operador'}
                         </span>
                       </td>

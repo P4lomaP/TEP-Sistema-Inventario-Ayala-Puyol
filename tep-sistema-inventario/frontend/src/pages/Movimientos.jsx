@@ -479,13 +479,9 @@ export default function Movimientos() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">
-                <ArrowRightLeft size={12} />
-                Gestión de Salidas y Egresos
-              </span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">Registro de Movimientos</h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-gray-100 tracking-tight">Registro de Movimientos</h2>
+            <p className="text-xs text-slate-500 dark:text-gray-300 mt-0.5">
               Asigne insumos y repuestos a equipos patrimoniales u oficinas con control de compatibilidad.
             </p>
           </div>
@@ -496,7 +492,7 @@ export default function Movimientos() {
               onClick={handleExportarPDF}
               disabled={exportandoPDF}
               title="Descargar reporte oficial consolidado de movimientos en PDF (PDFKit)"
-              className="flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-gray-200 text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer disabled:opacity-50"
             >
               <Download size={14} className={exportandoPDF ? 'animate-spin text-blue-600' : ''} />
               <span>{exportandoPDF ? 'Exportando...' : 'Reporte Movimientos PDF'}</span>
@@ -505,7 +501,7 @@ export default function Movimientos() {
               <button
                 type="button"
                 onClick={handleNuevoMovimiento}
-                className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-gray-200 text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer"
               >
                 <RefreshCw size={13} />
                 <span>Limpiar Formulario</span>
@@ -524,15 +520,15 @@ export default function Movimientos() {
           <div className="lg:col-span-2 space-y-6">
             
             {/* SECCIÓN 1: Destino del Movimiento (Equipo y Sector) */}
-            <div className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-100 shadow-sm space-y-5">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 sm:p-7 border border-slate-100 dark:border-slate-700 shadow-sm space-y-5">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700">
                 <div className="flex items-center gap-2.5">
                   <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
                     <Laptop size={18} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-800">1. Destino del Movimiento</h3>
-                    <p className="text-[11px] text-slate-400">Equipo patrimonial u oficina física que recibe el insumo.</p>
+                    <h3 className="text-sm font-bold text-slate-800 dark:text-gray-100">1. Destino del Movimiento</h3>
+                    <p className="text-[11px] text-slate-400 dark:text-gray-400">Equipo patrimonial u oficina física que recibe el insumo.</p>
                   </div>
                 </div>
                 {equipoSeleccionado && (
@@ -544,11 +540,11 @@ export default function Movimientos() {
 
               {/* Buscador Fluido de Equipo Destino (Sin bloqueo ni botón Cambiar manual) */}
               <div className="relative" onClick={(e) => e.stopPropagation()}>
-                <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                <label className="block text-[11px] font-bold text-slate-600 dark:text-gray-300 uppercase tracking-wider mb-1.5">
                   Código o Nombre de Equipo Destino (Opcional)
                 </label>
                 <div className="relative">
-                  <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-400" />
                   <input
                     type="text"
                     value={equipoTexto}
@@ -566,13 +562,13 @@ export default function Movimientos() {
                       }
                     }}
                     placeholder="Ej. TEP-PC-042, Dell OptiPlex, HP LaserJet..."
-                    className="w-full pl-10 pr-10 py-2.5 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/40 focus:bg-white transition"
+                    className="w-full pl-10 pr-10 py-2.5 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/40 focus:bg-white transition dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                   />
                   {equipoTexto && (
                     <button
                       type="button"
                       onClick={handleLimpiarEquipo}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-400 hover:text-slate-600 p-0.5 cursor-pointer"
                       title="Limpiar equipo"
                     >
                       <X size={14} />
@@ -582,8 +578,8 @@ export default function Movimientos() {
 
                 {/* Desplegable de Coincidencias de Equipos (Aparece abajo del campo) */}
                 {showEquipoDropdown && sugerenciasEquipos.length > 0 && (
-                  <div className="absolute z-30 left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-56 overflow-y-auto divide-y divide-slate-100 animate-in fade-in-50 duration-150">
-                    <div className="p-2 bg-slate-50/70 text-[10px] font-bold uppercase text-slate-400">
+                  <div className="absolute z-30 left-0 right-0 mt-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl max-h-56 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 animate-in fade-in-50 duration-150">
+                    <div className="p-2 bg-slate-50/70 dark:bg-slate-700/50 text-[10px] font-bold uppercase text-slate-400 dark:text-gray-400">
                       Equipos Disponibles ({sugerenciasEquipos.length})
                     </div>
                     {sugerenciasEquipos.map((eq) => {
@@ -601,15 +597,15 @@ export default function Movimientos() {
                             </span>
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className="font-bold text-slate-800">{eq.marcaModelo}</span>
+                                <span className="font-bold text-slate-800 dark:text-gray-100">{eq.marcaModelo}</span>
                                 {eq.codPatrimonial && (
-                                  <span className="font-mono text-[10px] font-semibold bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded">
+                                  <span className="font-mono text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-200 px-1.5 py-0.2 rounded">
                                     {eq.codPatrimonial}
                                   </span>
                                 )}
                               </div>
-                              <p className="text-[11px] text-slate-400 mt-0.5">
-                                Sector: <span className="font-medium text-slate-600">{eq.nombreSector || eq.nombreOficina || 'Sin asignar'}</span>
+                              <p className="text-[11px] text-slate-400 dark:text-gray-400 mt-0.5">
+                                Sector: <span className="font-medium text-slate-600 dark:text-gray-300">{eq.nombreSector || eq.nombreOficina || 'Sin asignar'}</span>
                               </p>
                             </div>
                           </div>
@@ -626,15 +622,15 @@ export default function Movimientos() {
               {/* Selectores: Sector Físico y Receptor Oficial */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-[11px] font-bold text-slate-600 dark:text-gray-300 uppercase tracking-wider mb-1.5">
                     Sector o Dependencia (*)
                   </label>
                   <div className="relative">
-                    <Building2 size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Building2 size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-400" />
                     <select
                       value={sector}
                       onChange={(e) => setSector(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none bg-white text-slate-700 cursor-pointer"
+                      className="w-full pl-10 pr-4 py-2.5 text-xs border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:outline-none bg-white dark:bg-slate-800 text-slate-700 dark:text-gray-200 cursor-pointer"
                     >
                       <option value="">Seleccione Sector / Oficina</option>
                       {listaSectores.map((sec, idx) => (
@@ -645,17 +641,17 @@ export default function Movimientos() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-[11px] font-bold text-slate-600 dark:text-gray-300 uppercase tracking-wider mb-1.5">
                     Persona Receptora / Solicitante
                   </label>
                   <div className="relative">
-                    <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-400" />
                     <input
                       type="text"
                       value={receptor}
                       onChange={(e) => setReceptor(e.target.value)}
                       placeholder="Ej. Dr. Roberto Gómez / Lic. Martha Pérez"
-                      className="w-full pl-10 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none"
+                      className="w-full pl-10 pr-3 py-2.5 text-xs border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -663,18 +659,18 @@ export default function Movimientos() {
             </div>
 
             {/* SECCIÓN 2: Selección y Carga de Insumos */}
-            <div className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-100 shadow-sm space-y-5">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 sm:p-7 border border-slate-100 dark:border-slate-700 shadow-sm space-y-5">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700">
                 <div className="flex items-center gap-2.5">
                   <div className="p-2 bg-amber-50 text-amber-600 rounded-xl">
                     <Package size={18} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-800">2. Selección y Carga de Insumos</h3>
-                    <p className="text-[11px] text-slate-400">Busque el insumo en catálogo, elija la cantidad y presione Añadir.</p>
+                    <h3 className="text-sm font-bold text-slate-800 dark:text-gray-100">2. Selección y Carga de Insumos</h3>
+                    <p className="text-[11px] text-slate-400 dark:text-gray-400">Busque el insumo en catálogo, elija la cantidad y presione Añadir.</p>
                   </div>
                 </div>
-                <span className="text-[11px] font-semibold text-slate-500">
+                <span className="text-[11px] font-semibold text-slate-500 dark:text-gray-300">
                   {catalogoInsumos.length} insumos en catálogo
                 </span>
               </div>
@@ -682,11 +678,11 @@ export default function Movimientos() {
               {/* Buscador Predictivo de Insumos */}
               {!insumoSeleccionado ? (
                 <div className="relative" onClick={(e) => e.stopPropagation()}>
-                  <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                  <label className="block text-[11px] font-bold text-slate-600 dark:text-gray-300 uppercase tracking-wider mb-1.5">
                     Código o Nombre del Insumo (*)
                   </label>
                   <div className="relative">
-                    <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-400" />
                     <input
                       type="text"
                       value={insumoTexto}
@@ -696,13 +692,13 @@ export default function Movimientos() {
                       }}
                       onFocus={() => setShowInsumoDropdown(true)}
                       placeholder="Ej. TON-HP-85A, Tóner, Resma A4, Cable HDMI..."
-                      className="w-full pl-10 pr-10 py-2.5 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/40 focus:bg-white transition"
+                      className="w-full pl-10 pr-10 py-2.5 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/40 focus:bg-white transition dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                     />
                     {insumoTexto && (
                       <button
                         type="button"
                         onClick={handleLimpiarInsumo}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-400 hover:text-slate-600 p-0.5 cursor-pointer"
                       >
                         <X size={14} />
                       </button>
@@ -711,8 +707,8 @@ export default function Movimientos() {
 
                   {/* Desplegable de Coincidencias de Insumos (Aparece abajo del campo) */}
                   {showInsumoDropdown && sugerenciasInsumos.length > 0 && (
-                    <div className="absolute z-30 left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-60 overflow-y-auto divide-y divide-slate-100 animate-in fade-in-50 duration-150">
-                      <div className="p-2 bg-slate-50/70 text-[10px] font-bold uppercase text-slate-400">
+                    <div className="absolute z-30 left-0 right-0 mt-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 animate-in fade-in-50 duration-150">
+                      <div className="p-2 bg-slate-50/70 dark:bg-slate-700/50 text-[10px] font-bold uppercase text-slate-400 dark:text-gray-400">
                         Coincidencias en Catálogo ({sugerenciasInsumos.length})
                       </div>
                       {sugerenciasInsumos.map((item) => (
@@ -720,15 +716,15 @@ export default function Movimientos() {
                           key={item.idInsumo || item.codigoInterno}
                           type="button"
                           onClick={() => handleSeleccionarInsumo(item)}
-                          className="w-full text-left px-4 py-3 text-xs hover:bg-slate-50 flex items-center justify-between transition cursor-pointer"
+                          className="w-full text-left px-4 py-3 text-xs hover:bg-slate-50 dark:hover:bg-slate-700/60 flex items-center justify-between transition cursor-pointer"
                         >
                           <div className="flex items-center gap-3">
-                            <span className="p-1.5 bg-slate-100 text-slate-600 rounded-lg shrink-0">
+                            <span className="p-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-gray-300 rounded-lg shrink-0">
                               <Layers size={14} />
                             </span>
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className="font-bold text-slate-800">{item.descripcion}</span>
+                                <span className="font-bold text-slate-800 dark:text-gray-100">{item.descripcion}</span>
                                 <span className="font-mono text-[10px] text-blue-700 bg-blue-50 border border-blue-100 px-1.5 py-0.2 rounded font-bold">
                                   {item.codigoInterno}
                                 </span>
@@ -744,8 +740,8 @@ export default function Movimientos() {
                                   </span>
                                 )}
                               </div>
-                              <p className="text-[11px] text-slate-400 mt-0.5">
-                                Categoría: <span className="font-medium text-slate-600">{item.categoria}</span> • Stock actual: <span className={`font-bold ${item.stockActual <= 3 ? 'text-amber-600' : 'text-emerald-700'}`}>{item.stockActual} un.</span>
+                              <p className="text-[11px] text-slate-400 dark:text-gray-400 mt-0.5">
+                                Categoría: <span className="font-medium text-slate-600 dark:text-gray-300">{item.categoria}</span> • Stock actual: <span className={`font-bold ${item.stockActual <= 3 ? 'text-amber-600' : 'text-emerald-700'}`}>{item.stockActual} un.</span>
                               </p>
                             </div>
                           </div>
@@ -759,25 +755,25 @@ export default function Movimientos() {
                 </div>
               ) : (
                 /* Ficha Activa del Insumo Seleccionado + Cantidad + BOTÓN DE AÑADIR */
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3.5 animate-in fade-in-50 duration-150">
+                <div className="p-4 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-2xl space-y-3.5 animate-in fade-in-50 duration-150">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Insumo a Incorporar</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-gray-400">Insumo a Incorporar</span>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-xs font-bold text-slate-800">{insumoSeleccionado.descripcion}</span>
-                        <span className="font-mono text-[10px] font-bold bg-white text-slate-700 px-2 py-0.5 rounded border border-slate-200">
+                        <span className="text-xs font-bold text-slate-800 dark:text-gray-100">{insumoSeleccionado.descripcion}</span>
+                        <span className="font-mono text-[10px] font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-gray-200 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                           {insumoSeleccionado.codigoInterno}
                         </span>
                       </div>
-                      <span className="text-[11px] text-slate-500">
-                        Disponibilidad en almacén: <strong className="text-slate-800">{insumoSeleccionado.stockActual} unidades</strong>
+                      <span className="text-[11px] text-slate-500 dark:text-gray-300">
+                        Disponibilidad en almacén: <strong className="text-slate-800 dark:text-gray-100">{insumoSeleccionado.stockActual} unidades</strong>
                       </span>
                     </div>
 
                     <button
                       type="button"
                       onClick={handleLimpiarInsumo}
-                      className="text-xs text-slate-500 hover:text-slate-800 font-semibold px-2.5 py-1 bg-white border border-slate-200 rounded-lg transition cursor-pointer"
+                      className="text-xs text-slate-500 dark:text-gray-300 hover:text-slate-800 font-semibold px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg transition cursor-pointer"
                     >
                       Elegir otro
                     </button>
@@ -802,14 +798,14 @@ export default function Movimientos() {
                   )}
 
                   {/* Controles: Cantidad y Botón Explícito para Añadir */}
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 border-t border-slate-200">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 border-t border-slate-200 dark:border-slate-700">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold text-slate-600">Cantidad a entregar:</span>
-                      <div className="flex items-center border border-slate-200 bg-white rounded-xl overflow-hidden">
+                      <span className="text-xs font-semibold text-slate-600 dark:text-gray-300">Cantidad a entregar:</span>
+                      <div className="flex items-center border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl overflow-hidden">
                         <button
                           type="button"
                           onClick={() => setCantidadAñadir(Math.max(1, cantidadAñadir - 1))}
-                          className="px-2.5 py-1.5 text-slate-500 hover:bg-slate-100 transition cursor-pointer"
+                          className="px-2.5 py-1.5 text-slate-500 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition cursor-pointer"
                         >
                           <Minus size={13} />
                         </button>
@@ -824,12 +820,12 @@ export default function Movimientos() {
                               setCantidadAñadir(Math.min(insumoSeleccionado.stockActual, Math.max(1, val)));
                             }
                           }}
-                          className="w-12 text-center text-xs font-bold text-slate-800 focus:outline-none"
+                          className="w-12 text-center text-xs font-bold text-slate-800 dark:text-gray-100 focus:outline-none"
                         />
                         <button
                           type="button"
                           onClick={() => setCantidadAñadir(Math.min(insumoSeleccionado.stockActual, cantidadAñadir + 1))}
-                          className="px-2.5 py-1.5 text-slate-500 hover:bg-slate-100 transition cursor-pointer"
+                          className="px-2.5 py-1.5 text-slate-500 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition cursor-pointer"
                         >
                           <Plus size={13} />
                         </button>
@@ -867,19 +863,19 @@ export default function Movimientos() {
               {/* SECCIÓN 3: Tabla de Artículos Cargados en la Transacción */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+                  <p className="text-[11px] font-bold text-slate-600 dark:text-gray-300 uppercase tracking-wider">
                     Insumos en esta orden ({articulos.length})
                   </p>
                   {articulos.length > 0 && (
-                    <span className="text-xs font-semibold text-slate-500">
-                      Total unidades: <strong className="text-slate-800">{totalUnidades}</strong>
+                    <span className="text-xs font-semibold text-slate-500 dark:text-gray-300">
+                      Total unidades: <strong className="text-slate-800 dark:text-gray-100">{totalUnidades}</strong>
                     </span>
                   )}
                 </div>
 
-                <div className="border border-slate-100 rounded-2xl overflow-hidden bg-white">
+                <div className="border border-slate-100 dark:border-slate-700 rounded-2xl overflow-hidden bg-white dark:bg-slate-800">
                   <table className="w-full text-left text-xs min-w-[550px]">
-                    <thead className="bg-slate-50/80 text-slate-400 uppercase font-semibold text-[10px] border-b border-slate-100 select-none">
+                    <thead className="bg-slate-50/80 text-slate-400 dark:text-gray-400 uppercase font-semibold text-[10px] border-b border-slate-100 dark:border-slate-700 select-none">
                       <tr>
                         <th className="py-3.5 px-4">Código</th>
                         <th className="py-3.5 px-4">Descripción del Insumo</th>
@@ -888,14 +884,14 @@ export default function Movimientos() {
                         <th className="py-3.5 px-4 text-right">Acción</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 text-slate-700">
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-slate-700 dark:text-gray-200">
                       {articulos.length === 0 ? (
                         <tr>
-                          <td colSpan={5} className="py-8 text-center text-slate-400 text-xs">
+                          <td colSpan={5} className="py-8 text-center text-slate-400 dark:text-gray-400 text-xs">
                             <div className="flex flex-col items-center justify-center gap-1.5">
                               <Package size={22} className="text-slate-300" />
-                              <span className="font-medium text-slate-500">Aún no ha agregado insumos a la orden de egreso.</span>
-                              <span className="text-[11px] text-slate-400">Seleccione destino e insumo arriba, elija cantidad y presione "Añadir Insumo a la Lista".</span>
+                              <span className="font-medium text-slate-500 dark:text-gray-300">Aún no ha agregado insumos a la orden de egreso.</span>
+                              <span className="text-[11px] text-slate-400 dark:text-gray-400">Seleccione destino e insumo arriba, elija cantidad y presione "Añadir Insumo a la Lista".</span>
                             </div>
                           </td>
                         </tr>
@@ -908,38 +904,38 @@ export default function Movimientos() {
                               </span>
                             </td>
                             <td className="py-3.5 px-4">
-                              <span className="font-semibold text-slate-800">{item.descripcion}</span>
+                              <span className="font-semibold text-slate-800 dark:text-gray-100">{item.descripcion}</span>
                               {item.categoria && (
-                                <span className="ml-2 text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-medium">
+                                <span className="ml-2 text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-gray-300 px-1.5 py-0.5 rounded font-medium">
                                   {item.categoria}
                                 </span>
                               )}
                             </td>
                             <td className="py-3.5 px-4">
                               <div className="flex flex-col">
-                                <span className="font-medium text-slate-800 text-xs">{item.destino}</span>
-                                <span className="text-[10px] text-slate-400">
-                                  Sector: <span className="font-semibold text-slate-600">{item.sector}</span>
+                                <span className="font-medium text-slate-800 dark:text-gray-100 text-xs">{item.destino}</span>
+                                <span className="text-[10px] text-slate-400 dark:text-gray-400">
+                                  Sector: <span className="font-semibold text-slate-600 dark:text-gray-300">{item.sector}</span>
                                   {item.receptor && item.receptor !== 'No especificado' ? ` • Receptor: ${item.receptor}` : ''}
                                 </span>
                               </div>
                             </td>
                             <td className="py-3.5 px-4 text-center">
-                              <div className="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-2 py-1 rounded-lg">
+                              <div className="inline-flex items-center gap-1.5 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 px-2 py-1 rounded-lg">
                                 <button
                                   type="button"
                                   onClick={() => handleModificarCantidad(idx, -1)}
-                                  className="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                                  className="text-slate-400 dark:text-gray-400 hover:text-slate-600 p-0.5 cursor-pointer"
                                 >
                                   <Minus size={11} />
                                 </button>
-                                <span className="font-bold text-slate-800 text-xs min-w-[18px]">
+                                <span className="font-bold text-slate-800 dark:text-gray-100 text-xs min-w-[18px]">
                                   {item.cantidad}
                                 </span>
                                 <button
                                   type="button"
                                   onClick={() => handleModificarCantidad(idx, 1)}
-                                  className="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                                  className="text-slate-400 dark:text-gray-400 hover:text-slate-600 p-0.5 cursor-pointer"
                                 >
                                   <Plus size={11} />
                                 </button>
@@ -949,7 +945,7 @@ export default function Movimientos() {
                               <button
                                 type="button"
                                 onClick={() => handleEliminarItem(idx)}
-                                className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition cursor-pointer"
+                                className="text-slate-400 dark:text-gray-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition cursor-pointer"
                                 title="Quitar de la orden"
                               >
                                 <Trash2 size={15} />
@@ -971,41 +967,41 @@ export default function Movimientos() {
           <div className="space-y-6">
             
             {/* Tarjeta de Resumen de Operación */}
-            <div className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200 shadow-sm space-y-5">
-              <div className="flex items-center gap-2.5 pb-4 border-b border-slate-100 text-slate-800">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 sm:p-7 border border-slate-200 dark:border-slate-700 shadow-sm space-y-5">
+              <div className="flex items-center gap-2.5 pb-4 border-b border-slate-100 dark:border-slate-700 text-slate-800 dark:text-gray-100">
                 <FileText size={18} className="text-blue-600" />
                 <h3 className="text-sm font-bold">Resumen de la Transacción</h3>
               </div>
 
               {/* Metadatos */}
               <div className="space-y-3 text-xs">
-                <div className="flex justify-between items-center text-slate-500">
+                <div className="flex justify-between items-center text-slate-500 dark:text-gray-300">
                   <span>Tipo de Operación</span>
                   <span className="font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 text-[11px]">
                     EGRESO / SALIDA
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-slate-500">
+                <div className="flex justify-between items-center text-slate-500 dark:text-gray-300">
                   <span>Destino / Asignación</span>
-                  <span className="font-semibold text-slate-800 text-right max-w-[160px] truncate" title={equipoSeleccionado?.marcaModelo || (articulos.length > 0 ? articulos[articulos.length - 1].destino : (sector || 'No especificado'))}>
+                  <span className="font-semibold text-slate-800 dark:text-gray-100 text-right max-w-[160px] truncate" title={equipoSeleccionado?.marcaModelo || (articulos.length > 0 ? articulos[articulos.length - 1].destino : (sector || 'No especificado'))}>
                     {equipoSeleccionado ? equipoSeleccionado.marcaModelo : (articulos.length > 0 ? articulos[articulos.length - 1].destino : (sector || 'No especificado'))}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-slate-500">
+                <div className="flex justify-between items-center text-slate-500 dark:text-gray-300">
                   <span>Sector Asignado</span>
-                  <span className="font-semibold text-slate-800 text-right max-w-[160px] truncate">
+                  <span className="font-semibold text-slate-800 dark:text-gray-100 text-right max-w-[160px] truncate">
                     {sector || (articulos.length > 0 ? articulos[articulos.length - 1].sector : 'Sin sector')}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-slate-500">
+                <div className="flex justify-between items-center text-slate-500 dark:text-gray-300">
                   <span>Ítems Diferentes</span>
-                  <span className="font-bold text-slate-800">{totalItemsDiferentes}</span>
+                  <span className="font-bold text-slate-800 dark:text-gray-100">{totalItemsDiferentes}</span>
                 </div>
-                <div className="flex justify-between items-center text-slate-500">
+                <div className="flex justify-between items-center text-slate-500 dark:text-gray-300">
                   <span>Unidades Totales</span>
                   <span className="font-bold text-blue-700 text-sm">{totalUnidades} un.</span>
                 </div>
-                <div className="flex justify-between items-center text-slate-500">
+                <div className="flex justify-between items-center text-slate-500 dark:text-gray-300">
                   <span>Estado de la Orden</span>
                   <span className={`font-semibold px-2 py-0.5 rounded text-[11px] ${
                     estadoTransaccion === 'Completada'
@@ -1019,7 +1015,7 @@ export default function Movimientos() {
 
               {/* Notas Internas / Motivo del Egreso */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                <label className="block text-[11px] font-bold text-slate-500 dark:text-gray-300 uppercase tracking-wider mb-1.5">
                   Motivo o Justificación del Egreso
                 </label>
                 <textarea
@@ -1027,7 +1023,7 @@ export default function Movimientos() {
                   value={notas}
                   onChange={(e) => setNotas(e.target.value)}
                   placeholder="Ej. Reemplazo de tóner por agotamiento para impresión de actas electorales..."
-                  className="w-full p-3 text-xs border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:border-blue-600 resize-none bg-slate-50/50"
+                  className="w-full p-3 text-xs border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-gray-200 focus:outline-none focus:border-blue-600 resize-none bg-slate-50/50 dark:bg-slate-700/50"
                 />
               </div>
 
@@ -1063,7 +1059,7 @@ export default function Movimientos() {
                   type="button"
                   onClick={() => mostrarToast('Generando Acta Oficial de Entrega en formato PDF...')}
                   disabled={articulos.length === 0}
-                  className="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-full py-2.5 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-gray-200 font-semibold text-xs rounded-xl transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <FileText size={15} />
                   <span>Generar Acta de Entrega PDF</span>
@@ -1072,45 +1068,45 @@ export default function Movimientos() {
             </div>
 
             {/* Tarjeta de Herramientas Rápidas */}
-            <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm">
+              <p className="text-[11px] font-bold text-slate-400 dark:text-gray-400 uppercase tracking-wider mb-3">
                 Accesos Directos
               </p>
               <div className="space-y-1">
                 <button
                   type="button"
                   onClick={() => navigate('/dashboard')}
-                  className="w-full flex items-center justify-between p-2.5 text-xs font-medium text-slate-600 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition cursor-pointer"
+                  className="w-full flex items-center justify-between p-2.5 text-xs font-medium text-slate-600 dark:text-gray-300 hover:text-blue-600 hover:bg-slate-50 dark:hover:bg-slate-700/60 rounded-xl transition cursor-pointer"
                 >
                   <div className="flex items-center gap-2.5">
-                    <History size={16} className="text-slate-400" />
+                    <History size={16} className="text-slate-400 dark:text-gray-400" />
                     <span>Ver Últimos Movimientos (Dashboard)</span>
                   </div>
-                  <ChevronRight size={14} className="text-slate-400" />
+                  <ChevronRight size={14} className="text-slate-400 dark:text-gray-400" />
                 </button>
 
                 <button
                   type="button"
                   onClick={() => navigate('/insumos')}
-                  className="w-full flex items-center justify-between p-2.5 text-xs font-medium text-slate-600 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition cursor-pointer"
+                  className="w-full flex items-center justify-between p-2.5 text-xs font-medium text-slate-600 dark:text-gray-300 hover:text-blue-600 hover:bg-slate-50 dark:hover:bg-slate-700/60 rounded-xl transition cursor-pointer"
                 >
                   <div className="flex items-center gap-2.5">
-                    <Package size={16} className="text-slate-400" />
+                    <Package size={16} className="text-slate-400 dark:text-gray-400" />
                     <span>Catálogo de Insumos</span>
                   </div>
-                  <ChevronRight size={14} className="text-slate-400" />
+                  <ChevronRight size={14} className="text-slate-400 dark:text-gray-400" />
                 </button>
 
                 <button
                   type="button"
                   onClick={() => navigate('/equipos')}
-                  className="w-full flex items-center justify-between p-2.5 text-xs font-medium text-slate-600 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition cursor-pointer"
+                  className="w-full flex items-center justify-between p-2.5 text-xs font-medium text-slate-600 dark:text-gray-300 hover:text-blue-600 hover:bg-slate-50 dark:hover:bg-slate-700/60 rounded-xl transition cursor-pointer"
                 >
                   <div className="flex items-center gap-2.5">
-                    <Cpu size={16} className="text-slate-400" />
+                    <Cpu size={16} className="text-slate-400 dark:text-gray-400" />
                     <span>Catálogo de Equipos</span>
                   </div>
-                  <ChevronRight size={14} className="text-slate-400" />
+                  <ChevronRight size={14} className="text-slate-400 dark:text-gray-400" />
                 </button>
               </div>
             </div>
@@ -1120,30 +1116,30 @@ export default function Movimientos() {
         </div>
 
         {/* ================= SECCIÓN INFERIOR: Historial Reciente de Salidas Registradas ================= */}
-        <div className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-100 shadow-sm space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 sm:p-7 border border-slate-100 dark:border-slate-700 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-700">
             <div className="flex items-center gap-2.5">
               <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
                 <History size={18} />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-800">Últimos Movimientos de Almacén Registrados</h3>
-                <p className="text-[11px] text-slate-400">
+                <h3 className="text-sm font-bold text-slate-800 dark:text-gray-100">Últimos Movimientos de Almacén Registrados</h3>
+                <p className="text-[11px] text-slate-400 dark:text-gray-400">
                   Historial de entregas y remitos oficiales generados.
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500">
-                Total registrados: <strong className="text-slate-800">{historialMovimientos.length}</strong>
+              <span className="text-xs text-slate-500 dark:text-gray-300">
+                Total registrados: <strong className="text-slate-800 dark:text-gray-100">{historialMovimientos.length}</strong>
               </span>
             </div>
           </div>
 
-          <div className="border border-slate-100 rounded-2xl overflow-hidden bg-white">
+          <div className="border border-slate-100 dark:border-slate-700 rounded-2xl overflow-hidden bg-white dark:bg-slate-800">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs min-w-[650px]">
-                <thead className="bg-slate-50/80 text-slate-400 uppercase font-semibold text-[10px] border-b border-slate-100 select-none">
+                <thead className="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 uppercase font-semibold text-[10px] border-b border-slate-200 dark:border-slate-700 select-none">
                   <tr>
                     <th className="py-3.5 px-4">Comprobante</th>
                     <th className="py-3.5 px-4">Tipo</th>
@@ -1154,10 +1150,10 @@ export default function Movimientos() {
                     <th className="py-3.5 px-4 text-right">Detalles</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-slate-700 dark:text-gray-200">
                   {historialMovimientos.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="py-8 text-center text-slate-400 text-xs">
+                      <td colSpan={7} className="py-8 text-center text-slate-400 dark:text-gray-400 text-xs">
                         No hay movimientos registrados aún.
                       </td>
                     </tr>
@@ -1176,13 +1172,13 @@ export default function Movimientos() {
                             {mov.tipoMovimiento}
                           </span>
                         </td>
-                        <td className="py-3.5 px-4 text-slate-500 font-mono text-[11px]">
+                        <td className="py-3.5 px-4 text-slate-500 dark:text-gray-300 font-mono text-[11px]">
                           {mov.fechaHora}
                         </td>
-                        <td className="py-3.5 px-4 font-medium text-slate-800">
+                        <td className="py-3.5 px-4 font-medium text-slate-800 dark:text-white">
                           {mov.agenteReceptor || 'No especificado'}
                         </td>
-                        <td className="py-3.5 px-4 text-slate-600 text-[11px]">
+                        <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 text-[11px]">
                           {mov.usuarioNombre || 'Administrador'}
                         </td>
                         <td className="py-3.5 px-4 text-center">
@@ -1215,7 +1211,7 @@ export default function Movimientos() {
                                   mostrarToast(`Error: ${err.message || 'No se pudo descargar el PDF.'}`);
                                 }
                               }}
-                              className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer"
+                              className="p-1.5 text-slate-500 dark:text-gray-300 hover:text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer"
                             >
                               <Download size={14} />
                             </button>
@@ -1233,8 +1229,8 @@ export default function Movimientos() {
         {/* Modal de Detalle de Movimiento */}
         {movimientoDetalleModal && (
           <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
-            <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 space-y-5">
-              <div className="flex items-start justify-between pb-3 border-b border-slate-100">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-5">
+              <div className="flex items-start justify-between pb-3 border-b border-slate-100 dark:border-slate-700">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-blue-50 text-blue-700 rounded-xl">
                     <FileText size={22} />
@@ -1243,7 +1239,7 @@ export default function Movimientos() {
                     <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600">
                       Ficha de Movimiento Registrado
                     </span>
-                    <h3 className="text-base font-bold text-slate-800 leading-tight">
+                    <h3 className="text-base font-bold text-slate-800 dark:text-gray-100 leading-tight">
                       Comprobante: {movimientoDetalleModal.comprobanteRef}
                     </h3>
                   </div>
@@ -1251,36 +1247,36 @@ export default function Movimientos() {
                 <button
                   type="button"
                   onClick={() => setMovimientoDetalleModal(null)}
-                  className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 cursor-pointer"
+                  className="text-slate-400 dark:text-gray-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/60 cursor-pointer"
                 >
                   <X size={18} />
                 </button>
               </div>
 
               {/* Encabezado del movimiento */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-slate-50 p-3.5 rounded-xl">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-slate-50 dark:bg-slate-700/50 p-3.5 rounded-xl">
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Operación</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-gray-400 block mb-0.5">Operación</span>
                   <span className="font-bold text-amber-700">{movimientoDetalleModal.tipoMovimiento}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Fecha y Hora</span>
-                  <span className="font-mono text-slate-700">{movimientoDetalleModal.fechaHora}</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-gray-400 block mb-0.5">Fecha y Hora</span>
+                  <span className="font-mono text-slate-700 dark:text-gray-200">{movimientoDetalleModal.fechaHora}</span>
                 </div>
                 <div className="col-span-2">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Destino / Solicitante</span>
-                  <span className="font-semibold text-slate-800 truncate block">{movimientoDetalleModal.agenteReceptor || 'General'}</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-gray-400 block mb-0.5">Destino / Solicitante</span>
+                  <span className="font-semibold text-slate-800 dark:text-gray-100 truncate block">{movimientoDetalleModal.agenteReceptor || 'General'}</span>
                 </div>
               </div>
 
               {/* Tabla de artículos del movimiento */}
               <div>
-                <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                <h4 className="text-xs font-bold text-slate-700 dark:text-gray-200 uppercase tracking-wider mb-2">
                   Insumos Afectados ({movimientoDetalleModal.detalles?.length || 0})
                 </h4>
-                <div className="border border-slate-100 rounded-xl overflow-hidden max-h-52 overflow-y-auto">
+                <div className="border border-slate-100 dark:border-slate-700 rounded-xl overflow-hidden max-h-52 overflow-y-auto">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-50 text-slate-400 uppercase font-semibold text-[10px] border-b border-slate-100">
+                    <thead className="bg-slate-50 dark:bg-slate-700/50 text-slate-400 dark:text-gray-400 uppercase font-semibold text-[10px] border-b border-slate-100 dark:border-slate-700">
                       <tr>
                         <th className="py-2.5 px-3">Código</th>
                         <th className="py-2.5 px-3">Descripción</th>
@@ -1288,12 +1284,12 @@ export default function Movimientos() {
                         <th className="py-2.5 px-3 text-center">Cantidad</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 text-slate-700">
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-slate-700 dark:text-gray-200">
                       {(movimientoDetalleModal.detalles || []).map((det, idx) => (
                         <tr key={idx}>
                           <td className="py-2.5 px-3 font-mono font-bold text-blue-700">{det.codigoInterno}</td>
-                          <td className="py-2.5 px-3 font-semibold text-slate-800">{det.insumoDescripcion}</td>
-                          <td className="py-2.5 px-3 text-slate-500">
+                          <td className="py-2.5 px-3 font-semibold text-slate-800 dark:text-gray-100">{det.insumoDescripcion}</td>
+                          <td className="py-2.5 px-3 text-slate-500 dark:text-gray-300">
                             {det.equipoModelo ? `${det.equipoModelo} (${det.equipoCodPatrimonial || 'S/C'})` : 'Sin equipo'}
                           </td>
                           <td className="py-2.5 px-3 text-center font-bold text-blue-800">{det.cantidadAfectada} un.</td>
@@ -1341,7 +1337,7 @@ export default function Movimientos() {
         )}
 
         {/* Pie Institucional */}
-        <div className="text-center pt-8 pb-2 text-[11px] text-slate-400 tracking-wider">
+        <div className="text-center pt-8 pb-2 text-[11px] text-slate-400 dark:text-gray-400 tracking-wider">
           © 2026 TRIBUNAL ELECTORAL PERMANENTE • MÓDULO DE MOVIMIENTOS Y EGRESOS
         </div>
 

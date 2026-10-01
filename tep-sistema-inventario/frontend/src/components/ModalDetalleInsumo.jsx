@@ -129,25 +129,25 @@ export default function ModalDetalleInsumo({
       onClick={onClose}
     >
       <div 
-        className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100 max-h-[90vh] flex flex-col"
+        className="relative w-full max-w-xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-700 max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ENCABEZADO */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/70 dark:bg-slate-800">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-600/10 text-blue-600 rounded-xl">
               {isEditing ? <Edit3 size={20} /> : <Box size={20} />}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-slate-800">
+                <h3 className="text-base font-bold text-slate-800 dark:text-gray-100">
                   {isEditing ? 'Editar Ficha de Insumo' : 'Detalles del Insumo'}
                 </h3>
-                <span className="bg-slate-200/70 text-slate-700 text-[10px] font-mono font-bold px-2 py-0.5 rounded">
+                <span className="bg-slate-200/70 text-slate-700 dark:text-gray-200 text-[10px] font-mono font-bold px-2 py-0.5 rounded">
                   {formData.codigoInterno}
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-400 dark:text-gray-400">
                 {isEditing ? 'Modifique los valores técnicos y guarde' : 'Información detallada registrada en el sistema'}
               </p>
             </div>
@@ -155,7 +155,7 @@ export default function ModalDetalleInsumo({
           <button 
             type="button" 
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+            className="text-slate-400 dark:text-gray-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/60 transition cursor-pointer"
             aria-label="Cerrar modal"
           >
             <X size={18} />
@@ -176,23 +176,23 @@ export default function ModalDetalleInsumo({
             <form id="form-edit-insumo" onSubmit={handleSaveEdit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Código Interno</label>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Código Interno</label>
                   <input
                     type="text"
                     name="codigoInterno"
                     value={formData.codigoInterno}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Categoría</label>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Categoría</label>
                   <select
                     name="categoria"
                     value={formData.categoria}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white font-medium text-slate-700"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white font-medium text-slate-700 dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                   >
                     <option value="Insumo">Insumo (Consumibles, tóner, hojas, tintas)</option>
                     <option value="Periférico">Periférico (Mouse, teclado, etc.)</option>
@@ -201,20 +201,20 @@ export default function ModalDetalleInsumo({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Descripción</label>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Descripción</label>
                 <textarea
                   name="descripcion"
                   rows={2}
                   value={formData.descripcion}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 resize-none"
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 resize-none dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Stock Actual (Uds.)</label>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Stock Actual (Uds.)</label>
                   <input
                     type="number"
                     min="0"
@@ -222,11 +222,11 @@ export default function ModalDetalleInsumo({
                     value={formData.stockActual}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Stock de Seguridad</label>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Stock de Seguridad</label>
                   <input
                     type="number"
                     min="0"
@@ -234,24 +234,24 @@ export default function ModalDetalleInsumo({
                     value={formData.stockSeguridad}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                   />
                 </div>
               </div>
 
               {/* Ubicación física en depósito / Estantería */}
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">
+                <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">
                   Ubicación Física en Estantería (Depósito)
                 </label>
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl">
                   <div className="flex items-center gap-2.5">
                     <div className={`p-2 rounded-lg ${parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna) ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500'}`}>
                       <MapPin size={16} />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-800">
+                        <span className="text-xs font-bold text-slate-800 dark:text-gray-100">
                           {parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna) 
                             ? `Casilla ${parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna).coordenada}`
                             : 'Sin casilla asignada'}
@@ -262,7 +262,7 @@ export default function ModalDetalleInsumo({
                           </span>
                         )}
                       </div>
-                      <p className="text-[11px] text-slate-400">
+                      <p className="text-[11px] text-slate-400 dark:text-gray-400">
                         {formData.ubicacionFila || formData.ubicacionColumna 
                           ? `${formData.ubicacionFila || 'S/F'} • ${formData.ubicacionColumna || 'S/C'}`
                           : 'Haga clic para seleccionar una coordenada física del estante'}
@@ -274,7 +274,7 @@ export default function ModalDetalleInsumo({
                     <button
                   type="button"
                   onClick={() => setIsSelectorOpen(true)}
-                  className="px-3.5 py-1.5 text-xs font-semibold bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 rounded-lg shadow-2xs transition flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-1.5 text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/60 border border-slate-300 text-slate-700 dark:text-gray-200 rounded-lg shadow-2xs transition flex items-center gap-1.5 cursor-pointer"
                 >
                   <Grid size={13} className="text-blue-600" />
                   <span>{parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna) ? 'Cambiar Casilla' : 'Seleccionar en Estante'}</span>
@@ -285,12 +285,12 @@ export default function ModalDetalleInsumo({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">
                     Fecha de Vencimiento / Caducidad
                   </label>
                   {esPeriferico ? (
-                    <div className="w-full px-3 py-2 text-xs border border-dashed border-slate-200 rounded-xl bg-slate-50 text-slate-400 flex items-center gap-1.5 select-none">
-                      <Info size={14} className="text-slate-400 shrink-0" />
+                    <div className="w-full px-3 py-2 text-xs border border-dashed border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-700/50 text-slate-400 dark:text-gray-400 flex items-center gap-1.5 select-none">
+                      <Info size={14} className="text-slate-400 dark:text-gray-400 shrink-0" />
                       <span>No aplica a periféricos (sin vencimiento)</span>
                     </div>
                   ) : (
@@ -299,7 +299,7 @@ export default function ModalDetalleInsumo({
                       name="fechaVencimiento"
                       value={formData.fechaVencimiento}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-700"
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 text-slate-700 dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                     />
                   )}
                 </div>
@@ -310,9 +310,9 @@ export default function ModalDetalleInsumo({
                     name="estadoActivo"
                     checked={formData.estadoActivo === 1}
                     onChange={handleChange}
-                    className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                    className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
                   />
-                  <label htmlFor="editEstadoActivo" className="text-xs font-medium text-slate-700 cursor-pointer">
+                  <label htmlFor="editEstadoActivo" className="text-xs font-medium text-slate-700 dark:text-gray-200 cursor-pointer">
                     Insumo Activo para Despacho
                   </label>
                 </div>
@@ -340,7 +340,7 @@ export default function ModalDetalleInsumo({
                     <button
                       type="button"
                       onClick={() => setShowDeleteConfirm(false)}
-                      className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-white rounded-lg transition"
+                      className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-gray-300 hover:bg-white rounded-lg transition"
                     >
                       Cancelar
                     </button>
@@ -356,15 +356,15 @@ export default function ModalDetalleInsumo({
               )}
 
               {/* Título y descripción principal */}
-              <div className="bg-slate-50/80 rounded-2xl p-4 border border-slate-100">
+              <div className="bg-slate-50/80 rounded-2xl p-4 border border-slate-100 dark:border-slate-700">
                 <div className="flex items-center justify-between gap-2 mb-1">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Descripción</span>
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-gray-400">Descripción</span>
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-100">
                     <Layers size={12} />
                     {formData.categoria}
                   </span>
                 </div>
-                <h4 className="text-sm font-bold text-slate-800 leading-snug">
+                <h4 className="text-sm font-bold text-slate-800 dark:text-gray-100 leading-snug">
                   {formData.descripcion}
                 </h4>
               </div>
@@ -376,12 +376,12 @@ export default function ModalDetalleInsumo({
                     ? 'bg-rose-50/50 border-rose-200' 
                     : 'bg-emerald-50/50 border-emerald-200'
                 }`}>
-                  <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Stock Actual</span>
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-gray-300 uppercase tracking-wider">Stock Actual</span>
                   <div className="flex items-baseline gap-1.5 mt-1">
                     <span className={`text-2xl font-black ${isCritico ? 'text-rose-600' : 'text-emerald-700'}`}>
                       {formData.stockActual}
                     </span>
-                    <span className="text-xs text-slate-400 font-medium">unidades</span>
+                    <span className="text-xs text-slate-400 dark:text-gray-400 font-medium">unidades</span>
                   </div>
                   <div className="mt-2 flex items-center gap-1.5 text-[11px] font-semibold">
                     {isCritico ? (
@@ -396,15 +396,15 @@ export default function ModalDetalleInsumo({
                   </div>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-100">
-                  <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Stock de Seguridad</span>
+                <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-100 dark:border-slate-700">
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-gray-300 uppercase tracking-wider">Stock de Seguridad</span>
                   <div className="flex items-baseline gap-1.5 mt-1">
-                    <span className="text-2xl font-black text-slate-700">
+                    <span className="text-2xl font-black text-slate-700 dark:text-gray-200">
                       {formData.stockSeguridad}
                     </span>
-                    <span className="text-xs text-slate-400 font-medium">umbral mín.</span>
+                    <span className="text-xs text-slate-400 dark:text-gray-400 font-medium">umbral mín.</span>
                   </div>
-                  <p className="mt-2 text-[11px] text-slate-400">
+                  <p className="mt-2 text-[11px] text-slate-400 dark:text-gray-400">
                     {formData.stockActual <= formData.stockSeguridad 
                       ? '⚠️ Reposición prioritaria' 
                       : 'Margen seguro'}
@@ -415,14 +415,14 @@ export default function ModalDetalleInsumo({
               {/* Grid de Especificaciones Técnicas */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 {/* Ubicación */}
-                <div className="p-3.5 bg-white border border-slate-100 rounded-xl flex items-start gap-3 shadow-2xs">
+                <div className="p-3.5 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl flex items-start gap-3 shadow-2xs">
                   <div className="p-2 bg-blue-50 text-blue-600 rounded-lg shrink-0">
                     <MapPin size={16} />
                   </div>
                   <div className="flex-1">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Ubicación Física</span>
+                    <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-gray-400 tracking-wider">Ubicación Física</span>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <p className="font-semibold text-slate-700">
+                      <p className="font-semibold text-slate-700 dark:text-gray-200">
                         {formData.ubicacionFila || 'Sin depósito asignado'}
                       </p>
                       {parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna) && (
@@ -432,22 +432,22 @@ export default function ModalDetalleInsumo({
                       )}
                     </div>
                     {formData.ubicacionColumna && (
-                      <p className="text-[11px] text-slate-400">Estante / Col: {formData.ubicacionColumna}</p>
+                      <p className="text-[11px] text-slate-400 dark:text-gray-400">Estante / Col: {formData.ubicacionColumna}</p>
                     )}
                   </div>
                 </div>
 
                 {/* Vencimiento */}
-                <div className="p-3.5 bg-white border border-slate-100 rounded-xl flex items-start gap-3 shadow-2xs">
+                <div className="p-3.5 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl flex items-start gap-3 shadow-2xs">
                   <div className={`p-2 rounded-lg shrink-0 ${esPeriferico ? 'bg-slate-100 text-slate-400' : 'bg-amber-50 text-amber-600'}`}>
                     <Calendar size={16} />
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Caducidad / Garantía</span>
+                    <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-gray-400 tracking-wider">Caducidad / Garantía</span>
                     <p className={`font-semibold mt-0.5 ${esPeriferico ? 'text-slate-500' : 'text-slate-700'}`}>
                       {esPeriferico ? 'No aplica (Periférico)' : (formData.fechaVencimiento || 'No registrada')}
                     </p>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-slate-400 dark:text-gray-400">
                       {esPeriferico ? 'Sin fecha de vencimiento' : 'Control preventivo'}
                     </p>
                   </div>
@@ -455,15 +455,15 @@ export default function ModalDetalleInsumo({
               </div>
 
               {/* Estado para Despacho */}
-              <div className="p-3 bg-slate-50 rounded-xl flex items-center justify-between border border-slate-100">
-                <span className="text-xs font-medium text-slate-600">Estado para Despacho</span>
+              <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl flex items-center justify-between border border-slate-100 dark:border-slate-700">
+                <span className="text-xs font-medium text-slate-600 dark:text-gray-300">Estado para Despacho</span>
                 {formData.estadoActivo === 1 ? (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                     <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                     Activo y Disponible
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-gray-300 border border-slate-200 dark:border-slate-700">
                     <span className="w-2 h-2 rounded-full bg-slate-400"></span>
                     Inactivo / Bloqueado
                   </span>
@@ -475,13 +475,13 @@ export default function ModalDetalleInsumo({
         </div>
 
         {/* PIE DE ACCIONES */}
-        <div className="px-6 py-4 bg-slate-50/60 border-t border-slate-100 flex items-center justify-between">
+        <div className="px-6 py-4 bg-slate-50/60 dark:bg-slate-700/50 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
           {isEditing ? (
             <>
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-200/60 rounded-xl transition flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-gray-300 hover:bg-slate-200/60 rounded-xl transition flex items-center gap-1.5 cursor-pointer"
               >
                 <RotateCcw size={14} />
                 <span>Cancelar</span>
@@ -500,7 +500,7 @@ export default function ModalDetalleInsumo({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 rounded-xl transition cursor-pointer"
               >
                 Cerrar
               </button>
@@ -523,7 +523,7 @@ export default function ModalDetalleInsumo({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 rounded-xl transition cursor-pointer"
                 >
                   Cerrar
                 </button>

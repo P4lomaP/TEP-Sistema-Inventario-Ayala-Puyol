@@ -187,11 +187,11 @@ export default function ModalDetalleEquipo({
       onClick={onClose}
     >
       <div 
-        className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100 max-h-[90vh] flex flex-col"
+        className="relative w-full max-w-xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-700 max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ENCABEZADO */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/70 dark:bg-slate-800">
           <div className="flex items-center gap-3">
             <div className={`p-2.5 rounded-xl ${
               esImpresora ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'
@@ -200,14 +200,14 @@ export default function ModalDetalleEquipo({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-slate-800">
+                <h3 className="text-base font-bold text-slate-800 dark:text-gray-100">
                   {isEditing ? 'Editar Equipo Patrimonial' : 'Ficha Técnica de Equipo'}
                 </h3>
-                <span className="bg-slate-200/80 text-slate-700 text-[10px] font-mono font-bold px-2 py-0.5 rounded">
+                <span className="bg-slate-200/80 text-slate-700 dark:text-gray-200 text-[10px] font-mono font-bold px-2 py-0.5 rounded">
                   {formData.codPatrimonial || 'S/N Patrimonial'}
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-400 dark:text-gray-400">
                 {formData.marcaModelo} • {formData.nombreSector || formData.sector}
               </p>
             </div>
@@ -215,7 +215,7 @@ export default function ModalDetalleEquipo({
           <button 
             type="button" 
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+            className="text-slate-400 dark:text-gray-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/60 transition cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -245,7 +245,7 @@ export default function ModalDetalleEquipo({
                       value={motivoBajaInput}
                       onChange={(e) => setMotivoBajaInput(e.target.value)}
                       placeholder="Ej. Obsolescencia técnica / Falla irreparable / Descarte"
-                      className="w-full px-2.5 py-1.5 text-xs bg-white border border-rose-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-rose-500"
+                      className="w-full px-2.5 py-1.5 text-xs bg-white dark:bg-slate-800 border border-rose-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-rose-500"
                     />
                   </div>
                 </div>
@@ -254,7 +254,7 @@ export default function ModalDetalleEquipo({
                 <button
                   type="button"
                   onClick={() => setShowBajaConfirm(false)}
-                  className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-white rounded-lg transition cursor-pointer"
+                  className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-gray-300 hover:bg-white rounded-lg transition cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -274,7 +274,7 @@ export default function ModalDetalleEquipo({
             <form id="form-edit-equipo" onSubmit={handleSaveEdit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Cód. Patrimonial</label>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Cód. Patrimonial</label>
                   <input
                     type="text"
                     name="codPatrimonial"
@@ -295,26 +295,26 @@ export default function ModalDetalleEquipo({
                   )}
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Marca y Modelo</label>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Marca y Modelo</label>
                   <input
                     type="text"
                     name="marcaModelo"
                     value={formData.marcaModelo}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:outline-none dark:bg-slate-700 dark:text-white dark:placeholder-gray-400"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Sector Asignado</label>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Sector Asignado</label>
                   <select
                     name="idSector"
                     value={formData.idSector}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 bg-white"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 bg-white dark:bg-slate-800 dark:text-white dark:placeholder-gray-400"
                   >
                     {sectores.map((sec) => (
                       <option key={sec.idSector} value={sec.idSector}>
@@ -324,12 +324,12 @@ export default function ModalDetalleEquipo({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Estado Operativo</label>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Estado Operativo</label>
                   <select
                     name="estadoOperativo"
                     value={formData.estadoOperativo}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 bg-white"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 bg-white dark:bg-slate-800 dark:text-white dark:placeholder-gray-400"
                   >
                     <option value="Operativo">Operativo</option>
                     <option value="En Mantenimiento">En Mantenimiento</option>
@@ -347,10 +347,10 @@ export default function ModalDetalleEquipo({
                       <Boxes size={15} />
                     </div>
                     <div>
-                      <span className="text-xs font-bold text-slate-800">
+                      <span className="text-xs font-bold text-slate-800 dark:text-gray-100">
                         {casillaEstante ? `Casilla de Estante: ${casillaEstante}` : 'Sin casilla física asignada'}
                       </span>
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-[11px] text-slate-500 dark:text-gray-300">
                         Ubicación física en el pañol institucional
                       </p>
                     </div>
@@ -358,7 +358,7 @@ export default function ModalDetalleEquipo({
                   <button
                     type="button"
                     onClick={() => setIsSelectorOpen(true)}
-                    className="px-3 py-1.5 text-xs font-semibold bg-white border border-blue-300 text-blue-700 hover:bg-blue-50 rounded-lg shadow-2xs transition cursor-pointer"
+                    className="px-3 py-1.5 text-xs font-semibold bg-white dark:bg-slate-800 border border-blue-300 text-blue-700 hover:bg-blue-50 rounded-lg shadow-2xs transition cursor-pointer"
                   >
                     {casillaEstante ? 'Cambiar Casilla' : 'Elegir en Estante'}
                   </button>
@@ -367,49 +367,49 @@ export default function ModalDetalleEquipo({
 
               {/* Campos condicionales en modo edición */}
               {esComputadora && (
-                <div className="pt-2 border-t border-slate-100 space-y-3">
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-700 space-y-3">
                   <span className="text-[11px] font-bold text-blue-700 uppercase">Hardware y Sistema</span>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1">Procesador</label>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Procesador</label>
                       <input
                         type="text"
                         name="procesador"
                         value={formData.procesador || ''}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded-xl dark:bg-slate-700 dark:text-white dark:placeholder-gray-400"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1">Memoria RAM</label>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Memoria RAM</label>
                       <input
                         type="text"
                         name="memoriaRAM"
                         value={formData.memoriaRAM || ''}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded-xl dark:bg-slate-700 dark:text-white dark:placeholder-gray-400"
                       />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1">Almacenamiento</label>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Almacenamiento</label>
                       <input
                         type="text"
                         name="almacenamiento"
                         value={formData.almacenamiento || ''}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded-xl dark:bg-slate-700 dark:text-white dark:placeholder-gray-400"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1">Sistema Operativo</label>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Sistema Operativo</label>
                       <input
                         type="text"
                         name="sistemaOperativo"
                         value={formData.sistemaOperativo || ''}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded-xl dark:bg-slate-700 dark:text-white dark:placeholder-gray-400"
                       />
                     </div>
                   </div>
@@ -417,16 +417,16 @@ export default function ModalDetalleEquipo({
               )}
 
               {esImpresora && (
-                <div className="pt-2 border-t border-slate-100 space-y-3">
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-700 space-y-3">
                   <span className="text-[11px] font-bold text-amber-700 uppercase">Configuración de Impresión</span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1">Insumo / Tóner Compatible</label>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Insumo / Tóner Compatible</label>
                       <select
                         name="idInsumoCompatible"
                         value={formData.idInsumoCompatible || ''}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-white"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 dark:text-white dark:placeholder-gray-400"
                       >
                         <option value="">-- Sin insumo específico asignado --</option>
                         {insumos.map((ins) => (
@@ -437,14 +437,14 @@ export default function ModalDetalleEquipo({
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1">Tecnología de Impresión</label>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">Tecnología de Impresión</label>
                       <input
                         type="text"
                         name="tecnologiaImpresion"
                         value={formData.tecnologiaImpresion || formData.tipoImpresion || ''}
                         onChange={handleChange}
                         placeholder="Ej. Láser Monocromática / Térmica"
-                        className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl"
+                        className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded-xl dark:bg-slate-700 dark:text-white dark:placeholder-gray-400"
                       />
                     </div>
                   </div>
@@ -452,7 +452,7 @@ export default function ModalDetalleEquipo({
               )}
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">IP Fija en Red</label>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300 mb-1">IP Fija en Red</label>
                 <input
                   type="text"
                   name="ipFija"
@@ -477,9 +477,9 @@ export default function ModalDetalleEquipo({
             /* MODO VISUALIZACIÓN */
             <div className="space-y-4">
               {/* Barra de Estado y Acciones Rápidas */}
-              <div className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="p-3.5 bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-700 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div>
-                  <span className="text-[10px] font-bold uppercase text-slate-400">Estado Operativo Actual</span>
+                  <span className="text-[10px] font-bold uppercase text-slate-400 dark:text-gray-400">Estado Operativo Actual</span>
                   <div className="mt-1">
                     {formData.estadoOperativo === 'Operativo' || formData.estado === 'OPERATIVO' ? (
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -496,7 +496,7 @@ export default function ModalDetalleEquipo({
                         En Depósito / Reserva
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-gray-300 border border-slate-200 dark:border-slate-700">
                         Baja Patrimonial
                       </span>
                     )}
@@ -533,7 +533,7 @@ export default function ModalDetalleEquipo({
                     <button
                       type="button"
                       onClick={() => handleCambiarEstado('En Depósito')}
-                      className="px-2.5 py-1.5 text-[11px] font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 rounded-lg transition cursor-pointer"
+                      className="px-2.5 py-1.5 text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-200 hover:bg-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg transition cursor-pointer"
                       title="Guardar en reserva"
                     >
                       A Depósito
@@ -544,25 +544,25 @@ export default function ModalDetalleEquipo({
 
               {/* Ficha Principal de Ubicación y Red */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="p-3.5 bg-white border border-slate-100 rounded-xl shadow-2xs flex items-start gap-2.5">
+                <div className="p-3.5 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-2xs flex items-start gap-2.5">
                   <div className="p-2 bg-blue-50 text-blue-600 rounded-lg shrink-0">
                     <MapPin size={16} />
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-slate-400">Sector / Dependencia</span>
-                    <p className="font-bold text-slate-800 mt-0.5">{formData.nombreSector || formData.sector}</p>
-                    <p className="text-[11px] text-slate-400">Asignación física</p>
+                    <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-gray-400">Sector / Dependencia</span>
+                    <p className="font-bold text-slate-800 dark:text-gray-100 mt-0.5">{formData.nombreSector || formData.sector}</p>
+                    <p className="text-[11px] text-slate-400 dark:text-gray-400">Asignación física</p>
                   </div>
                 </div>
 
-                <div className="p-3.5 bg-white border border-slate-100 rounded-xl shadow-2xs flex items-start gap-2.5">
-                  <div className="p-2 bg-slate-100 text-slate-600 rounded-lg shrink-0">
+                <div className="p-3.5 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-2xs flex items-start gap-2.5">
+                  <div className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-gray-300 rounded-lg shrink-0">
                     <Network size={16} />
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-slate-400">Conectividad de Red</span>
-                    <p className="font-bold text-slate-800 font-mono mt-0.5">{formData.ipFija || 'DHCP / No asignada'}</p>
-                    <p className="text-[11px] text-slate-400">Máscara: {formData.mascaraSubred || '255.255.255.0'}</p>
+                    <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-gray-400">Conectividad de Red</span>
+                    <p className="font-bold text-slate-800 dark:text-gray-100 font-mono mt-0.5">{formData.ipFija || 'DHCP / No asignada'}</p>
+                    <p className="text-[11px] text-slate-400 dark:text-gray-400">Máscara: {formData.mascaraSubred || '255.255.255.0'}</p>
                   </div>
                 </div>
               </div>
@@ -576,10 +576,10 @@ export default function ModalDetalleEquipo({
                     </div>
                     <div>
                       <span className="text-[10px] uppercase font-bold text-blue-700 tracking-wider">Ubicación Física en Estantería</span>
-                      <p className="font-bold text-slate-800 mt-0.5">
+                      <p className="font-bold text-slate-800 dark:text-gray-100 mt-0.5">
                         {casillaEstante ? `Casilla ${casillaEstante}` : 'Sin casilla asignada'}
                       </p>
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-[11px] text-slate-500 dark:text-gray-300">
                         Depósito / Pañol institucional
                       </p>
                     </div>
@@ -588,7 +588,7 @@ export default function ModalDetalleEquipo({
                     <button
                       type="button"
                       onClick={() => setIsSelectorOpen(true)}
-                      className="px-3 py-1.5 text-xs font-semibold bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 rounded-lg shadow-2xs transition cursor-pointer"
+                      className="px-3 py-1.5 text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-blue-50 text-blue-700 border border-blue-200 rounded-lg shadow-2xs transition cursor-pointer"
                     >
                       {casillaEstante ? 'Cambiar Casilla' : 'Asignar Casilla'}
                     </button>
@@ -598,27 +598,27 @@ export default function ModalDetalleEquipo({
 
               {/* ESPECIFICACIONES TÉCNICAS SEGÚN TIPO */}
               {esComputadora && (
-                <div className="p-4 bg-slate-50/80 border border-slate-100 rounded-2xl space-y-3">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                <div className="p-4 bg-slate-50/80 border border-slate-100 dark:border-slate-700 rounded-2xl space-y-3">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-gray-200">
                     <Cpu size={15} className="text-blue-600" />
                     <span>Especificaciones de Cómputo</span>
                   </div>
                   <div className="grid grid-cols-2 gap-3 text-xs">
-                    <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                      <span className="text-[10px] text-slate-400 font-semibold uppercase">Procesador</span>
-                      <p className="font-bold text-slate-800 mt-0.5">{formData.procesador || 'Intel Core i5'}</p>
+                    <div className="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+                      <span className="text-[10px] text-slate-400 dark:text-gray-400 font-semibold uppercase">Procesador</span>
+                      <p className="font-bold text-slate-800 dark:text-gray-100 mt-0.5">{formData.procesador || 'Intel Core i5'}</p>
                     </div>
-                    <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                      <span className="text-[10px] text-slate-400 font-semibold uppercase">Memoria RAM</span>
-                      <p className="font-bold text-slate-800 mt-0.5">{formData.memoriaRAM || '16GB DDR4'}</p>
+                    <div className="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+                      <span className="text-[10px] text-slate-400 dark:text-gray-400 font-semibold uppercase">Memoria RAM</span>
+                      <p className="font-bold text-slate-800 dark:text-gray-100 mt-0.5">{formData.memoriaRAM || '16GB DDR4'}</p>
                     </div>
-                    <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                      <span className="text-[10px] text-slate-400 font-semibold uppercase">Almacenamiento</span>
-                      <p className="font-bold text-slate-800 mt-0.5">{formData.almacenamiento || '512GB SSD'}</p>
+                    <div className="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+                      <span className="text-[10px] text-slate-400 dark:text-gray-400 font-semibold uppercase">Almacenamiento</span>
+                      <p className="font-bold text-slate-800 dark:text-gray-100 mt-0.5">{formData.almacenamiento || '512GB SSD'}</p>
                     </div>
-                    <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                      <span className="text-[10px] text-slate-400 font-semibold uppercase">Sistema Operativo</span>
-                      <p className="font-bold text-slate-800 mt-0.5">{formData.sistemaOperativo || 'Windows 10 Pro'}</p>
+                    <div className="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+                      <span className="text-[10px] text-slate-400 dark:text-gray-400 font-semibold uppercase">Sistema Operativo</span>
+                      <p className="font-bold text-slate-800 dark:text-gray-100 mt-0.5">{formData.sistemaOperativo || 'Windows 10 Pro'}</p>
                     </div>
                   </div>
                 </div>
@@ -631,60 +631,60 @@ export default function ModalDetalleEquipo({
                     <span>Especificaciones de Impresión y Suministros</span>
                   </div>
                   <div className="grid grid-cols-2 gap-3 text-xs">
-                    <div className="p-2.5 bg-white rounded-xl border border-amber-100/70">
-                      <span className="text-[10px] text-slate-400 font-semibold uppercase">Insumo Compatible</span>
-                      <p className="font-bold text-slate-800 mt-0.5">
+                    <div className="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-amber-100/70">
+                      <span className="text-[10px] text-slate-400 dark:text-gray-400 font-semibold uppercase">Insumo Compatible</span>
+                      <p className="font-bold text-slate-800 dark:text-gray-100 mt-0.5">
                         {formData.insumoCompatibleDescripcion || formData.tonerCompatible || 'Sin insumo asignado'}
                       </p>
                     </div>
-                    <div className="p-2.5 bg-white rounded-xl border border-amber-100/70">
-                      <span className="text-[10px] text-slate-400 font-semibold uppercase">Tecnología</span>
-                      <p className="font-bold text-slate-800 mt-0.5">{formData.tecnologiaImpresion || formData.tipoImpresion || 'Láser Monocromática'}</p>
+                    <div className="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-amber-100/70">
+                      <span className="text-[10px] text-slate-400 dark:text-gray-400 font-semibold uppercase">Tecnología</span>
+                      <p className="font-bold text-slate-800 dark:text-gray-100 mt-0.5">{formData.tecnologiaImpresion || formData.tipoImpresion || 'Láser Monocromática'}</p>
                     </div>
                   </div>
                 </div>
               )}
 
               {/* Número de Serie */}
-              <div className="p-3 bg-white border border-slate-100 rounded-xl flex items-center justify-between text-xs">
-                <span className="text-slate-500 font-medium">Número de Serie Oficial (S/N)</span>
-                <span className="font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded">
+              <div className="p-3 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl flex items-center justify-between text-xs">
+                <span className="text-slate-500 dark:text-gray-300 font-medium">Número de Serie Oficial (S/N)</span>
+                <span className="font-mono font-bold text-slate-800 dark:text-gray-100 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
                   {formData.numeroSerie || 'SN-NO-REGISTRADO'}
                 </span>
               </div>
 
               {/* HISTORIAL Y TRAZABILIDAD (RN-02) */}
-              <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-2.5">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+              <div className="p-4 bg-slate-50 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-700 rounded-2xl space-y-2.5">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-gray-200">
                   <div className="flex items-center gap-1.5">
                     <History size={14} className="text-blue-600" />
                     <span>Trazabilidad e Historial del Equipo (RN-02)</span>
                   </div>
-                  <span className="text-[10px] bg-slate-200/70 text-slate-600 font-mono px-2 py-0.5 rounded-full font-bold">
+                  <span className="text-[10px] bg-slate-200/70 text-slate-600 dark:text-gray-300 font-mono px-2 py-0.5 rounded-full font-bold">
                     {historial.length} eventos
                   </span>
                 </div>
 
                 {cargandoHistorial ? (
-                  <p className="text-xs text-slate-400 py-3 text-center">Consultando historial en base de datos...</p>
+                  <p className="text-xs text-slate-400 dark:text-gray-400 py-3 text-center">Consultando historial en base de datos...</p>
                 ) : historial.length === 0 ? (
-                  <p className="text-xs text-slate-400 py-2 text-center italic">Sin registros de traslados anteriores.</p>
+                  <p className="text-xs text-slate-400 dark:text-gray-400 py-2 text-center italic">Sin registros de traslados anteriores.</p>
                 ) : (
                   <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
                     {historial.map((h) => (
-                      <div key={h.idHistorial} className="p-2.5 bg-white border border-slate-100 rounded-xl text-xs space-y-1">
+                      <div key={h.idHistorial} className="p-2.5 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-xs space-y-1">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                            <span className="text-slate-500">{h.sectorAnterior}</span>
+                          <span className="font-bold text-slate-800 dark:text-gray-100 flex items-center gap-1.5">
+                            <span className="text-slate-500 dark:text-gray-300">{h.sectorAnterior}</span>
                             <ArrowRightLeft size={11} className="text-blue-500" />
                             <span className="text-blue-700">{h.sectorNuevo}</span>
                           </span>
-                          <span className="text-[10px] text-slate-400 font-mono font-medium">
+                          <span className="text-[10px] text-slate-400 dark:text-gray-400 font-mono font-medium">
                             {h.fechaCambio}
                           </span>
                         </div>
                         {h.motivoBaja && (
-                          <p className="text-[11px] text-slate-600 italic">
+                          <p className="text-[11px] text-slate-600 dark:text-gray-300 italic">
                             Motivo: {h.motivoBaja}
                           </p>
                         )}
@@ -698,13 +698,13 @@ export default function ModalDetalleEquipo({
         </div>
 
         {/* PIE DE ACCIONES */}
-        <div className="px-6 py-4 bg-slate-50/60 border-t border-slate-100 flex items-center justify-between">
+        <div className="px-6 py-4 bg-slate-50/60 dark:bg-slate-700/50 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
           {isEditing ? (
             <>
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-200/60 rounded-xl transition flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-gray-300 hover:bg-slate-200/60 rounded-xl transition flex items-center gap-1.5 cursor-pointer"
               >
                 <RotateCcw size={14} />
                 <span>Cancelar</span>
@@ -723,7 +723,7 @@ export default function ModalDetalleEquipo({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 rounded-xl transition cursor-pointer"
               >
                 Cerrar
               </button>
@@ -746,7 +746,7 @@ export default function ModalDetalleEquipo({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 rounded-xl transition cursor-pointer"
                 >
                   Cerrar
                 </button>

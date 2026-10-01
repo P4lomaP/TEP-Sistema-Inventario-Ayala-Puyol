@@ -1,1 +1,28 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  html.dark {
+    color-scheme: dark;
+    background-color: #0f172a;
+    color: #f8fafc;
+  }
+
+  .dark body {
+    background-color: #0f172a;
+    color: #f8fafc;
+  }
+
+  /* Reglas globales de alto contraste para modo oscuro */
+  .dark table {
+    color: #f1f5f9;
+  }
+  .dark thead th {
+    background-color: #334155;
+    color: #e2e8f0;
+  }
+  .dark tbody td {
+    color: #cbd5e1;
+  }
+}

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 
-export default function MainLayout({ children, activePage = 'dashboard', pageTitle = 'Dashboard' }) {
+export default function MainLayout({ children, activePage = 'dashboard', pageTitle }) {
   // En pantallas grandes (>=1024px) inicia abierto; en móviles inicia cerrado
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -12,7 +12,7 @@ export default function MainLayout({ children, activePage = 'dashboard', pageTit
   });
 
   return (
-    <div className="flex min-h-screen bg-slate-50 font-sans antialiased text-slate-800 relative overflow-x-hidden">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900 font-sans antialiased text-slate-800 dark:text-slate-100 relative overflow-x-hidden transition-colors duration-200">
       {/* Sidebar de navegación: colapsable en escritorio y drawer deslizante en móvil */}
       <Sidebar 
         activePage={activePage} 
@@ -30,7 +30,7 @@ export default function MainLayout({ children, activePage = 'dashboard', pageTit
       )}
 
       {/* Área principal dinámica: se adapta y expande al 100% cuando el sidebar se cierra */}
-      <div className="flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out">
+      <div className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-900 transition-all duration-300 ease-in-out">
         {/* Barra superior con botón toggle y menú de perfil */}
         <Navbar 
           title={pageTitle} 
@@ -39,7 +39,7 @@ export default function MainLayout({ children, activePage = 'dashboard', pageTit
         />
 
         {/* Contenido renderizado que se estira o centra fluidamente */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100">
           {children}
         </main>
       </div>

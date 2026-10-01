@@ -67,18 +67,18 @@ export default function Register({ onSwitchToLogin }) {
   if (success && pinGenerado) {
     return (
       <div className="relative min-h-screen w-full flex items-center justify-center bg-slate-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.25),rgba(255,255,255,0))] p-4 sm:p-6 py-8">
-        <div className="relative w-full max-w-md bg-white rounded-2xl shadow-xl sm:shadow-2xl p-6 sm:p-8 my-4 text-center animate-fade-in border border-slate-100">
+        <div className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl sm:shadow-2xl p-6 sm:p-8 my-4 text-center animate-fade-in border border-slate-100 dark:border-slate-700">
           
           {/* Icono de éxito */}
           <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-100 shadow-xs">
             <ShieldCheck size={36} />
           </div>
 
-          <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-gray-100 tracking-tight">
             ¡Usuario Registrado Exitosamente!
           </h2>
-          <p className="text-xs text-slate-500 mt-1 mb-6">
-            La cuenta <strong className="text-slate-700">@{username}</strong> ({rolAcceso}) ha sido creada en el sistema.
+          <p className="text-xs text-slate-500 dark:text-gray-300 mt-1 mb-6">
+            La cuenta <strong className="text-slate-700 dark:text-gray-200">@{username}</strong> ({rolAcceso}) ha sido creada en el sistema.
           </p>
 
           {/* Tarjeta destacada con el PIN */}
@@ -93,8 +93,8 @@ export default function Register({ onSwitchToLogin }) {
               </span>
             </div>
 
-            <div className="flex items-center justify-between bg-white border border-indigo-200 rounded-xl px-4 py-3 shadow-2xs">
-              <span className="font-mono text-2xl font-black text-slate-900 tracking-widest">
+            <div className="flex items-center justify-between bg-white dark:bg-slate-800 border border-indigo-200 rounded-xl px-4 py-3 shadow-2xs">
+              <span className="font-mono text-2xl font-black text-slate-900 dark:text-gray-100 tracking-widest">
                 {pinGenerado}
               </span>
               <button
@@ -117,7 +117,7 @@ export default function Register({ onSwitchToLogin }) {
               </button>
             </div>
 
-            <div className="mt-3 flex items-start gap-2 text-[11px] text-slate-600 leading-relaxed">
+            <div className="mt-3 flex items-start gap-2 text-[11px] text-slate-600 dark:text-gray-300 leading-relaxed">
               <AlertTriangle size={15} className="text-amber-500 shrink-0 mt-0.5" />
               <span>
                 <strong>Importante:</strong> Guardá y anotá este PIN en un lugar seguro. Si olvidás tu contraseña, este código te permitirá restablecerla. Por seguridad del sistema, <strong>no podrás solicitar otro PIN por 30 días</strong>, lo que te obliga a recordar o tener anotada tu clave y previene solicitudes frecuentes cada semana o pocos días.
@@ -142,13 +142,13 @@ export default function Register({ onSwitchToLogin }) {
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center bg-slate-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.25),rgba(255,255,255,0))] p-4 sm:p-6 py-8">
       {/* Tarjeta Modal Blanca */}
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-xl sm:shadow-2xl p-6 sm:p-10 my-4 sm:my-6">
+      <div className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl sm:shadow-2xl p-6 sm:p-10 my-4 sm:my-6">
         
         {/* Encabezado */}
-        <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 mb-1.5 sm:mb-2 tracking-tight">
+        <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 dark:text-gray-100 mb-1.5 sm:mb-2 tracking-tight">
           Crear Cuenta
         </h2>
-        <p className="text-xs text-center text-gray-500 mb-5 sm:mb-6">
+        <p className="text-xs text-center text-gray-500 dark:text-gray-300 mb-5 sm:mb-6">
           Registro institucional de operadores del sistema
         </p>
 
@@ -164,7 +164,7 @@ export default function Register({ onSwitchToLogin }) {
           
           {/* Campo: Nombre de Usuario */}
           <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">
+            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
               Nombre de Usuario 
             </label>
             <input
@@ -173,19 +173,19 @@ export default function Register({ onSwitchToLogin }) {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="operador.tep o admin.tep"
               required
-              className="w-full pb-2 text-sm text-gray-800 placeholder-gray-400 border-b border-gray-300 focus:border-indigo-600 focus:outline-none transition"
+              className="w-full pb-2 text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 border-b border-gray-300 dark:border-slate-700 focus:border-indigo-600 focus:outline-none transition"
             />
           </div>
 
           {/* Campo: Rol de Acceso (RBAC institucional) */}
           <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">
+            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
               Rol de Acceso Solicitado
             </label>
             <select
               value={rolAcceso}
               onChange={(e) => setRolAcceso(e.target.value)}
-              className="w-full pb-2 text-sm text-gray-800 bg-transparent border-b border-gray-300 focus:border-indigo-600 focus:outline-none transition cursor-pointer"
+              className="w-full pb-2 text-sm text-gray-800 dark:text-gray-100 bg-transparent border-b border-gray-300 dark:border-slate-700 focus:border-indigo-600 focus:outline-none transition cursor-pointer"
             >
               <option value="Tecnico">Técnico (Gestión de equipos y stock)</option>
               <option value="Auditor">Auditor (Solo lectura y reportes)</option>
@@ -195,7 +195,7 @@ export default function Register({ onSwitchToLogin }) {
 
           {/* Campo: Contraseña */}
           <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">
+            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
               Contraseña
             </label>
             <div className="relative">
@@ -205,12 +205,12 @@ export default function Register({ onSwitchToLogin }) {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Mínimo 8 caracteres"
                 required
-                className="w-full pb-2 pr-8 text-sm text-gray-800 placeholder-gray-400 border-b border-gray-300 focus:border-indigo-600 focus:outline-none transition"
+                className="w-full pb-2 pr-8 text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 border-b border-gray-300 dark:border-slate-700 focus:border-indigo-600 focus:outline-none transition"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-0 bottom-2 text-gray-400 hover:text-gray-600 transition"
+                className="absolute right-0 bottom-2 text-gray-400 dark:text-gray-400 hover:text-gray-600 transition"
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -219,7 +219,7 @@ export default function Register({ onSwitchToLogin }) {
 
           {/* Campo: Confirmar Contraseña */}
           <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">
+            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
               Confirmar Contraseña
             </label>
             <div className="relative">
@@ -229,12 +229,12 @@ export default function Register({ onSwitchToLogin }) {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Repite la contraseña"
                 required
-                className="w-full pb-2 pr-8 text-sm text-gray-800 placeholder-gray-400 border-b border-gray-300 focus:border-indigo-600 focus:outline-none transition"
+                className="w-full pb-2 pr-8 text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 border-b border-gray-300 dark:border-slate-700 focus:border-indigo-600 focus:outline-none transition"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-0 bottom-2 text-gray-400 hover:text-gray-600 transition"
+                className="absolute right-0 bottom-2 text-gray-400 dark:text-gray-400 hover:text-gray-600 transition"
               >
                 {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -259,7 +259,7 @@ export default function Register({ onSwitchToLogin }) {
         </form>
 
         {/* Enlace para volver a Iniciar Sesión */}
-        <div className="mt-7 text-center text-xs text-gray-500">
+        <div className="mt-7 text-center text-xs text-gray-500 dark:text-gray-300">
           ¿Ya tienes una cuenta?{' '}
           <button
             type="button"

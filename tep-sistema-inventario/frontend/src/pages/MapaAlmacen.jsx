@@ -440,14 +440,11 @@ export default function MapaAlmacen() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-gray-100 tracking-tight">
                 Depósito y Estantes
               </h1>
-              <span className="bg-blue-100 text-blue-700 text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                Mapa de Almacén TEP
-              </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-gray-300 mt-1">
               Mapa visual de cuadrícula física, control de casillas y localización de suministros del Tribunal Electoral
             </p>
           </div>
@@ -457,7 +454,7 @@ export default function MapaAlmacen() {
               type="button"
               onClick={cargarDatos}
               disabled={loading}
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 shadow-2xs transition cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-gray-200 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/60 shadow-2xs transition cursor-pointer disabled:opacity-50"
               title="Sincronizar cuadrícula con la base de datos"
             >
               <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
@@ -507,70 +504,19 @@ export default function MapaAlmacen() {
           </div>
         )}
 
-        {/* Tarjetas de Métricas Rápidas */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4">
-          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-2xs">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Capacidad Total</span>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-2xl font-black text-slate-800">{estadisticas.totalCasillas}</span>
-              <span className="text-xs text-slate-400">casillas</span>
-            </div>
-            <p className="text-[11px] text-slate-400 mt-1">
-              {dimensiones.filas} Filas × {dimensiones.columnas} Columnas
-            </p>
-          </div>
-
-          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-2xs">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Casillas Ocupadas</span>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-2xl font-black text-blue-600">{estadisticas.casillasOcupadas}</span>
-              <span className="text-xs text-blue-500 font-semibold">{estadisticas.porcentajeOcupacion}%</span>
-            </div>
-            <p className="text-[11px] text-slate-400 mt-1">Con insumos o equipos</p>
-          </div>
-
-          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-2xs">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Casillas Libres</span>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-2xl font-black text-emerald-600">{estadisticas.casillasLibres}</span>
-              <span className="text-xs text-emerald-500 font-semibold">disponibles</span>
-            </div>
-            <p className="text-[11px] text-slate-400 mt-1">Para nueva ubicación</p>
-          </div>
-
-          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-2xs">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Insumos en Depósito</span>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-2xl font-black text-slate-800">{estadisticas.totalInsumosUbicados}</span>
-              <span className="text-xs text-slate-400">ítems</span>
-            </div>
-            <p className="text-[11px] text-slate-400 mt-1">Catálogo físico ubicado</p>
-          </div>
-
-          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-2xs col-span-2 sm:col-span-1">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Equipos en Reserva</span>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-2xl font-black text-amber-600">{estadisticas.totalEquiposUbicados}</span>
-              <span className="text-xs text-amber-500 font-semibold">en estantes</span>
-            </div>
-            <p className="text-[11px] text-slate-400 mt-1">
-              {equiposEnDepositoSinCasilla.length > 0 ? `⚠️ ${equiposEnDepositoSinCasilla.length} sin casilla` : 'Todos localizados'}
-            </p>
-          </div>
-        </div>
 
         {/* Panel de Control de Redimensión y Filtros */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-2xs space-y-4">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+        <div className="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-2xs space-y-4">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-700">
             {/* Controles de Redimensión con Protección de Integridad */}
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-700">Dimensión de Estantería:</span>
+                <span className="text-xs font-bold text-slate-700 dark:text-gray-200">Dimensión de Estantería:</span>
               </div>
 
               {/* Selector de Filas */}
-              <div className="flex items-center gap-1 bg-slate-50 border border-slate-200/80 rounded-xl p-1">
-                <span className="text-xs font-semibold text-slate-600 px-2">Filas (A-{filas[filas.length - 1]}):</span>
+              <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-700 rounded-xl p-1">
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 px-2">Filas (A-{filas[filas.length - 1]}):</span>
                 <button
                   type="button"
                   onClick={() => handleCambiarDimensiones('filas', -1)}
@@ -578,8 +524,8 @@ export default function MapaAlmacen() {
                   className={`
                     w-7 h-7 flex items-center justify-center rounded-lg border transition cursor-pointer relative
                     ${!validacionFilaActual.seguro && !validacionFilaActual.motivoMin
-                      ? 'border-amber-400 bg-amber-50 text-amber-700 hover:bg-amber-100 ring-1 ring-amber-300'
-                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100 disabled:opacity-40'}
+                      ? 'border-amber-400 dark:border-amber-600 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 ring-1 ring-amber-300 dark:ring-amber-700'
+                      : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40'}
                   `}
                   title={
                     !validacionFilaActual.seguro && !validacionFilaActual.motivoMin
@@ -588,17 +534,17 @@ export default function MapaAlmacen() {
                   }
                 >
                   {!validacionFilaActual.seguro && !validacionFilaActual.motivoMin ? (
-                    <Lock size={12} className="text-amber-600" />
+                    <Lock size={12} className="text-amber-600 dark:text-amber-400" />
                   ) : (
                     <Minus size={13} />
                   )}
                 </button>
-                <span className="w-6 text-center text-xs font-bold text-slate-800">{dimensiones.filas}</span>
+                <span className="w-6 text-center text-xs font-bold text-slate-800 dark:text-white">{dimensiones.filas}</span>
                 <button
                   type="button"
                   onClick={() => handleCambiarDimensiones('filas', 1)}
                   disabled={isAuditor || dimensiones.filas >= 10}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition disabled:opacity-40 cursor-pointer"
+                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition disabled:opacity-40 cursor-pointer"
                   title="Añadir fila"
                 >
                   <Plus size={13} />
@@ -606,8 +552,8 @@ export default function MapaAlmacen() {
               </div>
 
               {/* Selector de Columnas */}
-              <div className="flex items-center gap-1 bg-slate-50 border border-slate-200/80 rounded-xl p-1">
-                <span className="text-xs font-semibold text-slate-600 px-2">Columnas (1-{dimensiones.columnas}):</span>
+              <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-700 rounded-xl p-1">
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 px-2">Columnas (1-{dimensiones.columnas}):</span>
                 <button
                   type="button"
                   onClick={() => handleCambiarDimensiones('columnas', -1)}
@@ -615,8 +561,8 @@ export default function MapaAlmacen() {
                   className={`
                     w-7 h-7 flex items-center justify-center rounded-lg border transition cursor-pointer relative
                     ${!validacionColumnaActual.seguro && !validacionColumnaActual.motivoMin
-                      ? 'border-amber-400 bg-amber-50 text-amber-700 hover:bg-amber-100 ring-1 ring-amber-300'
-                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100 disabled:opacity-40'}
+                      ? 'border-amber-400 dark:border-amber-600 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 ring-1 ring-amber-300 dark:ring-amber-700'
+                      : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40'}
                   `}
                   title={
                     !validacionColumnaActual.seguro && !validacionColumnaActual.motivoMin
@@ -630,12 +576,12 @@ export default function MapaAlmacen() {
                     <Minus size={13} />
                   )}
                 </button>
-                <span className="w-6 text-center text-xs font-bold text-slate-800">{dimensiones.columnas}</span>
+                <span className="w-6 text-center text-xs font-bold text-slate-800 dark:text-gray-100">{dimensiones.columnas}</span>
                 <button
                   type="button"
                   onClick={() => handleCambiarDimensiones('columnas', 1)}
                   disabled={isAuditor || dimensiones.columnas >= 20}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition disabled:opacity-40 cursor-pointer"
+                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition disabled:opacity-40 cursor-pointer"
                   title="Añadir columna"
                 >
                   <Plus size={13} />
@@ -644,9 +590,9 @@ export default function MapaAlmacen() {
             </div>
 
             {/* Leyenda de Colores */}
-            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-gray-300">
               <span className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-md bg-slate-100 border border-slate-200"></span>
+                <span className="w-3 h-3 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"></span>
                 Vacía
               </span>
               <span className="flex items-center gap-1.5">
@@ -668,19 +614,19 @@ export default function MapaAlmacen() {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             {/* Buscador de artículos en la matriz */}
             <div className="relative flex-1 max-w-md">
-              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-400" />
               <input
                 type="text"
                 value={filtroTexto}
                 onChange={(e) => setFiltroTexto(e.target.value)}
                 placeholder="Buscar insumo, código o serie en estantería..."
-                className="w-full pl-9 pr-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-600 focus:bg-white transition"
+                className="w-full pl-9 pr-3.5 py-2 text-xs bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-700 dark:text-white dark:placeholder-slate-400 transition"
               />
               {filtroTexto && (
                 <button
                   type="button"
                   onClick={() => setFiltroTexto('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5"
                 >
                   <X size={14} />
                 </button>
@@ -703,7 +649,7 @@ export default function MapaAlmacen() {
                   className={`px-3 py-1.5 rounded-lg font-medium transition cursor-pointer shrink-0 ${
                     filtroTipo === tab.id
                       ? 'bg-blue-600 text-white shadow-2xs font-semibold'
-                      : 'text-slate-600 hover:bg-slate-100'
+                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
                   }`}
                 >
                   {tab.label}
@@ -714,7 +660,7 @@ export default function MapaAlmacen() {
         </div>
 
         {/* Tablero Visual del Estante (Grid Principal) */}
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-100 shadow-2xs overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 p-5 sm:p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-2xs overflow-hidden">
           <div className="overflow-x-auto pb-4">
             <div className="min-w-[650px] inline-block w-full">
               {/* Encabezado de Columnas */}
@@ -722,13 +668,13 @@ export default function MapaAlmacen() {
                 className="grid gap-3 mb-3"
                 style={{ gridTemplateColumns: `56px repeat(${dimensiones.columnas}, minmax(0, 1fr))` }}
               >
-                <div className="flex items-center justify-center font-bold text-xs text-slate-400 bg-slate-50 rounded-xl py-2 border border-slate-200/50">
+                <div className="flex items-center justify-center font-bold text-xs text-slate-400 dark:text-gray-400 bg-slate-50 dark:bg-slate-700/50 rounded-xl py-2 border border-slate-200/50">
                   F \ C
                 </div>
                 {columnas.map((col) => (
                   <div 
                     key={col}
-                    className="text-center font-bold text-xs text-slate-700 bg-slate-50 py-2 rounded-xl border border-slate-200/60 uppercase tracking-wider"
+                    className="text-center font-bold text-xs text-slate-700 dark:text-gray-200 bg-slate-50 dark:bg-slate-700/50 py-2 rounded-xl border border-slate-200/60 uppercase tracking-wider"
                   >
                     Columna {col}
                   </div>
@@ -744,9 +690,9 @@ export default function MapaAlmacen() {
                     style={{ gridTemplateColumns: `56px repeat(${dimensiones.columnas}, minmax(0, 1fr))` }}
                   >
                     {/* Indicador de Fila */}
-                    <div className="flex flex-col items-center justify-center bg-slate-100/80 rounded-2xl border border-slate-200/70 font-bold text-slate-700 text-sm">
+                    <div className="flex flex-col items-center justify-center bg-slate-100/80 dark:bg-slate-700/60 rounded-2xl border border-slate-200/70 dark:border-slate-700 font-bold text-slate-700 dark:text-slate-200 text-sm">
                       <span>Fila</span>
-                      <span className="text-base text-blue-700 font-black">{fila}</span>
+                      <span className="text-base text-blue-700 dark:text-blue-400 font-black">{fila}</span>
                     </div>
 
                     {/* Celdas / Casillas */}
@@ -760,18 +706,18 @@ export default function MapaAlmacen() {
                       const isSelected = casillaSeleccionada === coord;
                       const coincide = cumpleFiltro(coord);
 
-                      let estadoClase = 'bg-slate-50/50 border-slate-200/80 hover:border-slate-300';
-                      let badgeClase = 'bg-slate-100 text-slate-500';
+                      let estadoClase = 'bg-slate-50/50 dark:bg-slate-800/60 border-slate-200/80 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600';
+                      let badgeClase = 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300';
 
                       if (tieneInsumos && tieneEquipos) {
-                        estadoClase = 'bg-indigo-50/60 border-indigo-200 hover:border-indigo-300 hover:bg-indigo-100/50';
-                        badgeClase = 'bg-indigo-100 text-indigo-700';
+                        estadoClase = 'bg-indigo-50/60 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800 hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-indigo-100/50 dark:hover:bg-indigo-900/40';
+                        badgeClase = 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300';
                       } else if (tieneInsumos) {
-                        estadoClase = 'bg-blue-50/60 border-blue-200 hover:border-blue-300 hover:bg-blue-100/50';
-                        badgeClase = 'bg-blue-100 text-blue-700';
+                        estadoClase = 'bg-blue-50/60 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-100/50 dark:hover:bg-blue-900/40';
+                        badgeClase = 'bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300';
                       } else if (tieneEquipos) {
-                        estadoClase = 'bg-amber-50/60 border-amber-200 hover:border-amber-300 hover:bg-amber-100/50';
-                        badgeClase = 'bg-amber-100 text-amber-700';
+                        estadoClase = 'bg-amber-50/60 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 hover:border-amber-300 dark:hover:border-amber-700 hover:bg-amber-100/50 dark:hover:bg-amber-900/40';
+                        badgeClase = 'bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300';
                       }
 
                       if (!coincide) {
@@ -785,12 +731,12 @@ export default function MapaAlmacen() {
                           onClick={() => setCasillaSeleccionada(coord)}
                           className={`
                             relative p-3.5 rounded-2xl border text-left transition-all duration-150 cursor-pointer flex flex-col justify-between min-h-[110px]
-                            ${isSelected ? 'ring-2 ring-blue-600 border-blue-600 bg-blue-100/70 shadow-md' : estadoClase}
+                            ${isSelected ? 'ring-2 ring-blue-600 border-blue-600 bg-blue-100/70 dark:bg-blue-950/80 shadow-md' : estadoClase}
                           `}
                         >
                           {/* Cabecera de celda: Coordenada + Estado */}
                           <div className="flex items-center justify-between gap-1">
-                            <span className="font-mono text-sm font-black text-slate-800">
+                            <span className="font-mono text-sm font-black text-slate-800 dark:text-white">
                               {coord}
                             </span>
                             <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${badgeClase}`}>
@@ -807,26 +753,26 @@ export default function MapaAlmacen() {
                           {/* Contenido / Miniatura de ocupación */}
                           <div className="space-y-1 my-1.5">
                             {tieneInsumos && (
-                              <div className="flex items-center gap-1.5 text-[11px] text-blue-800 font-medium">
-                                <Layers size={12} className="shrink-0 text-blue-600" />
+                              <div className="flex items-center gap-1.5 text-[11px] text-blue-800 dark:text-blue-300 font-medium">
+                                <Layers size={12} className="shrink-0 text-blue-600 dark:text-blue-400" />
                                 <span>{numInsumos} insumo(s)</span>
                               </div>
                             )}
                             {tieneEquipos && (
-                              <div className="flex items-center gap-1.5 text-[11px] text-amber-800 font-medium">
-                                <Package size={12} className="shrink-0 text-amber-600" />
+                              <div className="flex items-center gap-1.5 text-[11px] text-amber-800 dark:text-amber-300 font-medium">
+                                <Package size={12} className="shrink-0 text-amber-600 dark:text-amber-400" />
                                 <span>{numEquipos} equipo(s)</span>
                               </div>
                             )}
                             {!tieneInsumos && !tieneEquipos && (
-                              <span className="text-[11px] text-slate-300 italic block">
+                              <span className="text-[11px] text-slate-300 dark:text-slate-500 italic block">
                                 Disponible
                               </span>
                             )}
                           </div>
 
                           {/* Pie de celda: vista previa rápida */}
-                          <div className="pt-1 border-t border-slate-200/50 flex items-center justify-between text-[10px] text-slate-400">
+                          <div className="pt-1 border-t border-slate-200/50 dark:border-slate-700 flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-400">
                             <span className="truncate max-w-[100px] font-medium">
                               {tieneInsumos
                                 ? celda.insumos[0].codigoInterno
@@ -834,7 +780,7 @@ export default function MapaAlmacen() {
                                 ? celda.equipos[0].marcaModelo
                                 : 'Sin asignar'}
                             </span>
-                            <span className="text-blue-600 font-semibold">
+                            <span className="text-blue-600 dark:text-blue-400 font-semibold">
                               Ver ›
                             </span>
                           </div>
@@ -855,20 +801,20 @@ export default function MapaAlmacen() {
             onClick={() => setCasillaSeleccionada(null)}
           >
             <div 
-              className="relative w-full max-w-lg bg-white h-full shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-right duration-200"
+              className="relative w-full max-w-lg bg-white dark:bg-slate-800 h-full shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-right duration-200"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Encabezado del Panel Lateral */}
-              <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+              <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/70 dark:bg-slate-800">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-black font-mono text-xl shadow-xs">
                     {casillaSeleccionada}
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-slate-800">
+                    <h3 className="text-base font-bold text-slate-800 dark:text-white">
                       Casilla {casillaSeleccionada}
                     </h3>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-slate-400 dark:text-slate-400">
                       Estante {casillaSeleccionada.charAt(0)} — Columna {casillaSeleccionada.slice(1)}
                     </p>
                   </div>
@@ -876,7 +822,7 @@ export default function MapaAlmacen() {
                 <button
                   type="button"
                   onClick={() => setCasillaSeleccionada(null)}
-                  className="text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-slate-100 transition cursor-pointer"
+                  className="text-slate-400 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer"
                   aria-label="Cerrar panel"
                 >
                   <X size={20} />
@@ -887,10 +833,10 @@ export default function MapaAlmacen() {
               <div className="flex-1 p-6 overflow-y-auto space-y-6">
                 
                 {/* Botón de Impresión de Etiqueta */}
-                <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50/50 rounded-2xl border border-blue-100 flex items-center justify-between gap-3">
+                <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50/50 dark:from-slate-700 dark:to-slate-750 rounded-2xl border border-blue-100 dark:border-slate-600 flex items-center justify-between gap-3">
                   <div>
-                    <h4 className="text-xs font-bold text-blue-900">Etiqueta Oficial de Casilla</h4>
-                    <p className="text-[11px] text-blue-700/80 mt-0.5">
+                    <h4 className="text-xs font-bold text-blue-900 dark:text-blue-300">Etiqueta Oficial de Casilla</h4>
+                    <p className="text-[11px] text-blue-700/80 dark:text-slate-300 mt-0.5">
                       Rótulo institucional con código y contenido para pegar en la estantería física
                     </p>
                   </div>
@@ -907,14 +853,14 @@ export default function MapaAlmacen() {
                 {/* Sección 1: Insumos Alojados */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                      <Layers size={14} className="text-blue-600" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center gap-1.5">
+                      <Layers size={14} className="text-blue-600 dark:text-blue-400" />
                       <span>Insumos y Suministros ({detalleCasilla.insumos.length})</span>
                     </span>
                   </div>
 
                   {detalleCasilla.insumos.length === 0 ? (
-                    <div className="p-4 text-center border border-dashed border-slate-200 rounded-xl text-xs text-slate-400">
+                    <div className="p-4 text-center border border-dashed border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-400 dark:text-slate-400">
                       No hay insumos registrados en esta casilla.
                     </div>
                   ) : (
@@ -922,22 +868,22 @@ export default function MapaAlmacen() {
                       {detalleCasilla.insumos.map((ins) => (
                         <div 
                           key={ins.idInsumo}
-                          className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl space-y-2"
+                          className="p-3.5 bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-700 rounded-xl space-y-2"
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div>
-                              <span className="text-[10px] font-mono font-bold bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
+                              <span className="text-[10px] font-mono font-bold bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/60 px-1.5 py-0.5 rounded">
                                 {ins.codigoInterno}
                               </span>
-                              <h5 className="text-xs font-bold text-slate-800 mt-1">
+                              <h5 className="text-xs font-bold text-slate-800 dark:text-white mt-1">
                                 {ins.descripcion}
                               </h5>
                             </div>
-                            <span className="text-xs font-bold text-slate-700 bg-white px-2.5 py-1 rounded-lg border border-slate-200 shrink-0">
+                            <span className="text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shrink-0">
                               Stock: {ins.stockActual} u.
                             </span>
                           </div>
-                          <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-200/50">
+                          <div className="flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-400 pt-1 border-t border-slate-200/50 dark:border-slate-700">
                             <span>Categoría: {ins.categoria}</span>
                             <span>Seguridad: {ins.stockSeguridad} u.</span>
                           </div>
@@ -950,14 +896,14 @@ export default function MapaAlmacen() {
                 {/* Sección 2: Equipos Patrimoniales en Depósito */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                      <Package size={14} className="text-amber-600" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center gap-1.5">
+                      <Package size={14} className="text-amber-600 dark:text-amber-400" />
                       <span>Equipos en Depósito ({detalleCasilla.equipos.length})</span>
                     </span>
                   </div>
 
                   {detalleCasilla.equipos.length === 0 ? (
-                    <div className="p-4 text-center border border-dashed border-slate-200 rounded-xl text-xs text-slate-400">
+                    <div className="p-4 text-center border border-dashed border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-400 dark:text-slate-400">
                       No hay equipos informáticos asignados a esta casilla.
                     </div>
                   ) : (
@@ -965,17 +911,17 @@ export default function MapaAlmacen() {
                       {detalleCasilla.equipos.map((eq) => (
                         <div 
                           key={eq.idEquipo}
-                          className="p-3.5 bg-amber-50/50 border border-amber-100 rounded-xl space-y-2"
+                          className="p-3.5 bg-amber-50/50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-800/50 rounded-xl space-y-2"
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div>
-                              <span className="text-[10px] font-mono font-bold bg-amber-200/80 text-amber-900 px-1.5 py-0.5 rounded">
+                              <span className="text-[10px] font-mono font-bold bg-amber-200/80 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 px-1.5 py-0.5 rounded">
                                 {eq.codPatrimonial || 'S/N Patrimonial'}
                               </span>
-                              <h5 className="text-xs font-bold text-slate-800 mt-1">
+                              <h5 className="text-xs font-bold text-slate-800 dark:text-white mt-1">
                                 {eq.marcaModelo}
                               </h5>
-                              <p className="text-[11px] text-slate-500 font-mono">
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                                 Serie: {eq.numeroSerie}
                               </p>
                             </div>
@@ -983,16 +929,16 @@ export default function MapaAlmacen() {
                               <button
                                 type="button"
                                 onClick={() => handleQuitarEquipo(eq.idEquipo)}
-                                className="text-[11px] text-rose-600 hover:text-rose-700 font-semibold p-1 hover:bg-rose-50 rounded transition cursor-pointer"
+                                className="text-[11px] text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-semibold p-1 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded transition cursor-pointer"
                                 title="Quitar equipo de esta casilla"
                               >
                                 Quitar
                               </button>
                             )}
                           </div>
-                          <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-amber-200/50">
+                          <div className="flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-400 pt-1 border-t border-amber-200/50 dark:border-amber-800/40">
                             <span>Tipo: {eq.tipoEquipo}</span>
-                            <span className="font-semibold text-amber-700">{eq.estadoOperativo}</span>
+                            <span className="font-semibold text-amber-700 dark:text-amber-400">{eq.estadoOperativo}</span>
                           </div>
                         </div>
                       ))}
@@ -1001,9 +947,9 @@ export default function MapaAlmacen() {
 
                   {/* Asignador de Equipos en Reserva a esta Casilla */}
                   {!isAuditor && equiposEnDepositoSinCasilla.length > 0 && (
-                    <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
-                      <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                        <Plus size={14} className="text-blue-600" />
+                    <div className="p-4 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl space-y-2.5">
+                      <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                        <Plus size={14} className="text-blue-600 dark:text-blue-400" />
                         <span>Asignar equipo en reserva a esta casilla:</span>
                       </span>
                       <select
@@ -1014,7 +960,7 @@ export default function MapaAlmacen() {
                           }
                         }}
                         defaultValue=""
-                        className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-blue-600 cursor-pointer"
+                        className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-blue-600 cursor-pointer"
                       >
                         <option value="" disabled>-- Seleccione un equipo para almacenar aquí --</option>
                         {equiposEnDepositoSinCasilla.map((eq) => (
@@ -1023,7 +969,7 @@ export default function MapaAlmacen() {
                           </option>
                         ))}
                       </select>
-                      <p className="text-[10px] text-slate-400">
+                      <p className="text-[10px] text-slate-400 dark:text-gray-400">
                         Solo se listan equipos con estado "En Depósito" que aún no tengan casilla asignada.
                       </p>
                     </div>
@@ -1033,11 +979,11 @@ export default function MapaAlmacen() {
               </div>
 
               {/* Pie del Panel Lateral */}
-              <div className="p-4 border-t border-slate-100 bg-slate-50/70 flex items-center justify-end">
+              <div className="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-700/50 flex items-center justify-end">
                 <button
                   type="button"
                   onClick={() => setCasillaSeleccionada(null)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-200/60 rounded-xl transition cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-gray-300 hover:bg-slate-200/60 rounded-xl transition cursor-pointer"
                 >
                   Cerrar
                 </button>

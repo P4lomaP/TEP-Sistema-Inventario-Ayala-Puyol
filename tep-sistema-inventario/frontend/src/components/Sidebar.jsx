@@ -47,9 +47,7 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
   return (
     <aside
       className={`
-        fixed inset-y-0 left-0 z-50 bg-[#0d1b2a] text-slate-300 min-h-screen flex flex-col flex-shrink-0 select-none
-        transition-all duration-300 ease-in-out
-        lg:static lg:z-auto
+        fixed inset-y-0 left-0 z-50 bg-[#0d1b2a] dark:bg-slate-950 text-slate-300 min-h-screen flex flex-col flex-shrink-0 select-none transition-all duration-300 ease-in-out lg:static lg:z-auto border-r border-slate-800/60 dark:border-slate-800/80
         ${isOpen 
           ? 'w-64 translate-x-0 shadow-2xl lg:shadow-none lg:w-64 lg:opacity-100' 
           : 'w-64 -translate-x-full lg:w-0 lg:translate-x-0 lg:overflow-hidden lg:opacity-0 pointer-events-none'
@@ -69,7 +67,7 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
             </div>
             <div>
               <h1 className="text-white text-sm font-bold tracking-wide leading-tight">Sistema Institucional</h1>
-              <p className="text-[11px] sm:text-xs text-slate-400">Tribunal Electoral</p>
+              <p className="text-[11px] sm:text-xs text-slate-400 dark:text-gray-400">Tribunal Electoral</p>
             </div>
           </div>
 
@@ -80,7 +78,7 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
               e.stopPropagation();
               if (onClose) onClose();
             }}
-            className="lg:hidden text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer"
+            className="lg:hidden text-slate-400 dark:text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer"
             aria-label="Cerrar menú"
           >
             <X size={20} />

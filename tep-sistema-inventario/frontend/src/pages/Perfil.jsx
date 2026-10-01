@@ -65,8 +65,8 @@ export default function Perfil() {
         {/* Encabezado */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Mi Perfil</h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-gray-100 tracking-tight">Mi Perfil</h2>
+            <p className="text-xs text-slate-500 dark:text-gray-300 mt-0.5">
               Información de identidad institucional y métricas de actividad del operador.
             </p>
           </div>
@@ -78,9 +78,9 @@ export default function Perfil() {
         </div>
 
         {/* Tarjeta Principal: Cabecera de Identidad */}
-        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center sm:items-start gap-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700 shadow-xs flex flex-col sm:flex-row items-center sm:items-start gap-6">
           <div className="relative">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-blue-600 text-white font-black text-2xl sm:text-3xl flex items-center justify-center border-2 border-slate-100 shadow-xs uppercase">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-blue-600 text-white font-black text-2xl sm:text-3xl flex items-center justify-center border-2 border-slate-100 dark:border-slate-700 shadow-xs uppercase">
               {(usuario.username || 'U').charAt(0)}
             </div>
             <span 
@@ -94,10 +94,10 @@ export default function Perfil() {
           <div className="flex-1 text-center sm:text-left space-y-2">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 justify-between">
               <div>
-                <h3 className="text-xl font-bold text-slate-800">
+                <h3 className="text-xl font-bold text-slate-800 dark:text-gray-100">
                   {usuario.username || 'Operador'}
                 </h3>
-                <p className="text-xs font-mono text-slate-500">
+                <p className="text-xs font-mono text-slate-500 dark:text-gray-300">
                   {usuario.codUsuario} • @{usuario.username}
                 </p>
               </div>
@@ -113,9 +113,9 @@ export default function Perfil() {
               </span>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 pt-2 text-xs text-slate-500">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 pt-2 text-xs text-slate-500 dark:text-gray-300">
               <span className="flex items-center gap-1.5 font-mono">
-                <Mail size={14} className="text-slate-400" />
+                <Mail size={14} className="text-slate-400 dark:text-gray-400" />
                 {usuario.email || `${usuario.username}@tribunal.gob.ar`}
               </span>
               <span className="flex items-center gap-1.5 font-semibold">
@@ -128,42 +128,42 @@ export default function Perfil() {
 
         {/* Tarjetas de Métricas de la Cuenta */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Fecha de Alta</p>
-              <h4 className="text-sm font-bold text-slate-800 mt-1">{usuario.fechaCreacion}</h4>
-              <p className="text-[10px] text-slate-400 mt-0.5">Registro inicial</p>
+              <p className="text-[10px] font-bold text-slate-400 dark:text-gray-400 uppercase tracking-wider">Fecha de Alta</p>
+              <h4 className="text-sm font-bold text-slate-800 dark:text-gray-100 mt-1">{usuario.fechaCreacion}</h4>
+              <p className="text-[10px] text-slate-400 dark:text-gray-400 mt-0.5">Registro inicial</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
               <Calendar size={18} />
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Antigüedad en Sistema</p>
-              <h4 className="text-sm font-bold text-slate-800 mt-1">{usuario.diasActivo} días activo</h4>
-              <p className="text-[10px] text-slate-400 mt-0.5">En la plataforma</p>
+              <p className="text-[10px] font-bold text-slate-400 dark:text-gray-400 uppercase tracking-wider">Antigüedad en Sistema</p>
+              <h4 className="text-sm font-bold text-slate-800 dark:text-gray-100 mt-1">{usuario.diasActivo} días activo</h4>
+              <p className="text-[10px] text-slate-400 dark:text-gray-400 mt-0.5">En la plataforma</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
               <Activity size={18} />
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Última Actividad</p>
-              <h4 className="text-sm font-bold text-slate-800 mt-1">{usuario.ultimoAcceso}</h4>
-              <p className="text-[10px] text-slate-400 mt-0.5">Registro de auditoría</p>
+              <p className="text-[10px] font-bold text-slate-400 dark:text-gray-400 uppercase tracking-wider">Última Actividad</p>
+              <h4 className="text-sm font-bold text-slate-800 dark:text-gray-100 mt-1">{usuario.ultimoAcceso}</h4>
+              <p className="text-[10px] text-slate-400 dark:text-gray-400 mt-0.5">Registro de auditoría</p>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-gray-300 flex items-center justify-center shrink-0">
               <Clock size={18} />
             </div>
           </div>
         </div>
 
         {/* Pie Institucional */}
-        <div className="text-center pt-4 pb-2 text-[11px] text-slate-400 tracking-wider">
+        <div className="text-center pt-4 pb-2 text-[11px] text-slate-400 dark:text-gray-400 tracking-wider">
           © 2026 TRIBUNAL ELECTORAL PERMANENTE • CUENTA INSTITUCIONAL
         </div>
 

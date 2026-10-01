@@ -228,14 +228,14 @@ export default function Usuarios() {
   if (!isAdmin) {
     return (
       <MainLayout activePage="usuarios" pageTitle="Control de Accesos">
-        <div className="max-w-2xl mx-auto my-12 bg-white rounded-2xl p-8 border border-slate-200 shadow-sm text-center">
+        <div className="max-w-2xl mx-auto my-12 bg-white dark:bg-slate-800 rounded-2xl p-8 border border-slate-200 dark:border-slate-700 shadow-sm text-center">
           <div className="w-16 h-16 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-rose-100">
             <ShieldAlert size={32} />
           </div>
-          <h2 className="text-xl font-bold text-slate-800">Acceso Restringido al Módulo</h2>
-          <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-gray-100">Acceso Restringido al Módulo</h2>
+          <p className="text-xs text-slate-500 dark:text-gray-300 mt-2 leading-relaxed">
             Esta sección es de uso exclusivo para usuarios con rol <strong>Administrador</strong>. 
-            Su perfil actual es <span className="font-semibold text-slate-700">[{currentUser?.rolAcceso || 'Sin rol'}]</span> y no cuenta con privilegios para consultar o alterar la nómina de operadores institucionales.
+            Su perfil actual es <span className="font-semibold text-slate-700 dark:text-gray-200">[{currentUser?.rolAcceso || 'Sin rol'}]</span> y no cuenta con privilegios para consultar o alterar la nómina de operadores institucionales.
           </p>
         </div>
       </MainLayout>
@@ -260,13 +260,10 @@ export default function Usuarios() {
         {/* Encabezado y Acción de Exportar PDF */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
-              <span>Configuración de Sistema</span>
-              <span>›</span>
-              <span className="text-slate-600 font-medium">Control de Accesos</span>
+            <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-gray-400 mb-1">
             </div>
-            <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Administración de Usuarios</h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-gray-100 tracking-tight">Administración de Usuarios</h2>
+            <p className="text-xs text-slate-500 dark:text-gray-300 mt-0.5">
               Supervisión de credenciales, roles y estados de cuenta de los operadores del sistema.
             </p>
           </div>
@@ -276,7 +273,7 @@ export default function Usuarios() {
               type="button"
               onClick={handleDescargarPDF}
               disabled={descargandoPDF || usuarios.length === 0}
-              className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-gray-200 text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer"
               title="Descargar nómina de usuarios en formato PDF oficial"
             >
               <Download size={15} className={descargandoPDF ? 'animate-spin text-blue-600' : 'text-slate-500'} />
@@ -322,72 +319,72 @@ export default function Usuarios() {
 
         {/* Bloque de 5 KPIs dinámicos */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Operadores</p>
-              <h4 className="text-2xl font-bold text-slate-800 mt-0.5">{kpis.totalPersonal}</h4>
-              <p className="text-[11px] text-slate-400 mt-0.5">Cuentas registradas</p>
+              <p className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Total Operadores</p>
+              <h4 className="text-2xl font-bold text-slate-800 dark:text-white mt-0.5">{kpis.totalPersonal}</h4>
+              <p className="text-[11px] text-slate-400 dark:text-slate-400 mt-0.5">Cuentas registradas</p>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
               <Users size={18} />
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Administradores</p>
-              <h4 className="text-2xl font-bold text-slate-800 mt-0.5">{kpis.administradores}</h4>
-              <p className="text-[11px] text-slate-400 mt-0.5">Control total</p>
+              <p className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Administradores</p>
+              <h4 className="text-2xl font-bold text-slate-800 dark:text-white mt-0.5">{kpis.administradores}</h4>
+              <p className="text-[11px] text-slate-400 dark:text-slate-400 mt-0.5">Control total</p>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center shrink-0">
               <Shield size={18} />
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Técnicos</p>
-              <h4 className="text-2xl font-bold text-slate-800 mt-0.5">{kpis.tecnicos}</h4>
-              <p className="text-[11px] text-slate-400 mt-0.5">Operación y stock</p>
+              <p className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Técnicos</p>
+              <h4 className="text-2xl font-bold text-slate-800 dark:text-white mt-0.5">{kpis.tecnicos}</h4>
+              <p className="text-[11px] text-slate-400 dark:text-slate-400 mt-0.5">Operación y stock</p>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
               <CheckCircle2 size={18} />
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Auditores</p>
-              <h4 className="text-2xl font-bold text-slate-800 mt-0.5">{kpis.auditores}</h4>
-              <p className="text-[11px] text-slate-400 mt-0.5">Reportes y control</p>
+              <p className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Auditores</p>
+              <h4 className="text-2xl font-bold text-slate-800 dark:text-white mt-0.5">{kpis.auditores}</h4>
+              <p className="text-[11px] text-slate-400 dark:text-slate-400 mt-0.5">Reportes y control</p>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
               <Clock size={18} />
             </div>
           </div>
 
           <div className={`rounded-2xl p-5 border shadow-xs flex items-center justify-between transition ${
             kpis.solicitudesPin > 0 
-              ? 'bg-amber-50/70 border-amber-300' 
-              : 'bg-white border-slate-200/80'
+              ? 'bg-amber-50/70 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700/60' 
+              : 'bg-white dark:bg-slate-800 border-slate-200/80 dark:border-slate-700'
           }`}>
             <div>
               <p className={`text-[10px] font-bold uppercase tracking-wider ${
-                kpis.solicitudesPin > 0 ? 'text-amber-800 font-extrabold' : 'text-slate-400'
+                kpis.solicitudesPin > 0 ? 'text-amber-800 dark:text-amber-400 font-extrabold' : 'text-slate-400 dark:text-slate-400'
               }`}>
                 Solicitudes PIN
               </p>
               <h4 className={`text-2xl font-bold mt-0.5 ${
-                kpis.solicitudesPin > 0 ? 'text-amber-900' : 'text-slate-800'
+                kpis.solicitudesPin > 0 ? 'text-amber-900 dark:text-amber-300' : 'text-slate-800 dark:text-white'
               }`}>
                 {kpis.solicitudesPin}
               </h4>
-              <p className="text-[11px] text-slate-400 mt-0.5">
+              <p className="text-[11px] text-slate-400 dark:text-slate-400 mt-0.5">
                 {kpis.solicitudesPin > 0 ? 'Pendientes de revisión' : 'Al día'}
               </p>
             </div>
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-              kpis.solicitudesPin > 0 ? 'bg-amber-200 text-amber-900' : 'bg-slate-100 text-slate-500'
+              kpis.solicitudesPin > 0 ? 'bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300'
             }`}>
               <KeyRound size={18} />
             </div>
@@ -395,9 +392,9 @@ export default function Usuarios() {
         </div>
 
         {/* Buscador y Filtros */}
-        <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="relative w-full sm:w-96">
-            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-400" />
             <input
               type="text"
               value={searchTerm}
@@ -406,20 +403,20 @@ export default function Usuarios() {
                 setPaginaActual(1);
               }}
               placeholder="Buscar por usuario (@) o código..."
-              className="w-full pl-10 pr-4 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/50 focus:bg-white transition"
+              className="w-full pl-10 pr-4 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/50 focus:bg-white transition dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
             />
           </div>
 
           <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
             <div className="flex items-center gap-2">
-              <Filter size={14} className="text-slate-400" />
+              <Filter size={14} className="text-slate-400 dark:text-gray-400" />
               <select
                 value={roleFilter}
                 onChange={(e) => {
                   setRoleFilter(e.target.value);
                   setPaginaActual(1);
                 }}
-                className="text-xs border border-slate-200 rounded-xl px-3 py-2 text-slate-600 font-medium bg-white focus:outline-none cursor-pointer"
+                className="text-xs border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-600 dark:text-gray-300 font-medium bg-white dark:bg-slate-800 focus:outline-none cursor-pointer"
               >
                 <option value="Todos">Filtrar por Rol (Todos)</option>
                 <option value="Administrador">Administrador</option>
@@ -443,17 +440,17 @@ export default function Usuarios() {
               </button>
             )}
 
-            <div className="text-xs text-slate-500 font-medium">
-              Mostrando: <strong className="text-slate-800 font-bold">{usuariosFiltrados.length}</strong> Registrados
+            <div className="text-xs text-slate-500 dark:text-gray-300 font-medium">
+              Mostrando: <strong className="text-slate-800 dark:text-gray-100 font-bold">{usuariosFiltrados.length}</strong> Registrados
             </div>
           </div>
         </div>
 
         {/* Tabla Principal de Usuarios */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700 shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-[10px] border-b border-slate-100">
+              <thead className="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-200 uppercase font-bold text-[10px] border-b border-slate-100 dark:border-slate-700">
                 <tr>
                   <th className="py-3.5 px-6">Identificador</th>
                   <th className="py-3.5 px-6">Nombre de Usuario</th>
@@ -464,18 +461,18 @@ export default function Usuarios() {
                   <th className="py-3.5 px-6 text-right">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700 text-slate-700 dark:text-slate-200">
                 {cargando ? (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-slate-400 text-xs">
+                    <td colSpan={7} className="py-12 text-center text-slate-400 dark:text-slate-400 text-xs">
                       <RefreshCw size={20} className="animate-spin mx-auto mb-2 text-blue-600" />
                       <span>Cargando nómina de usuarios...</span>
                     </td>
                   </tr>
                 ) : usuariosPaginados.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-slate-400 text-xs">
-                      <Users size={24} className="mx-auto mb-2 text-slate-300" />
+                    <td colSpan={7} className="py-12 text-center text-slate-400 dark:text-slate-400 text-xs">
+                      <Users size={24} className="mx-auto mb-2 text-slate-300 dark:text-slate-600" />
                       <p>No se encontraron operadores registrados con el criterio de búsqueda.</p>
                     </td>
                   </tr>
@@ -484,23 +481,23 @@ export default function Usuarios() {
                     const isSelf = user.idUsuario === currentUser?.idUsuario;
 
                     return (
-                      <tr key={user.idUsuario} className="hover:bg-slate-50/70 transition">
+                      <tr key={user.idUsuario} className="hover:bg-slate-50/70 dark:hover:bg-slate-700/50 transition">
                         
                         {/* Código de usuario */}
-                        <td className="py-3.5 px-6 font-mono text-[11px] font-bold text-blue-700">
+                        <td className="py-3.5 px-6 font-mono text-[11px] font-bold text-blue-700 dark:text-blue-400">
                           {user.codUsuario}
                         </td>
 
                         {/* Nombre de usuario (@handle) */}
                         <td className="py-3.5 px-6">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-700 font-bold flex items-center justify-center text-xs border border-slate-200">
+                            <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold flex items-center justify-center text-xs border border-slate-200 dark:border-slate-600">
                               {(user.username || 'U').charAt(0).toUpperCase()}
                             </div>
                             <div>
-                              <p className="font-bold text-slate-800">@{user.username}</p>
+                              <p className="font-bold text-slate-800 dark:text-white">@{user.username}</p>
                               {isSelf && (
-                                <span className="text-[10px] text-blue-600 font-medium">(Tu cuenta en sesión)</span>
+                                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">(Tu cuenta en sesión)</span>
                               )}
                             </div>
                           </div>
@@ -509,7 +506,7 @@ export default function Usuarios() {
                         {/* Rol de Sistema */}
                         <td className="py-3.5 px-6">
                           {user.rolAcceso === 'Administrador' && (
-                            <span className="px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase bg-[#0f172a] text-white tracking-wider">
+                            <span className="px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase bg-[#0f172a] dark:bg-slate-900 text-white border border-slate-700 tracking-wider">
                               Administrador
                             </span>
                           )}
@@ -519,7 +516,7 @@ export default function Usuarios() {
                             </span>
                           )}
                           {user.rolAcceso === 'Auditor' && (
-                            <span className="px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase bg-amber-100 text-amber-800 border border-amber-200 tracking-wider">
+                            <span className="px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700/50 tracking-wider">
                               Auditor
                             </span>
                           )}
@@ -536,8 +533,8 @@ export default function Usuarios() {
                               isSelf ? 'cursor-not-allowed opacity-80' : 'cursor-pointer hover:opacity-80'
                             } ${
                               user.estadoActivo === 1 
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
-                                : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800' 
+                                : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
                             }`}
                           >
                             <span className={`w-1.5 h-1.5 rounded-full ${user.estadoActivo === 1 ? 'bg-emerald-500' : 'bg-rose-500'}`} />
@@ -549,18 +546,18 @@ export default function Usuarios() {
                         <td className="py-3.5 px-6 text-center">
                           <div className="flex flex-col items-center gap-1">
                             {user.solicitaPin === 1 && (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-300 animate-pulse">
-                                <BellRing size={11} className="text-amber-600" />
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 dark:bg-amber-950/50 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 animate-pulse">
+                                <BellRing size={11} className="text-amber-600 dark:text-amber-400" />
                                 <span>Solicitó PIN</span>
                               </span>
                             )}
                             {user.diasRestantesPin > 0 ? (
-                              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700" title={`Último PIN: ${user.fechaUltimoPinFormat || 'Reciente'}`}>
-                                <Clock size={12} className="text-amber-500" />
+                              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 dark:text-amber-400" title={`Último PIN: ${user.fechaUltimoPinFormat || 'Reciente'}`}>
+                                <Clock size={12} className="text-amber-500 dark:text-amber-400" />
                                 <span>{user.diasRestantesPin} días restantes</span>
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600">
+                              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
                                 <CheckCircle2 size={12} />
                                 <span>Cooldown cumplido</span>
                               </span>
@@ -569,9 +566,9 @@ export default function Usuarios() {
                         </td>
 
                         {/* Último Acceso */}
-                        <td className="py-3.5 px-6 text-center text-slate-500 whitespace-nowrap">
+                        <td className="py-3.5 px-6 text-center text-slate-500 dark:text-slate-400 whitespace-nowrap">
                           <div className="inline-flex items-center gap-1.5 text-[11px]">
-                            <Clock size={12} className="text-slate-400" />
+                            <Clock size={12} className="text-slate-400 dark:text-slate-400" />
                             <span>{user.ultimoAcceso || 'Sin actividad'}</span>
                           </div>
                         </td>
@@ -584,19 +581,19 @@ export default function Usuarios() {
                               onClick={() => handleAbrirGestionPin(user)}
                               className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
                                 user.solicitaPin === 1
-                                  ? 'bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 font-bold shadow-xs'
-                                  : 'text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 border border-slate-200/60'
+                                  ? 'bg-amber-100 dark:bg-amber-900/60 hover:bg-amber-200 dark:hover:bg-amber-900 text-amber-900 dark:text-amber-100 border border-amber-300 dark:border-amber-700 font-bold shadow-xs'
+                                  : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700'
                               }`}
                               title="Gestionar PIN de recuperación y cooldown de 30 días"
                             >
-                              <KeyRound size={13} className={user.solicitaPin === 1 ? 'text-amber-700' : 'text-slate-500'} />
+                              <KeyRound size={13} className={user.solicitaPin === 1 ? 'text-amber-700 dark:text-amber-300' : 'text-slate-500 dark:text-slate-400'} />
                               <span>Regenerar PIN</span>
                             </button>
 
                             <button
                               type="button"
                               onClick={() => handleAbrirEditarRol(user)}
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-blue-600 hover:bg-blue-50 border border-slate-200/60 rounded-lg transition cursor-pointer"
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700 rounded-lg transition cursor-pointer"
                               title="Modificar rol institucional de este usuario"
                             >
                               <Edit2 size={13} />
@@ -613,21 +610,21 @@ export default function Usuarios() {
           </div>
 
           {/* Pie de Tabla con Paginación */}
-          <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs select-none">
+          <div className="p-4 border-t border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs select-none">
             <div className="flex items-center gap-2 text-emerald-600 font-semibold text-[11px] tracking-wider uppercase">
               <CheckCircle2 size={15} />
               <span>Control de Auditoría Activo</span>
             </div>
 
             {totalPaginas > 1 && (
-              <div className="flex items-center gap-2 text-xs text-slate-500">
+              <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-gray-300">
                 <span>Página <strong>{paginaActual}</strong> de {totalPaginas}</span>
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
                     disabled={paginaActual === 1}
                     onClick={() => setPaginaActual(p => Math.max(1, p - 1))}
-                    className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                    className="p-1.5 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/60 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
                   >
                     <ChevronLeft size={14} />
                   </button>
@@ -635,7 +632,7 @@ export default function Usuarios() {
                     type="button"
                     disabled={paginaActual === totalPaginas}
                     onClick={() => setPaginaActual(p => Math.min(totalPaginas, p + 1))}
-                    className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                    className="p-1.5 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/60 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
                   >
                     <ChevronRight size={14} />
                   </button>
@@ -646,7 +643,7 @@ export default function Usuarios() {
         </div>
 
         {/* Footer Institucional */}
-        <div className="text-center pt-4 pb-2 text-[11px] text-slate-400 tracking-wider">
+        <div className="text-center pt-4 pb-2 text-[11px] text-slate-400 dark:text-gray-400 tracking-wider">
           © 2026 TRIBUNAL ELECTORAL PERMANENTE
         </div>
 
@@ -655,17 +652,17 @@ export default function Usuarios() {
       {/* ================= MODAL: MODIFICAR ROL INSTITUCIONAL ================= */}
       {usuarioEditandoRol && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-100 animate-scale-in">
-            <div className="flex justify-between items-center pb-3 border-b border-slate-100 mb-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-100 dark:border-slate-700 animate-scale-in">
+            <div className="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-700 mb-4">
               <div>
-                <h3 className="text-base font-bold text-slate-800">Modificar Rol Institucional</h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Operador: <strong className="text-slate-700">@{usuarioEditandoRol.username}</strong> ({usuarioEditandoRol.codUsuario})
+                <h3 className="text-base font-bold text-slate-800 dark:text-gray-100">Modificar Rol Institucional</h3>
+                <p className="text-xs text-slate-400 dark:text-gray-400 mt-0.5">
+                  Operador: <strong className="text-slate-700 dark:text-gray-200">@{usuarioEditandoRol.username}</strong> ({usuarioEditandoRol.codUsuario})
                 </p>
               </div>
               <button 
                 onClick={() => setUsuarioEditandoRol(null)} 
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition"
+                className="text-slate-400 dark:text-gray-400 hover:text-slate-600 p-1 rounded-lg transition"
               >
                 <X size={18} />
               </button>
@@ -673,7 +670,7 @@ export default function Usuarios() {
 
             <form onSubmit={handleGuardarCambioRol} className="space-y-4 text-xs">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-gray-200 mb-1.5">
                   Seleccionar nuevo rol:
                 </label>
                 <div className="space-y-2">
@@ -682,7 +679,7 @@ export default function Usuarios() {
                   }`}>
                     <div>
                       <p className="font-bold text-xs">Técnico</p>
-                      <p className="text-[11px] text-slate-500">Gestión de insumos, equipos patrimoniales y movimientos.</p>
+                      <p className="text-[11px] text-slate-500 dark:text-gray-300">Gestión de insumos, equipos patrimoniales y movimientos.</p>
                     </div>
                     <input 
                       type="radio" 
@@ -699,7 +696,7 @@ export default function Usuarios() {
                   }`}>
                     <div>
                       <p className="font-bold text-xs">Auditor</p>
-                      <p className="text-[11px] text-slate-500">Consulta de reportes analíticos, trazabilidad e inspección.</p>
+                      <p className="text-[11px] text-slate-500 dark:text-gray-300">Consulta de reportes analíticos, trazabilidad e inspección.</p>
                     </div>
                     <input 
                       type="radio" 
@@ -716,7 +713,7 @@ export default function Usuarios() {
                   }`}>
                     <div>
                       <p className="font-bold text-xs">Administrador</p>
-                      <p className="text-[11px] text-slate-500">Acceso total, gestión de usuarios, roles y copias de seguridad.</p>
+                      <p className="text-[11px] text-slate-500 dark:text-gray-300">Acceso total, gestión de usuarios, roles y copias de seguridad.</p>
                     </div>
                     <input 
                       type="radio" 
@@ -724,17 +721,17 @@ export default function Usuarios() {
                       value="Administrador" 
                       checked={nuevoRol === 'Administrador'} 
                       onChange={() => setNuevoRol('Administrador')} 
-                      className="text-slate-800"
+                      className="text-slate-800 dark:text-gray-100"
                     />
                   </label>
                 </div>
               </div>
 
-              <div className="pt-3 flex justify-end gap-2 border-t border-slate-100">
+              <div className="pt-3 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-700">
                 <button
                   type="button"
                   onClick={() => setUsuarioEditandoRol(null)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 rounded-xl transition cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -754,18 +751,18 @@ export default function Usuarios() {
       {/* ================= MODAL: GESTIÓN DE PIN Y COOLDOWN DE 30 DÍAS ================= */}
       {usuarioGestionandoPin && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 sm:p-7 max-w-md w-full shadow-2xl border border-slate-100 animate-scale-in">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 sm:p-7 max-w-md w-full shadow-2xl border border-slate-100 dark:border-slate-700 animate-scale-in">
             
             {/* Cabecera del modal */}
-            <div className="flex justify-between items-center pb-3 border-b border-slate-100 mb-4">
+            <div className="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-700 mb-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
                   <KeyRound size={18} />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-800">Gestión de PIN de Recuperación</h3>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Operador: <strong className="text-slate-700">@{usuarioGestionandoPin.username}</strong> ({usuarioGestionandoPin.codUsuario})
+                  <h3 className="text-base font-bold text-slate-800 dark:text-gray-100">Gestión de PIN de Recuperación</h3>
+                  <p className="text-xs text-slate-400 dark:text-gray-400 mt-0.5">
+                    Operador: <strong className="text-slate-700 dark:text-gray-200">@{usuarioGestionandoPin.username}</strong> ({usuarioGestionandoPin.codUsuario})
                   </p>
                 </div>
               </div>
@@ -774,7 +771,7 @@ export default function Usuarios() {
                   setUsuarioGestionandoPin(null);
                   setNuevoPinGenerado(null);
                 }} 
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition cursor-pointer"
+                className="text-slate-400 dark:text-gray-400 hover:text-slate-600 p-1 rounded-lg transition cursor-pointer"
               >
                 <X size={18} />
               </button>
@@ -795,8 +792,8 @@ export default function Usuarios() {
                   <CheckCircle2 size={32} />
                 </div>
                 <div>
-                  <h4 className="text-base font-bold text-slate-800">¡Nuevo PIN Generado con Éxito!</h4>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <h4 className="text-base font-bold text-slate-800 dark:text-gray-100">¡Nuevo PIN Generado con Éxito!</h4>
+                  <p className="text-xs text-slate-500 dark:text-gray-300 mt-0.5">
                     El operador @{usuarioGestionandoPin.username} ya cuenta con una nueva clave de acceso de 6 dígitos.
                   </p>
                 </div>
@@ -805,8 +802,8 @@ export default function Usuarios() {
                   <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 block mb-1">
                     Nuevo PIN de Seguridad (6 dígitos)
                   </span>
-                  <div className="flex items-center justify-between bg-white border border-indigo-200 rounded-xl px-4 py-2.5 shadow-2xs">
-                    <span className="font-mono text-2xl font-black text-slate-900 tracking-widest">
+                  <div className="flex items-center justify-between bg-white dark:bg-slate-800 border border-indigo-200 rounded-xl px-4 py-2.5 shadow-2xs">
+                    <span className="font-mono text-2xl font-black text-slate-900 dark:text-gray-100 tracking-widest">
                       {nuevoPinGenerado}
                     </span>
                     <button
@@ -827,7 +824,7 @@ export default function Usuarios() {
                       )}
                     </button>
                   </div>
-                  <p className="text-[11px] text-slate-600 mt-2.5 leading-relaxed">
+                  <p className="text-[11px] text-slate-600 dark:text-gray-300 mt-2.5 leading-relaxed">
                     Comuníquele este código al operador. A partir de hoy, entra en vigencia el período de <strong>cooldown obligatorio de 30 días</strong>.
                   </p>
                 </div>
@@ -870,23 +867,23 @@ export default function Usuarios() {
                     </p>
                   </div>
                 ) : (
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-600 flex items-center gap-2">
-                    <CheckCircle2 size={15} className="text-slate-400 shrink-0" />
+                  <div className="bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-slate-600 dark:text-gray-300 flex items-center gap-2">
+                    <CheckCircle2 size={15} className="text-slate-400 dark:text-gray-400 shrink-0" />
                     <span>Sin solicitud formal pendiente por parte del usuario.</span>
                   </div>
                 )}
 
                 {/* 2. Cooldown y Política de 30 días */}
-                <div className="border border-slate-200 rounded-xl p-3.5 space-y-2.5">
+                <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 space-y-2.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-500 font-medium">Última emisión de PIN:</span>
-                    <strong className="text-slate-800 font-semibold">
+                    <span className="text-slate-500 dark:text-gray-300 font-medium">Última emisión de PIN:</span>
+                    <strong className="text-slate-800 dark:text-gray-100 font-semibold">
                       {usuarioGestionandoPin.fechaUltimoPinFormat || 'Generación inicial'}
                     </strong>
                   </div>
 
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-500 font-medium">Política de seguridad:</span>
+                    <span className="text-slate-500 dark:text-gray-300 font-medium">Política de seguridad:</span>
                     <span className="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full text-[10px]">
                       Cooldown de 30 días
                     </span>
@@ -916,14 +913,14 @@ export default function Usuarios() {
                 </div>
 
                 {/* Botones de acción */}
-                <div className="pt-2 flex justify-end gap-2 border-t border-slate-100">
+                <div className="pt-2 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-700">
                   <button
                     type="button"
                     onClick={() => {
                       setUsuarioGestionandoPin(null);
                       setNuevoPinGenerado(null);
                     }}
-                    className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+                    className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 rounded-xl transition cursor-pointer"
                   >
                     Cancelar
                   </button>
