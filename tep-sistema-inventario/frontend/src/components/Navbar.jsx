@@ -114,7 +114,6 @@ export default function Navbar({ title, isSidebarOpen = true, onToggleSidebar })
             {/* Encabezado del Dropdown */}
             <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
               <p className="text-xs font-bold text-slate-800 dark:text-white">{currentUser.username}</p>
-              <p className="text-[11px] text-slate-400 dark:text-slate-400 truncate">{currentUser.username}@tribunal.gob.ar</p>
               <div className="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-[10px] font-semibold border border-blue-200 dark:border-blue-700/50">
                 <Shield size={10} />
                 <span>{currentUser.rolAcceso}</span>

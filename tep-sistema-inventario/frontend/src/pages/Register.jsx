@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { X, Eye, EyeOff, ShieldCheck, Loader2, KeyRound, Copy, Check, AlertTriangle } from 'lucide-react';
+import { X, Eye, EyeOff, ShieldCheck, Loader2, KeyRound, Copy, Check, AlertTriangle, ChevronDown } from 'lucide-react';
 import { registerService } from '../services/authService';
+import ThemeToggle from '../components/ThemeToggle';
 
 export default function Register({ onSwitchToLogin }) {
   // 1. ZONA JAVASCRIPT: Estados para capturar los datos del nuevo usuario
@@ -67,10 +68,15 @@ export default function Register({ onSwitchToLogin }) {
   if (success && pinGenerado) {
     return (
       <div className="relative min-h-screen w-full flex items-center justify-center bg-slate-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.25),rgba(255,255,255,0))] p-4 sm:p-6 py-8">
+        {/* Botón flotante para alternar tema */}
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
+          <ThemeToggle />
+        </div>
+
         <div className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl sm:shadow-2xl p-6 sm:p-8 my-4 text-center animate-fade-in border border-slate-100 dark:border-slate-700">
           
           {/* Icono de éxito */}
-          <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-100 shadow-xs">
+          <div className="w-16 h-16 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-100 dark:border-emerald-800/60 shadow-xs">
             <ShieldCheck size={36} />
           </div>
 
@@ -82,18 +88,18 @@ export default function Register({ onSwitchToLogin }) {
           </p>
 
           {/* Tarjeta destacada con el PIN */}
-          <div className="bg-gradient-to-br from-indigo-50/80 to-blue-50/60 border border-indigo-200/80 rounded-2xl p-5 mb-5 shadow-xs text-left">
+          <div className="bg-gradient-to-br from-indigo-50/80 to-blue-50/60 dark:from-indigo-950/40 dark:to-blue-950/30 border border-indigo-200/80 dark:border-indigo-800/60 rounded-2xl p-5 mb-5 shadow-xs text-left">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 flex items-center gap-1.5">
-                <KeyRound size={13} className="text-indigo-600" />
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 dark:text-indigo-400 flex items-center gap-1.5">
+                <KeyRound size={13} className="text-indigo-600 dark:text-indigo-400" />
                 Tu PIN de Recuperación
               </span>
-              <span className="text-[10px] bg-indigo-100 text-indigo-800 font-semibold px-2 py-0.5 rounded-full">
+              <span className="text-[10px] bg-indigo-100 dark:bg-indigo-900/60 text-indigo-800 dark:text-indigo-300 font-semibold px-2 py-0.5 rounded-full">
                 Válido por 30 días
               </span>
             </div>
 
-            <div className="flex items-center justify-between bg-white dark:bg-slate-800 border border-indigo-200 rounded-xl px-4 py-3 shadow-2xs">
+            <div className="flex items-center justify-between bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-800/60 rounded-xl px-4 py-3 shadow-2xs">
               <span className="font-mono text-2xl font-black text-slate-900 dark:text-gray-100 tracking-widest">
                 {pinGenerado}
               </span>
@@ -141,8 +147,13 @@ export default function Register({ onSwitchToLogin }) {
   // 4. Formulario Principal de Registro
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center bg-slate-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.25),rgba(255,255,255,0))] p-4 sm:p-6 py-8">
+      {/* Botón flotante para alternar tema */}
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
+        <ThemeToggle />
+      </div>
+
       {/* Tarjeta Modal Blanca */}
-      <div className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl sm:shadow-2xl p-6 sm:p-10 my-4 sm:my-6">
+      <div className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl sm:shadow-2xl p-6 sm:p-10 my-4 sm:my-6 border border-transparent dark:border-slate-700/60">
         
         {/* Encabezado */}
         <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 dark:text-gray-100 mb-1.5 sm:mb-2 tracking-tight">
@@ -154,7 +165,7 @@ export default function Register({ onSwitchToLogin }) {
 
         {/* Mensaje de error */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg p-3 mb-5">
+          <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-red-600 dark:text-red-300 text-xs rounded-lg p-3 mb-5">
             {error}
           </div>
         )}
@@ -182,15 +193,26 @@ export default function Register({ onSwitchToLogin }) {
             <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
               Rol de Acceso Solicitado
             </label>
-            <select
-              value={rolAcceso}
-              onChange={(e) => setRolAcceso(e.target.value)}
-              className="w-full pb-2 text-sm text-gray-800 dark:text-gray-100 bg-transparent border-b border-gray-300 dark:border-slate-700 focus:border-indigo-600 focus:outline-none transition cursor-pointer"
-            >
-              <option value="Tecnico">Técnico (Gestión de equipos y stock)</option>
-              <option value="Auditor">Auditor (Solo lectura y reportes)</option>
-              <option value="Administrador">Administrador (Control total)</option>
-            </select>
+            <div className="relative">
+              <select
+                value={rolAcceso}
+                onChange={(e) => setRolAcceso(e.target.value)}
+                className="w-full pb-2 pr-8 text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-slate-800 border-b border-gray-300 dark:border-slate-700 focus:border-indigo-600 focus:outline-none transition cursor-pointer appearance-none"
+              >
+                <option value="Tecnico" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 py-1.5">
+                  Técnico (Gestión de equipos y stock)
+                </option>
+                <option value="Auditor" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 py-1.5">
+                  Auditor (Solo lectura y reportes)
+                </option>
+                <option value="Administrador" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 py-1.5">
+                  Administrador (Control total)
+                </option>
+              </select>
+              <div className="pointer-events-none absolute right-0 bottom-2 text-gray-400 dark:text-gray-400">
+                <ChevronDown size={16} />
+              </div>
+            </div>
           </div>
 
           {/* Campo: Contraseña */}

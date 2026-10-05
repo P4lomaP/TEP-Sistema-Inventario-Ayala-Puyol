@@ -756,7 +756,7 @@ export default function Usuarios() {
             {/* Cabecera del modal */}
             <div className="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-700 mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
+                <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-800/60">
                   <KeyRound size={18} />
                 </div>
                 <div>
@@ -779,8 +779,8 @@ export default function Usuarios() {
 
             {/* Error si ocurre */}
             {errorGestionPin && (
-              <div className="bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl p-3 mb-4 flex items-start gap-2">
-                <AlertTriangle size={15} className="shrink-0 mt-0.5 text-red-500" />
+              <div className="bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 text-xs rounded-xl p-3 mb-4 flex items-start gap-2">
+                <AlertTriangle size={15} className="shrink-0 mt-0.5 text-rose-500 dark:text-rose-400" />
                 <span>{errorGestionPin}</span>
               </div>
             )}
@@ -788,7 +788,7 @@ export default function Usuarios() {
             {/* SI SE REGENERÓ UN NUEVO PIN: MOSTRARLO CON BOTÓN COPIAR */}
             {nuevoPinGenerado ? (
               <div className="space-y-4 text-center py-2 animate-fade-in">
-                <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto border border-emerald-100">
+                <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center mx-auto border border-emerald-100 dark:border-emerald-800/60">
                   <CheckCircle2 size={32} />
                 </div>
                 <div>
@@ -798,11 +798,11 @@ export default function Usuarios() {
                   </p>
                 </div>
 
-                <div className="bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-200 rounded-2xl p-4 text-left">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 block mb-1">
+                <div className="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/40 dark:to-blue-950/30 border border-indigo-200 dark:border-indigo-800/60 rounded-2xl p-4 text-left">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 dark:text-indigo-400 block mb-1">
                     Nuevo PIN de Seguridad (6 dígitos)
                   </span>
-                  <div className="flex items-center justify-between bg-white dark:bg-slate-800 border border-indigo-200 rounded-xl px-4 py-2.5 shadow-2xs">
+                  <div className="flex items-center justify-between bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-800/60 rounded-xl px-4 py-2.5 shadow-2xs">
                     <span className="font-mono text-2xl font-black text-slate-900 dark:text-gray-100 tracking-widest">
                       {nuevoPinGenerado}
                     </span>
@@ -846,23 +846,23 @@ export default function Usuarios() {
                 
                 {/* 1. Estado de la solicitud */}
                 {usuarioGestionandoPin.solicitaPin === 1 ? (
-                  <div className="bg-amber-50 border border-amber-300 rounded-xl p-3.5 text-amber-950">
+                  <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800/60 rounded-xl p-3.5 text-amber-950 dark:text-amber-200">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-bold flex items-center gap-1.5 text-amber-900">
-                        <BellRing size={14} className="text-amber-600" />
+                      <span className="font-bold flex items-center gap-1.5 text-amber-900 dark:text-amber-300">
+                        <BellRing size={14} className="text-amber-600 dark:text-amber-400" />
                         Solicitud Activa del Usuario
                       </span>
                       <button
                         type="button"
                         onClick={handleDescartarSolicitudPin}
                         disabled={descartandoSolicitud}
-                        className="text-[10px] text-amber-800 hover:text-rose-700 underline font-semibold cursor-pointer"
+                        className="text-[10px] text-amber-800 dark:text-amber-300 hover:text-rose-700 dark:hover:text-rose-400 underline font-semibold cursor-pointer"
                         title="Descartar solicitud sin regenerar"
                       >
                         {descartandoSolicitud ? 'Descartando...' : 'Descartar Solicitud'}
                       </button>
                     </div>
-                    <p className="text-[11px] text-amber-800 leading-relaxed">
+                    <p className="text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
                       El operador notificó que olvidó su PIN y necesita restablecer su acceso al sistema.
                     </p>
                   </div>
@@ -884,15 +884,15 @@ export default function Usuarios() {
 
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-slate-500 dark:text-gray-300 font-medium">Política de seguridad:</span>
-                    <span className="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full text-[10px]">
+                    <span className="font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/50 px-2 py-0.5 rounded-full text-[10px]">
                       Cooldown de 30 días
                     </span>
                   </div>
 
                   {usuarioGestionandoPin.diasRestantesPin > 0 ? (
-                    <div className="mt-3 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-900 text-[11px] leading-relaxed">
-                      <div className="flex items-center gap-1.5 font-bold mb-1 text-rose-800">
-                        <Clock size={13} className="text-rose-600" />
+                    <div className="mt-3 p-3 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/60 rounded-lg text-rose-900 dark:text-rose-200 text-[11px] leading-relaxed">
+                      <div className="flex items-center gap-1.5 font-bold mb-1 text-rose-800 dark:text-rose-300">
+                        <Clock size={13} className="text-rose-600 dark:text-rose-400" />
                         <span>Cooldown de Seguridad Activo</span>
                       </div>
                       <p>
@@ -900,9 +900,9 @@ export default function Usuarios() {
                       </p>
                     </div>
                   ) : (
-                    <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-900 text-[11px] leading-relaxed">
-                      <div className="flex items-center gap-1.5 font-bold mb-1 text-emerald-800">
-                        <CheckCircle2 size={13} className="text-emerald-600" />
+                    <div className="mt-3 p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-lg text-emerald-900 dark:text-emerald-200 text-[11px] leading-relaxed">
+                      <div className="flex items-center gap-1.5 font-bold mb-1 text-emerald-800 dark:text-emerald-300">
+                        <CheckCircle2 size={13} className="text-emerald-600 dark:text-emerald-400" />
                         <span>Habilitado para Regenerar</span>
                       </div>
                       <p>
@@ -931,7 +931,7 @@ export default function Usuarios() {
                     disabled={regenerandoPin || usuarioGestionandoPin.diasRestantesPin > 0}
                     className={`px-4 py-2 text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 ${
                       usuarioGestionandoPin.diasRestantesPin > 0
-                        ? 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300'
+                        ? 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-400 cursor-not-allowed border border-slate-300 dark:border-slate-600'
                         : 'bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer'
                     }`}
                   >

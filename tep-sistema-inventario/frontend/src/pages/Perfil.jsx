@@ -3,7 +3,6 @@ import {
   ShieldCheck, 
   Calendar, 
   Clock, 
-  Mail, 
   CheckCircle2, 
   Activity,
   RefreshCw
@@ -16,7 +15,6 @@ export default function Perfil() {
     idUsuario: null,
     codUsuario: 'USR-000',
     username: '',
-    email: '',
     rolAcceso: 'Técnico',
     fechaCreacion: 'Cargando...',
     diasActivo: 1,
@@ -114,13 +112,9 @@ export default function Perfil() {
             </div>
 
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 pt-2 text-xs text-slate-500 dark:text-gray-300">
-              <span className="flex items-center gap-1.5 font-mono">
-                <Mail size={14} className="text-slate-400 dark:text-gray-400" />
-                {usuario.email || `${usuario.username}@tribunal.gob.ar`}
-              </span>
               <span className="flex items-center gap-1.5 font-semibold">
                 <CheckCircle2 size={14} className="text-emerald-500" />
-                Estado {usuario.estado}
+                Estado: {usuario.estado}
               </span>
             </div>
           </div>

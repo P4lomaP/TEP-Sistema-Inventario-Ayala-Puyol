@@ -21,6 +21,7 @@ import {
   getAuthToken,
   isTokenExpired
 } from '../services/authService';
+import ThemeToggle from '../components/ThemeToggle';
 
 export default function Login({ onSwitchToRegister, onLoginSuccess }) {
   // 1. ZONA JAVASCRIPT: Estados para login principal
@@ -204,8 +205,13 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
   // 3. ZONA VISUAL (HTML + Tailwind)
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center bg-slate-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.25),rgba(255,255,255,0))] p-4 sm:p-6">
+      {/* Botón flotante para alternar Modo Claro / Oscuro */}
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
+        <ThemeToggle />
+      </div>
+
       {/* Tarjeta Modal Blanca */}
-      <div className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl sm:shadow-2xl p-6 sm:p-10 my-4 sm:my-0">
+      <div className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl sm:shadow-2xl p-6 sm:p-10 my-4 sm:my-0 border border-transparent dark:border-slate-700/60">
         
         {/* Título Principal */}
         <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 dark:text-gray-100 mb-6 sm:mb-8 tracking-tight">
@@ -214,18 +220,18 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
 
         {/* Mensaje de alerta por sesión cerrada por inactividad */}
         {inactivityNotice && (
-          <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl p-3.5 mb-6 flex items-start gap-2.5 shadow-xs">
-            <Clock size={16} className="text-amber-600 mt-0.5 shrink-0" />
+          <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-200 text-xs rounded-xl p-3.5 mb-6 flex items-start gap-2.5 shadow-xs">
+            <Clock size={16} className="text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
             <div>
-              <p className="font-semibold">Sesión finalizada por inactividad</p>
-              <p className="text-amber-700 mt-0.5">{inactivityNotice}</p>
+              <p className="font-semibold text-amber-900 dark:text-amber-200">Sesión finalizada por inactividad</p>
+              <p className="text-amber-700 dark:text-amber-300 mt-0.5">{inactivityNotice}</p>
             </div>
           </div>
         )}
 
         {/* Mensaje de alerta por error */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg p-3 mb-6">
+          <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-red-600 dark:text-red-300 text-xs rounded-lg p-3 mb-6">
             {error}
           </div>
         )}
@@ -330,7 +336,7 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
 
             {/* Encabezado del Modal */}
             <div className="flex items-center gap-2.5 mb-2">
-              <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
+              <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-800/60">
                 <KeyRound size={18} />
               </div>
               <div>
@@ -341,8 +347,8 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
 
             {/* Error en el modal */}
             {errorRecuperacion && (
-              <div className="bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl p-3 my-4 flex items-start gap-2">
-                <AlertTriangle size={15} className="shrink-0 mt-0.5 text-red-500" />
+              <div className="bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 text-xs rounded-xl p-3 my-4 flex items-start gap-2">
+                <AlertTriangle size={15} className="shrink-0 mt-0.5 text-rose-500 dark:text-rose-400" />
                 <span className="leading-snug">{errorRecuperacion}</span>
               </div>
             )}
@@ -409,34 +415,34 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
 
                 {/* SECCIÓN SI EL PIN ES INCORRECTO: VALIDACIÓN DE REGLA DE 30 DÍAS */}
                 {pinIncorrecto && (
-                  <div className="mt-4 p-3.5 bg-amber-50/80 border border-amber-200 rounded-xl animate-fade-in text-left">
-                    <p className="text-xs font-bold text-amber-900 flex items-center gap-1.5 mb-1">
-                      <ShieldAlert size={14} className="text-amber-600" />
+                  <div className="mt-4 p-3.5 bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl animate-fade-in text-left">
+                    <p className="text-xs font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5 mb-1">
+                      <ShieldAlert size={14} className="text-amber-600 dark:text-amber-400" />
                       ¿Olvidaste o perdiste tu PIN de recuperación?
                     </p>
 
                     {cooldownDiasRestantes > 0 ? (
                       /* Si aún NO pasaron 30 días: Bloqueo de solicitud con explicación clara */
                       <div className="space-y-2.5 mt-2">
-                        <div className="bg-rose-50 border border-rose-200 text-rose-900 p-3 rounded-xl text-[11px] leading-relaxed">
-                          <p className="font-bold flex items-center gap-1.5 text-rose-800">
-                            <Clock size={13} className="text-rose-600 shrink-0" />
+                        <div className="bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/60 text-rose-900 dark:text-rose-200 p-3 rounded-xl text-[11px] leading-relaxed">
+                          <p className="font-bold flex items-center gap-1.5 text-rose-800 dark:text-rose-300">
+                            <Clock size={13} className="text-rose-600 dark:text-rose-400 shrink-0" />
                             <span>Período de espera obligatorio (30 días)</span>
                           </p>
-                          <p className="mt-1">
-                            El PIN tiene una vigencia obligatoria de <strong>30 días</strong> para que recuerdes o busques el código que anotaste. No podés solicitar un nuevo PIN cada semana o pocos días.
+                          <p className="mt-1 text-rose-900 dark:text-rose-200">
+                            El PIN tiene una vigencia obligatoria de <strong className="font-bold text-rose-950 dark:text-rose-100">30 días</strong> para que recuerdes o busques el código que anotaste. No podés solicitar un nuevo PIN cada semana o pocos días.
                           </p>
-                          <p className="mt-1.5 font-bold text-rose-950">
-                            Te quedan <span className="underline text-rose-700 font-black">{cooldownDiasRestantes} día(s)</span> de espera para poder solicitar uno nuevo.
+                          <p className="mt-1.5 font-bold text-rose-950 dark:text-rose-100">
+                            Te quedan <span className="underline text-rose-700 dark:text-rose-400 font-black">{cooldownDiasRestantes} día(s)</span> de espera para poder solicitar uno nuevo.
                           </p>
-                          <p className="mt-1.5 text-[10px] text-rose-600 italic">
+                          <p className="mt-1.5 text-[10px] text-rose-600 dark:text-rose-400 italic">
                             Por favor revisá el lugar donde guardaste o anotaste tu PIN de seguridad.
                           </p>
                         </div>
                         <button
                           type="button"
                           disabled
-                          className="w-full bg-slate-200 text-slate-400 dark:text-gray-400 text-xs font-bold py-2 px-3 rounded-lg cursor-not-allowed border border-slate-300 flex items-center justify-center gap-1.5"
+                          className="w-full bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-400 text-xs font-bold py-2 px-3 rounded-lg cursor-not-allowed border border-slate-300 dark:border-slate-600 flex items-center justify-center gap-1.5"
                         >
                           <Clock size={13} />
                           <span>Solicitud bloqueada ({cooldownDiasRestantes}d restantes)</span>
@@ -445,7 +451,7 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
                     ) : (
                       /* Si ya pasaron los 30 días: Puede solicitar un nuevo PIN al admin */
                       <div className="space-y-2.5 mt-2">
-                        <p className="text-[11px] text-amber-800 leading-relaxed">
+                        <p className="text-[11px] text-amber-800 dark:text-amber-200 leading-relaxed">
                           Han transcurrido 30 días desde tu última emisión. Como cumpliste el plazo de seguridad obligatorio, ahora podés solicitar al Administrador que te regenere un nuevo PIN:
                         </p>
 
@@ -454,7 +460,7 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
                             type="button"
                             onClick={handleSolicitarPinAdmin}
                             disabled={solicitandoPinAdmin}
-                            className="w-full bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-xs font-bold py-2 px-3 rounded-lg shadow-xs transition flex items-center justify-center gap-2 cursor-pointer"
+                            className="w-full bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-500 disabled:opacity-50 text-white text-xs font-bold py-2 px-3 rounded-lg shadow-xs transition flex items-center justify-center gap-2 cursor-pointer"
                           >
                             {solicitandoPinAdmin ? (
                               <>
@@ -469,8 +475,8 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
                             )}
                           </button>
                         ) : (
-                          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-emerald-800 text-[11px] space-y-1">
-                            <p className="font-bold flex items-center gap-1.5 text-emerald-700">
+                          <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-lg p-3 text-emerald-800 dark:text-emerald-200 text-[11px] space-y-1">
+                            <p className="font-bold flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
                               <CheckCircle2 size={14} />
                               ¡Solicitud enviada al Administrador!
                             </p>
@@ -489,8 +495,8 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
             {/* PASO 2: EL PIN ESTÁ BIEN -> INGRESAR NUEVA CONTRASEÑA */}
             {pasoRecuperacion === 2 && (
               <form onSubmit={handleActualizarPassword} className="space-y-4 mt-4">
-                <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl p-3 flex items-center gap-2">
-                  <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-200 text-xs rounded-xl p-3 flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>¡PIN validado con éxito! Ahora podés definir tu nueva contraseña.</span>
                 </div>
 
@@ -563,7 +569,7 @@ export default function Login({ onSwitchToRegister, onLoginSuccess }) {
             {/* PASO 3: ÉXITO */}
             {pasoRecuperacion === 3 && (
               <div className="text-center py-4 space-y-4 animate-fade-in">
-                <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto border border-emerald-100">
+                <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center mx-auto border border-emerald-100 dark:border-emerald-800/60">
                   <CheckCircle2 size={32} />
                 </div>
                 <div>

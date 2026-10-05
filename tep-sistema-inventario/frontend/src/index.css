@@ -25,4 +25,16 @@
   .dark tbody td {
     color: #cbd5e1;
   }
+
+  /* Reglas para controles select y option en modo oscuro */
+  .dark select {
+    color-scheme: dark;
+    background-color: #1e293b;
+    color: #f8fafc;
+  }
+
+  .dark select option {
+    background-color: #1e293b;
+    color: #f8fafc;
+  }
 }

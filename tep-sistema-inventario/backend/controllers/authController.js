@@ -132,7 +132,7 @@ const register = async (req, res) => {
 
         if (results.length > 0) {
             return res.status(400).json({ 
-                message: 'El nombre de usuario o correo ya se encuentra registrado.' 
+                message: 'El nombre de usuario ya se encuentra registrado.' 
             });
         }
 
@@ -562,7 +562,6 @@ const obtenerPerfil = async (req, res) => {
                 idUsuario: usr.idUsuario,
                 codUsuario: usr.codUsuario,
                 username: usr.username,
-                email: `${usr.username.toLowerCase()}@tribunal.gob.ar`,
                 rolAcceso: usr.rolAcceso,
                 estadoActivo: usr.estadoActivo,
                 estado: usr.estadoActivo === 1 ? 'Activo' : 'Inactivo',
