@@ -1040,7 +1040,7 @@ export default function Movimientos() {
                   type="button"
                   onClick={handleRegistrarMovimiento}
                   disabled={articulos.length === 0 || enviandoMovimiento || isAuditor}
-                  className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-blue-500/20"
+                  className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all duration-200 ease-in-out hover:brightness-110 active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-blue-500/20"
                 >
                   {enviandoMovimiento ? (
                     <>

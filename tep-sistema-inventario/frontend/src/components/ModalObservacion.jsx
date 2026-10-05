@@ -65,7 +65,7 @@ export default function ModalObservacion({
       onClick={onClose}
     >
       <div 
-        className="relative w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-700 max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-150"
+        className="relative w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-700 max-h-[90vh] flex flex-col animate-fadeIn"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ENCABEZADO */}

@@ -151,7 +151,7 @@ export default function Dashboard() {
         {/* Bloque de 3 KPIs conectados a endpoints reales */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* KPI 1: Equipos Activos (GET /api/equipos -> estadoOperativo === 'Operativo') */}
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-slate-100 dark:border-slate-700 shadow-sm flex justify-between items-center">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-slate-100 dark:border-slate-700 shadow-sm flex justify-between items-center transition-shadow duration-300 hover:shadow-lg dark:hover:shadow-slate-700/30">
             <div>
               <p className="text-[11px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-1">Equipos Activos</p>
               <div className="flex items-baseline gap-2">
@@ -173,7 +173,7 @@ export default function Dashboard() {
           </div>
 
           {/* KPI 2: Total Insumos en Catálogo (GET /api/insumos) */}
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-slate-100 dark:border-slate-700 shadow-sm flex justify-between items-center">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-slate-100 dark:border-slate-700 shadow-sm flex justify-between items-center transition-shadow duration-300 hover:shadow-lg dark:hover:shadow-slate-700/30">
             <div>
               <p className="text-[11px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-1">Catálogo de Insumos</p>
               <div className="flex items-baseline gap-2">
@@ -194,7 +194,7 @@ export default function Dashboard() {
           </div>
 
           {/* KPI 3: Alertas Críticas (GET /api/insumos -> stockActual <= stockSeguridad) */}
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-slate-100 dark:border-slate-700 border-l-4 border-l-rose-500 shadow-sm flex justify-between items-center sm:col-span-2 lg:col-span-1">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-slate-100 dark:border-slate-700 border-l-4 border-l-rose-500 shadow-sm flex justify-between items-center sm:col-span-2 lg:col-span-1 transition-shadow duration-300 hover:shadow-lg dark:hover:shadow-slate-700/30">
             <div>
               <p className="text-[11px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-1">Alertas Críticas</p>
               <div className="flex items-baseline gap-2">
@@ -216,7 +216,7 @@ export default function Dashboard() {
         </div>
 
         {/* Sección: Distribución Mensual de Insumos (Gráfico de Barras) */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-slate-100 dark:border-slate-700 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 border border-slate-100 dark:border-slate-700 shadow-sm transition-shadow duration-300 hover:shadow-lg dark:hover:shadow-slate-700/30">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 sm:pb-6 border-b border-slate-100 dark:border-slate-700 gap-3 sm:gap-4">
             <div>
               <h4 className="text-sm sm:text-base font-bold text-slate-800 dark:text-white tracking-tight">Distribución Mensual de Insumos</h4>
@@ -270,7 +270,7 @@ export default function Dashboard() {
         </div>
 
         {/* Sección: Últimos 5 Movimientos (GET /api/movimientos -> slice(0, 5)) */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden transition-shadow duration-300 hover:shadow-lg dark:hover:shadow-slate-700/30">
           <div className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 dark:border-slate-700 gap-3">
             <div>
               <h4 className="text-sm sm:text-base font-bold text-slate-800 dark:text-white tracking-tight">Últimos 5 Movimientos</h4>
@@ -327,7 +327,7 @@ export default function Dashboard() {
                   </tr>
                 ) : (
                   dashboardData.ultimosMovimientos.map((mov) => (
-                    <tr key={mov.idMovimiento} className="hover:bg-slate-50/60 dark:hover:bg-slate-700/50 transition">
+                    <tr key={mov.idMovimiento} className="transition-colors duration-150 hover:bg-slate-50 dark:hover:bg-slate-700/50">
                       {/* Comprobante */}
                       <td className="py-4 px-6 font-mono font-medium">
                         <span className="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-2 py-1 rounded text-[11px] font-bold border border-slate-200/60 dark:border-slate-600">

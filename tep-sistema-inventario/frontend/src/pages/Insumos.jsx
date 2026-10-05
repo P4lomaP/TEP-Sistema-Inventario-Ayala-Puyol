@@ -264,7 +264,7 @@ export default function Insumos() {
               <button
                 type="button"
                 onClick={() => setIsModalNuevoOpen(true)}
-                className="flex items-center gap-2 px-3.5 sm:px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-xs transition shadow-blue-500/20 cursor-pointer"
+                className="flex items-center gap-2 px-3.5 sm:px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-xs transition-all duration-200 ease-in-out hover:brightness-110 active:scale-95 shadow-blue-500/20 cursor-pointer"
               >
                 <Plus size={16} />
                 <span>Nuevo Insumo</span>
@@ -390,7 +390,7 @@ export default function Insumos() {
                       <tr 
                         key={item.idInsumo} 
                         onDoubleClick={() => handleFilaDoubleClick(item)}
-                        className="hover:bg-blue-50/40 dark:hover:bg-slate-700/60 transition cursor-pointer select-none group"
+                        className="transition-colors duration-150 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer select-none group"
                         title="Doble clic para editar datos o dar de baja este insumo"
                       >
                         {/* Código con formato de etiqueta */}

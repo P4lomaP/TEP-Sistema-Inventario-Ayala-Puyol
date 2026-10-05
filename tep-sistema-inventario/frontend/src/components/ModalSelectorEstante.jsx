@@ -115,7 +115,7 @@ export default function ModalSelectorEstante({
       onClick={onClose}
     >
       <div 
-        className="relative w-full max-w-3xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-700 max-h-[92vh] flex flex-col"
+        className="relative w-full max-w-3xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-700 max-h-[92vh] flex flex-col animate-fadeIn"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Encabezado */}

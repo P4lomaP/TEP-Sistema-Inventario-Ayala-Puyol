@@ -187,7 +187,7 @@ export default function ModalDetalleEquipo({
       onClick={onClose}
     >
       <div 
-        className="relative w-full max-w-xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-700 max-h-[90vh] flex flex-col"
+        className="relative w-full max-w-xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-700 max-h-[90vh] flex flex-col animate-fadeIn"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ENCABEZADO */}
@@ -712,7 +712,7 @@ export default function ModalDetalleEquipo({
               <button
                 type="submit"
                 form="form-edit-equipo"
-                className="px-5 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                className="px-5 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs transition-all duration-200 ease-in-out hover:brightness-110 active:scale-95 flex items-center gap-1.5 cursor-pointer"
               >
                 <Save size={14} />
                 <span>Guardar Cambios</span>
@@ -753,7 +753,7 @@ export default function ModalDetalleEquipo({
                 <button
                   type="button"
                   onClick={() => setIsEditing(true)}
-                  className="px-4 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs transition-all duration-200 ease-in-out hover:brightness-110 active:scale-95 flex items-center gap-1.5 cursor-pointer"
                 >
                   <Edit3 size={14} />
                   <span>Editar Ficha</span>

@@ -462,7 +462,7 @@ export default function Equipos() {
               <button
                 type="button"
                 onClick={() => activeTab === 'equipos' ? setIsModalNuevoEquipoOpen(true) : setIsModalSectorOpen(true)}
-                className="flex items-center gap-2 px-3.5 sm:px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-xs transition shadow-blue-500/20 cursor-pointer"
+                className="flex items-center gap-2 px-3.5 sm:px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-xs transition-all duration-200 ease-in-out hover:brightness-110 active:scale-95 shadow-blue-500/20 cursor-pointer"
               >
                 <Plus size={16} />
                 <span>{activeTab === 'equipos' ? 'Nuevo Equipo' : 'Nuevo Sector'}</span>
@@ -599,7 +599,7 @@ export default function Equipos() {
                           setEquipoSeleccionado(item);
                           setIsDetalleModalOpen(true);
                         }}
-                        className="hover:bg-blue-50/40 dark:hover:bg-slate-700/60 transition cursor-pointer select-none group"
+                        className="transition-colors duration-150 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer select-none group"
                         title={isAuditor ? "Doble clic para consultar ficha técnica" : "Doble clic para ver ficha técnica completa, editar o dar de baja"}
                       >
                         {/* Código Patrimonial */}
@@ -752,7 +752,7 @@ export default function Equipos() {
                       ).length;
 
                       return (
-                        <tr key={item.idSector} className="hover:bg-slate-50/50 transition">
+                        <tr key={item.idSector} className="transition-colors duration-150 hover:bg-slate-50 dark:hover:bg-slate-700/50">
                           <td className="py-4 px-6 font-mono font-bold text-blue-700">
                             <span className="bg-blue-50 px-2 py-1 rounded border border-blue-100">
                               {item.codigoSector || `SEC-${String(item.idSector).padStart(3, '0')}`}
