@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X, Eye, EyeOff, ShieldCheck, Loader2, KeyRound, Copy, Check, AlertTriangle, ChevronDown } from 'lucide-react';
 import { registerService } from '../services/authService';
 import ThemeToggle from '../components/ThemeToggle';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Register({ onSwitchToLogin }) {
   // 1. ZONA JAVASCRIPT: Estados para capturar los datos del nuevo usuario
@@ -73,7 +74,12 @@ export default function Register({ onSwitchToLogin }) {
           <ThemeToggle />
         </div>
 
-        <div className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl sm:shadow-2xl p-6 sm:p-8 my-4 text-center animate-fade-in border border-slate-100 dark:border-slate-700">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95, y: 12 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+          className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl sm:shadow-2xl p-6 sm:p-8 my-4 text-center border border-slate-100 dark:border-slate-700"
+        >
           
           {/* Icono de éxito */}
           <div className="w-16 h-16 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-100 dark:border-emerald-800/60 shadow-xs">
@@ -103,7 +109,9 @@ export default function Register({ onSwitchToLogin }) {
               <span className="font-mono text-2xl font-black text-slate-900 dark:text-gray-100 tracking-widest">
                 {pinGenerado}
               </span>
-              <button
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.95 }}
                 type="button"
                 onClick={handleCopiarPin}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer"
@@ -120,7 +128,7 @@ export default function Register({ onSwitchToLogin }) {
                     <span>Copiar PIN</span>
                   </>
                 )}
-              </button>
+              </motion.button>
             </div>
 
             <div className="mt-3 flex items-start gap-2 text-[11px] text-slate-600 dark:text-gray-300 leading-relaxed">
@@ -132,14 +140,16 @@ export default function Register({ onSwitchToLogin }) {
           </div>
 
           {/* Botón para ir al login */}
-          <button
+          <motion.button
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
             type="button"
             onClick={onSwitchToLogin}
             className="w-full bg-[#5764E8] hover:bg-[#4653D4] text-white text-sm font-semibold py-3 px-4 rounded-xl shadow-md transition duration-200 cursor-pointer flex items-center justify-center gap-2"
           >
             <span>Continuar a Iniciar Sesión</span>
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
       </div>
     );
   }
@@ -152,8 +162,13 @@ export default function Register({ onSwitchToLogin }) {
         <ThemeToggle />
       </div>
 
-      {/* Tarjeta Modal Blanca */}
-      <div className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl sm:shadow-2xl p-6 sm:p-10 my-4 sm:my-6 border border-transparent dark:border-slate-700/60">
+      {/* Tarjeta Modal Blanca con animación */}
+      <motion.div 
+        initial={{ opacity: 0, y: 16, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl sm:shadow-2xl p-6 sm:p-10 my-4 sm:my-6 border border-slate-100 dark:border-slate-700/60"
+      >
         
         {/* Encabezado */}
         <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 dark:text-gray-100 mb-1.5 sm:mb-2 tracking-tight">
@@ -163,12 +178,20 @@ export default function Register({ onSwitchToLogin }) {
           Registro institucional de operadores del sistema
         </p>
 
-        {/* Mensaje de error */}
-        {error && (
-          <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-red-600 dark:text-red-300 text-xs rounded-lg p-3 mb-5">
-            {error}
-          </div>
-        )}
+        {/* Mensaje de error con AnimatePresence */}
+        <AnimatePresence>
+          {error && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0, y: -8 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -8 }}
+              transition={{ duration: 0.25 }}
+              className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-red-600 dark:text-red-300 text-xs rounded-lg p-3 mb-5 overflow-hidden"
+            >
+              {error}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Formulario */}
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -263,8 +286,10 @@ export default function Register({ onSwitchToLogin }) {
             </div>
           </div>
 
-          {/* Botón Registrar */}
-          <button
+          {/* Botón Registrar con microinteracción */}
+          <motion.button
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={isLoading}
             className="w-full mt-4 bg-[#5764E8] hover:bg-[#4653D4] disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold py-3 px-4 rounded-xl shadow-md transition duration-200 flex items-center justify-center gap-2 cursor-pointer"
@@ -277,7 +302,7 @@ export default function Register({ onSwitchToLogin }) {
             ) : (
               <span>Registrar Operador</span>
             )}
-          </button>
+          </motion.button>
         </form>
 
         {/* Enlace para volver a Iniciar Sesión */}
@@ -286,13 +311,13 @@ export default function Register({ onSwitchToLogin }) {
           <button
             type="button"
             onClick={onSwitchToLogin}
-            className="text-[#5764E8] font-semibold hover:underline inline-block ml-1"
+            className="text-[#5764E8] font-semibold hover:underline inline-block ml-1 cursor-pointer"
           >
             Inicia sesión acá
           </button>
         </div>
 
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -26,8 +26,10 @@ function LoginPage() {
 function RegisterPage() {
   const navigate = useNavigate();
   return (
-    <Register
+    <Login
+      initialMode="register"
       onSwitchToLogin={() => navigate('/login')}
+      onLoginSuccess={() => navigate('/dashboard')}
     />
   );
 }
