@@ -1,6 +1,7 @@
 import { authFetch } from './authService';
+import { API_BASE } from './apiConfig';
 
-const BASE_URL = 'http://localhost:3000/api/equipos';
+const BASE_URL = `${API_BASE}/equipos`;
 
 /**
  * Obtener listado de todos los equipos con LEFT JOIN a Sectores e Insumos compatibles

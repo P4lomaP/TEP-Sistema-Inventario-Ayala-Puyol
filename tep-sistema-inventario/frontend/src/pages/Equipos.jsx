@@ -511,8 +511,18 @@ export default function Equipos() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={activeTab === 'equipos' ? 'Buscar por código, marca/modelo, sector o IP...' : 'Buscar sector por nombre o responsable...'}
-              className="w-full pl-10 pr-4 py-2.5 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/50 focus:bg-white transition dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
+              className="w-full pl-10 pr-9 py-2.5 text-xs border border-slate-200 dark:border-slate-600 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/50 focus:bg-white dark:bg-slate-700 dark:focus:bg-slate-700 dark:text-white dark:placeholder-gray-400 transition"
             />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-400 hover:text-slate-600 dark:hover:text-gray-200 p-0.5 cursor-pointer"
+                title="Limpiar búsqueda"
+              >
+                <X size={14} />
+              </button>
+            )}
           </div>
 
           {activeTab === 'equipos' && (

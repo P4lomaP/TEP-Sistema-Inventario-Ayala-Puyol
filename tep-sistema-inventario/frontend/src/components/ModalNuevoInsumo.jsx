@@ -196,7 +196,7 @@ export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
             </label>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl">
               <div className="flex items-center gap-2.5">
-                <div className={`p-2 rounded-lg ${parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna) ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500'}`}>
+                <div className={`p-2 rounded-lg ${parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna) ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-200 dark:bg-slate-600 text-slate-500 dark:text-slate-300'}`}>
                   <MapPin size={16} />
                 </div>
                 <div>
@@ -207,7 +207,7 @@ export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
                         : 'Sin casilla asignada'}
                     </span>
                     {parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna) && (
-                      <span className="text-[10px] font-mono bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded">
+                      <span className="text-[10px] font-mono bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-semibold px-2 py-0.5 rounded border border-blue-200/50 dark:border-blue-700/50">
                         Estante {parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna).fila} - Columna {parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna).columna}
                       </span>
                     )}
@@ -224,9 +224,9 @@ export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
                 <button
                   type="button"
                   onClick={() => setIsSelectorOpen(true)}
-                  className="px-3.5 py-1.5 text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/60 border border-slate-300 text-slate-700 dark:text-gray-200 rounded-lg shadow-2xs transition flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-1.5 text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/70 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-gray-200 rounded-lg shadow-2xs transition flex items-center gap-1.5 cursor-pointer"
                 >
-                  <Grid size={13} className="text-blue-600" />
+                  <Grid size={13} className="text-blue-600 dark:text-blue-400" />
                   <span>{parsearUbicacion(formData.ubicacionFila, formData.ubicacionColumna) ? 'Cambiar Casilla' : 'Seleccionar en Estante'}</span>
                 </button>
               </div>

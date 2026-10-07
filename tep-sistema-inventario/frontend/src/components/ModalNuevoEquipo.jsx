@@ -329,16 +329,16 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
 
               {/* Selector de casilla si el equipo va a depósito */}
               {formData.estadoOperativo === 'En Depósito' && (
-                <div className="p-3 bg-blue-50/70 border border-blue-200 rounded-xl flex items-center justify-between gap-3 animate-in fade-in">
+                <div className="p-3 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between gap-3 animate-in fade-in">
                   <div className="flex items-center gap-2">
-                    <div className="p-1.5 bg-blue-600 text-white rounded-lg">
+                    <div className="p-1.5 bg-blue-600 text-white rounded-lg shadow-xs">
                       <Boxes size={15} />
                     </div>
                     <div>
                       <span className="text-xs font-bold text-slate-800 dark:text-gray-100">
                         {casillaEstante ? `Casilla de Estante: ${casillaEstante}` : 'Sin casilla física asignada'}
                       </span>
-                      <p className="text-[11px] text-slate-500 dark:text-gray-300">
+                      <p className="text-[11px] text-slate-500 dark:text-gray-400">
                         Ubicación física en el pañol institucional
                       </p>
                     </div>
@@ -346,7 +346,7 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
                   <button
                     type="button"
                     onClick={() => setIsSelectorOpen(true)}
-                    className="px-3 py-1.5 text-xs font-semibold bg-white dark:bg-slate-800 border border-blue-300 text-blue-700 hover:bg-blue-50 rounded-lg shadow-2xs transition cursor-pointer"
+                    className="px-3 py-1.5 text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/40 border border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 rounded-lg shadow-2xs transition cursor-pointer"
                   >
                     {casillaEstante ? 'Cambiar Casilla' : 'Elegir en Estante'}
                   </button>

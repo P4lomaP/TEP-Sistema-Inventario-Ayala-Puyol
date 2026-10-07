@@ -1,6 +1,7 @@
 import { authFetch } from './authService';
+import { API_BASE } from './apiConfig';
 
-const BASE_URL = 'http://localhost:3000/api/usuarios';
+const BASE_URL = `${API_BASE}/usuarios`;
 
 /**
  * Obtener lista de todos los usuarios registrados y métricas (Exclusivo Administrador)

@@ -1,6 +1,7 @@
 import { authFetch } from './authService';
+import { API_BASE } from './apiConfig';
 
-const BASE_URL = 'http://localhost:3000/api/compatibilidad';
+const BASE_URL = `${API_BASE}/compatibilidad`;
 
 /**
  * Obtener todas las reglas de compatibilidad

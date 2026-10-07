@@ -447,7 +447,7 @@ export default function Compatibilidad() {
                 value={busquedaInsumo}
                 onChange={(e) => setBusquedaInsumo(e.target.value)}
                 placeholder="Buscar por código, descripción o categoría..."
-                className="w-full pl-8 pr-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/50 focus:bg-white transition dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
+                className="w-full pl-8 pr-3 py-2 text-xs border border-slate-200 dark:border-slate-600 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/50 focus:bg-white dark:bg-slate-700 dark:focus:bg-slate-700 dark:text-white dark:placeholder-gray-400 transition"
               />
               {busquedaInsumo && (
                 <button
@@ -488,7 +488,7 @@ export default function Compatibilidad() {
                       className={`w-full p-3 rounded-xl flex items-center justify-between text-left transition border cursor-pointer ${
                         isSelected
                           ? 'bg-blue-50/70 dark:bg-blue-950/60 border-blue-200 dark:border-blue-700 shadow-xs ring-1 ring-blue-500/20'
-                          : 'border-slate-100 dark:border-slate-600/80 dark:bg-slate-700 hover:bg-slate-50/80 hover:dark:bg-slate-600 hover:border-slate-200'
+                          : 'border-slate-100 dark:border-slate-600/80 dark:bg-slate-700 hover:bg-blue-50/40 dark:hover:bg-slate-600/80 hover:border-slate-200 dark:hover:border-slate-500'
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
@@ -613,7 +613,9 @@ export default function Compatibilidad() {
                   type="button"
                   onClick={() => setFiltroTipoEquipo('todos')}
                   className={`px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer ${
-                    filtroTipoEquipo === 'todos' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                    filtroTipoEquipo === 'todos' 
+                      ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-xs' 
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
                   }`}
                 >
                   Todos
@@ -622,7 +624,9 @@ export default function Compatibilidad() {
                   type="button"
                   onClick={() => setFiltroTipoEquipo('impresora')}
                   className={`px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer flex items-center gap-1 ${
-                    filtroTipoEquipo === 'impresora' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                    filtroTipoEquipo === 'impresora' 
+                      ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-xs' 
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
                   }`}
                 >
                   <Printer size={12} />
@@ -632,7 +636,9 @@ export default function Compatibilidad() {
                   type="button"
                   onClick={() => setFiltroTipoEquipo('computadora')}
                   className={`px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer flex items-center gap-1 ${
-                    filtroTipoEquipo === 'computadora' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                    filtroTipoEquipo === 'computadora' 
+                      ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-xs' 
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
                   }`}
                 >
                   <Laptop size={12} />
@@ -649,7 +655,7 @@ export default function Compatibilidad() {
                 value={busquedaEquipo}
                 onChange={(e) => setBusquedaEquipo(e.target.value)}
                 placeholder="Filtrar equipos por marca, modelo, código patrimonial o sector..."
-                className="w-full pl-8 pr-3 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/40 focus:bg-white transition dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
+                className="w-full pl-8 pr-3 py-2 text-xs border border-slate-200 dark:border-slate-600 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/40 focus:bg-white dark:bg-slate-700 dark:focus:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400 transition"
               />
               {busquedaEquipo && (
                 <button
@@ -684,8 +690,10 @@ export default function Compatibilidad() {
                   return (
                     <div 
                       key={eq.idEquipo} 
-                      className={`py-3.5 flex items-center justify-between gap-4 px-2 rounded-xl transition ${
-                        deshabilitarToggle ? 'bg-slate-50/40 opacity-70' : 'hover:bg-slate-50/70 cursor-default'
+                      className={`py-3.5 flex items-center justify-between gap-4 px-2.5 rounded-xl transition-colors duration-150 ${
+                        deshabilitarToggle 
+                          ? 'bg-slate-50/40 dark:bg-slate-800/40 opacity-70' 
+                          : 'hover:bg-blue-50/40 dark:hover:bg-slate-700/60 cursor-default'
                       }`}
                       onDoubleClick={() => setModalEquipo(eq)}
                       title={deshabilitarToggle ? inconsistencia : "Haga clic en el interruptor para cambiar estado. Doble clic para ver ficha."}
@@ -854,7 +862,9 @@ export default function Compatibilidad() {
                   type="button"
                   onClick={() => setFiltroTablaTipo('todos')}
                   className={`px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer ${
-                    filtroTablaTipo === 'todos' ? 'bg-slate-800 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                    filtroTablaTipo === 'todos' 
+                      ? 'bg-slate-800 dark:bg-slate-900 text-white shadow-2xs' 
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
                   Todos
@@ -863,7 +873,9 @@ export default function Compatibilidad() {
                   type="button"
                   onClick={() => setFiltroTablaTipo('computadora')}
                   className={`px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer flex items-center gap-1 ${
-                    filtroTablaTipo === 'computadora' ? 'bg-blue-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                    filtroTablaTipo === 'computadora' 
+                      ? 'bg-blue-600 text-white shadow-2xs' 
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
                   <Laptop size={12} />
@@ -873,7 +885,9 @@ export default function Compatibilidad() {
                   type="button"
                   onClick={() => setFiltroTablaTipo('impresora')}
                   className={`px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer flex items-center gap-1 ${
-                    filtroTablaTipo === 'impresora' ? 'bg-blue-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                    filtroTablaTipo === 'impresora' 
+                      ? 'bg-blue-600 text-white shadow-2xs' 
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
                   <Printer size={12} />
@@ -926,7 +940,7 @@ export default function Compatibilidad() {
                     return (
                       <tr 
                         key={eq.idEquipo} 
-                        className="hover:bg-slate-50/70 dark:hover:bg-slate-750 transition"
+                        className="hover:bg-blue-50/40 dark:hover:bg-slate-700/60 transition-colors duration-150"
                       >
                         {/* 1. Columna: Equipo */}
                         <td className="py-3.5 px-4 align-top">
@@ -935,7 +949,7 @@ export default function Compatibilidad() {
                               {esImpresora ? <Printer size={16} /> : <Laptop size={16} />}
                             </div>
                             <div>
-                              <p className="font-bold text-slate-800 dark:text-white text-xs">{eq.marcaModelo}</p>
+                              <p className="font-bold text-slate-800 dark:text-gray-100 text-xs">{eq.marcaModelo}</p>
                               <div className="flex items-center gap-1.5 mt-1">
                                 {eq.codPatrimonial && (
                                   <span className="font-mono text-[10px] font-bold bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50 px-1.5 py-0.2 rounded">
@@ -943,7 +957,7 @@ export default function Compatibilidad() {
                                   </span>
                                 )}
                                 {eq.numeroSerie && (
-                                  <span className="font-mono text-[10px] text-slate-400 dark:text-slate-400">
+                                  <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400">
                                     S/N: {eq.numeroSerie}
                                   </span>
                                 )}

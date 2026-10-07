@@ -1,6 +1,7 @@
 import { authFetch } from './authService';
+import { API_BASE } from './apiConfig';
 
-const BASE_URL = 'http://localhost:3000/api/sectores';
+const BASE_URL = `${API_BASE}/sectores`;
 
 /**
  * Obtener todos los sectores u oficinas activos

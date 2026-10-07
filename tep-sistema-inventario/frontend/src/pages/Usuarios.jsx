@@ -403,7 +403,7 @@ export default function Usuarios() {
                 setPaginaActual(1);
               }}
               placeholder="Buscar por usuario (@) o código..."
-              className="w-full pl-10 pr-4 py-2 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/50 focus:bg-white transition dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
+              className="w-full pl-10 pr-4 py-2 text-xs border border-slate-200 dark:border-slate-600 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/50 focus:bg-white dark:bg-slate-700 dark:focus:bg-slate-700 dark:text-white dark:placeholder-gray-400 transition"
             />
           </div>
 

@@ -1,6 +1,7 @@
 import { authFetch } from './authService';
+import { API_BASE } from './apiConfig';
 
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = API_BASE;
 
 /**
  * Obtener datos consolidados del reporte (KPIs, distribución y listado de transacciones)

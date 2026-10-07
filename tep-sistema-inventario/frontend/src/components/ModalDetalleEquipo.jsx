@@ -341,16 +341,16 @@ export default function ModalDetalleEquipo({
 
               {/* Casilla en depósito en modo edición */}
               {formData.estadoOperativo === 'En Depósito' && (
-                <div className="p-3 bg-blue-50/70 border border-blue-200/80 rounded-xl flex items-center justify-between gap-3">
+                <div className="p-3 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-800 rounded-xl flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <div className="p-1.5 bg-blue-600 text-white rounded-lg">
+                    <div className="p-1.5 bg-blue-600 text-white rounded-lg shadow-xs">
                       <Boxes size={15} />
                     </div>
                     <div>
                       <span className="text-xs font-bold text-slate-800 dark:text-gray-100">
                         {casillaEstante ? `Casilla de Estante: ${casillaEstante}` : 'Sin casilla física asignada'}
                       </span>
-                      <p className="text-[11px] text-slate-500 dark:text-gray-300">
+                      <p className="text-[11px] text-slate-500 dark:text-gray-400">
                         Ubicación física en el pañol institucional
                       </p>
                     </div>
@@ -358,7 +358,7 @@ export default function ModalDetalleEquipo({
                   <button
                     type="button"
                     onClick={() => setIsSelectorOpen(true)}
-                    className="px-3 py-1.5 text-xs font-semibold bg-white dark:bg-slate-800 border border-blue-300 text-blue-700 hover:bg-blue-50 rounded-lg shadow-2xs transition cursor-pointer"
+                    className="px-3 py-1.5 text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/40 border border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 rounded-lg shadow-2xs transition cursor-pointer"
                   >
                     {casillaEstante ? 'Cambiar Casilla' : 'Elegir en Estante'}
                   </button>
@@ -482,17 +482,17 @@ export default function ModalDetalleEquipo({
                   <span className="text-[10px] font-bold uppercase text-slate-400 dark:text-gray-400">Estado Operativo Actual</span>
                   <div className="mt-1">
                     {formData.estadoOperativo === 'Operativo' || formData.estado === 'OPERATIVO' ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                         <CheckCircle2 size={14} />
                         Operativo en Servicio
                       </span>
                     ) : formData.estadoOperativo === 'En Mantenimiento' || formData.estado === 'EN REPARACIÓN' ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                         <Wrench size={14} />
                         En Mantenimiento Técnico
                       </span>
                     ) : formData.estadoOperativo === 'En Depósito' ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                         En Depósito / Reserva
                       </span>
                     ) : (
@@ -509,7 +509,7 @@ export default function ModalDetalleEquipo({
                     <button
                       type="button"
                       onClick={() => handleCambiarEstado('En Mantenimiento')}
-                      className="px-2.5 py-1.5 text-[11px] font-semibold bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded-lg transition cursor-pointer flex items-center gap-1"
+                      className="px-2.5 py-1.5 text-[11px] font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-200 dark:border-amber-800 rounded-lg transition cursor-pointer flex items-center gap-1"
                       title="Enviar a servicio técnico"
                     >
                       <Wrench size={12} />
@@ -521,7 +521,7 @@ export default function ModalDetalleEquipo({
                     <button
                       type="button"
                       onClick={() => handleCambiarEstado('Operativo')}
-                      className="px-2.5 py-1.5 text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition cursor-pointer flex items-center gap-1"
+                      className="px-2.5 py-1.5 text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-800 rounded-lg transition cursor-pointer flex items-center gap-1"
                       title="Restablecer a operativo"
                     >
                       <CheckCircle2 size={12} />
@@ -533,7 +533,7 @@ export default function ModalDetalleEquipo({
                     <button
                       type="button"
                       onClick={() => handleCambiarEstado('En Depósito')}
-                      className="px-2.5 py-1.5 text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-200 hover:bg-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg transition cursor-pointer"
+                      className="px-2.5 py-1.5 text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg transition cursor-pointer"
                       title="Guardar en reserva"
                     >
                       A Depósito
@@ -544,8 +544,8 @@ export default function ModalDetalleEquipo({
 
               {/* Ficha Principal de Ubicación y Red */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="p-3.5 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-2xs flex items-start gap-2.5">
-                  <div className="p-2 bg-blue-50 text-blue-600 rounded-lg shrink-0">
+                <div className="p-3.5 bg-slate-50/80 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700 rounded-xl shadow-2xs flex items-start gap-2.5">
+                  <div className="p-2 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 rounded-lg shrink-0">
                     <MapPin size={16} />
                   </div>
                   <div>
@@ -555,8 +555,8 @@ export default function ModalDetalleEquipo({
                   </div>
                 </div>
 
-                <div className="p-3.5 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-2xs flex items-start gap-2.5">
-                  <div className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-gray-300 rounded-lg shrink-0">
+                <div className="p-3.5 bg-slate-50/80 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700 rounded-xl shadow-2xs flex items-start gap-2.5">
+                  <div className="p-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-gray-300 rounded-lg shrink-0">
                     <Network size={16} />
                   </div>
                   <div>
@@ -569,17 +569,17 @@ export default function ModalDetalleEquipo({
 
               {/* Ubicación en Estantería para equipos en depósito */}
               {(formData.estadoOperativo === 'En Depósito' || casillaEstante) && (
-                <div className="p-3.5 bg-blue-50/70 border border-blue-200/80 rounded-xl shadow-2xs flex items-center justify-between gap-2.5">
+                <div className="p-3.5 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-800 rounded-xl shadow-2xs flex items-center justify-between gap-2.5">
                   <div className="flex items-center gap-2.5">
-                    <div className="p-2 bg-blue-600 text-white rounded-lg shrink-0">
+                    <div className="p-2 bg-blue-600 text-white rounded-lg shrink-0 shadow-xs">
                       <Boxes size={16} />
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-blue-700 tracking-wider">Ubicación Física en Estantería</span>
+                      <span className="text-[10px] uppercase font-bold text-blue-700 dark:text-blue-300 tracking-wider">Ubicación Física en Estantería</span>
                       <p className="font-bold text-slate-800 dark:text-gray-100 mt-0.5">
                         {casillaEstante ? `Casilla ${casillaEstante}` : 'Sin casilla asignada'}
                       </p>
-                      <p className="text-[11px] text-slate-500 dark:text-gray-300">
+                      <p className="text-[11px] text-slate-500 dark:text-gray-400">
                         Depósito / Pañol institucional
                       </p>
                     </div>
@@ -588,7 +588,7 @@ export default function ModalDetalleEquipo({
                     <button
                       type="button"
                       onClick={() => setIsSelectorOpen(true)}
-                      className="px-3 py-1.5 text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-blue-50 text-blue-700 border border-blue-200 rounded-lg shadow-2xs transition cursor-pointer"
+                      className="px-3 py-1.5 text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700 rounded-lg shadow-2xs transition cursor-pointer"
                     >
                       {casillaEstante ? 'Cambiar Casilla' : 'Asignar Casilla'}
                     </button>
@@ -598,9 +598,9 @@ export default function ModalDetalleEquipo({
 
               {/* ESPECIFICACIONES TÉCNICAS SEGÚN TIPO */}
               {esComputadora && (
-                <div className="p-4 bg-slate-50/80 border border-slate-100 dark:border-slate-700 rounded-2xl space-y-3">
+                <div className="p-4 bg-slate-50/80 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700 rounded-2xl space-y-3">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-gray-200">
-                    <Cpu size={15} className="text-blue-600" />
+                    <Cpu size={15} className="text-blue-600 dark:text-blue-400" />
                     <span>Especificaciones de Cómputo</span>
                   </div>
                   <div className="grid grid-cols-2 gap-3 text-xs">
@@ -625,19 +625,19 @@ export default function ModalDetalleEquipo({
               )}
 
               {esImpresora && (
-                <div className="p-4 bg-amber-50/50 border border-amber-100 rounded-2xl space-y-3">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-800">
-                    <Printer size={15} className="text-amber-600" />
+                <div className="p-4 bg-amber-50/50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/60 rounded-2xl space-y-3">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-800 dark:text-amber-300">
+                    <Printer size={15} className="text-amber-600 dark:text-amber-400" />
                     <span>Especificaciones de Impresión y Suministros</span>
                   </div>
                   <div className="grid grid-cols-2 gap-3 text-xs">
-                    <div className="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-amber-100/70">
+                    <div className="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-amber-100/70 dark:border-amber-900/40">
                       <span className="text-[10px] text-slate-400 dark:text-gray-400 font-semibold uppercase">Insumo Compatible</span>
                       <p className="font-bold text-slate-800 dark:text-gray-100 mt-0.5">
                         {formData.insumoCompatibleDescripcion || formData.tonerCompatible || 'Sin insumo asignado'}
                       </p>
                     </div>
-                    <div className="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-amber-100/70">
+                    <div className="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-amber-100/70 dark:border-amber-900/40">
                       <span className="text-[10px] text-slate-400 dark:text-gray-400 font-semibold uppercase">Tecnología</span>
                       <p className="font-bold text-slate-800 dark:text-gray-100 mt-0.5">{formData.tecnologiaImpresion || formData.tipoImpresion || 'Láser Monocromática'}</p>
                     </div>
@@ -646,7 +646,7 @@ export default function ModalDetalleEquipo({
               )}
 
               {/* Número de Serie */}
-              <div className="p-3 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl flex items-center justify-between text-xs">
+              <div className="p-3 bg-slate-50/80 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700 rounded-xl flex items-center justify-between text-xs">
                 <span className="text-slate-500 dark:text-gray-300 font-medium">Número de Serie Oficial (S/N)</span>
                 <span className="font-mono font-bold text-slate-800 dark:text-gray-100 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
                   {formData.numeroSerie || 'SN-NO-REGISTRADO'}
@@ -698,7 +698,7 @@ export default function ModalDetalleEquipo({
         </div>
 
         {/* PIE DE ACCIONES */}
-        <div className="px-6 py-4 bg-slate-50/60 dark:bg-slate-700/50 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+        <div className="px-6 py-4 bg-slate-50/60 dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
           {isEditing ? (
             <>
               <button
@@ -735,7 +735,7 @@ export default function ModalDetalleEquipo({
                   type="button"
                   onClick={() => setShowBajaConfirm(true)}
                   disabled={showBajaConfirm || formData.estadoOperativo === 'Baja' || formData.estado === 'BAJA'}
-                  className="px-3.5 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 rounded-xl transition flex items-center gap-1.5 cursor-pointer disabled:opacity-40"
+                  className="px-3.5 py-2 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 border border-transparent hover:border-rose-200 dark:hover:border-rose-900/60 rounded-xl transition flex items-center gap-1.5 cursor-pointer disabled:opacity-40"
                 >
                   <Trash2 size={14} />
                   <span>Dar de Baja</span>

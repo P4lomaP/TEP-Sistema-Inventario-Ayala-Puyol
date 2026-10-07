@@ -49,7 +49,7 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
   return (
     <aside
       className={`
-        fixed inset-y-0 left-0 z-50 bg-[#0d1b2a] dark:bg-slate-950 text-slate-300 min-h-screen flex flex-col flex-shrink-0 select-none transition-all duration-300 ease-in-out lg:static lg:z-auto border-r border-slate-800/60 dark:border-slate-800/80
+        fixed inset-y-0 left-0 z-50 bg-[#e8f2fc] dark:bg-slate-950 text-slate-700 dark:text-slate-300 min-h-screen flex flex-col flex-shrink-0 select-none transition-all duration-300 ease-in-out lg:static lg:z-auto border-r border-sky-200/70 dark:border-slate-800/80 shadow-xs
         ${isOpen 
           ? 'w-64 translate-x-0 shadow-2xl lg:shadow-none lg:w-64 lg:opacity-100' 
           : 'w-64 -translate-x-full lg:w-0 lg:translate-x-0 lg:overflow-hidden lg:opacity-0 pointer-events-none'
@@ -61,14 +61,14 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
         {/* Logotipo y Título Institucional */}
         <div 
           onClick={() => handleNavigate('/dashboard')}
-          className="h-16 sm:h-20 flex items-center justify-between px-5 sm:px-6 border-b border-slate-800/60 cursor-pointer hover:bg-slate-800/30 transition-colors group"
+          className="h-16 sm:h-20 flex items-center justify-between px-5 sm:px-6 border-b border-sky-200/60 dark:border-slate-800/60 cursor-pointer hover:bg-sky-100/50 dark:hover:bg-slate-800/30 transition-colors group"
         >
           <div className="flex items-center gap-3 min-w-0">
             {/* Logotipo Animado Original del Tribunal Electoral Permanente */}
             <div className="relative shrink-0">
               {/* Halo de resplandor ambiental pulsante */}
               <motion.div
-                className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-blue-600/30 via-cyan-500/25 to-indigo-600/30 blur-sm pointer-events-none"
+                className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-blue-500/25 via-cyan-400/20 to-indigo-500/25 dark:from-blue-600/30 dark:via-cyan-500/25 dark:to-indigo-600/30 blur-sm pointer-events-none"
                 animate={{
                   opacity: [0.35, 0.75, 0.35],
                   scale: [0.95, 1.08, 0.95],
@@ -82,14 +82,14 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
 
               {/* Contenedor del emblema con gradiente y bordes institucionales */}
               <motion.div
-                className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600/25 via-[#132238] to-[#0a121e] border border-blue-400/35 shadow-lg shadow-blue-500/10 flex items-center justify-center overflow-hidden"
+                className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 dark:from-blue-600/25 dark:via-[#132238] dark:to-[#0a121e] border border-blue-400/40 dark:border-blue-400/35 shadow-md shadow-blue-500/20 dark:shadow-blue-500/10 flex items-center justify-center overflow-hidden"
                 whileHover={{ scale: 1.1, rotate: [0, -3, 3, 0] }}
                 whileTap={{ scale: 0.93 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
                 {/* Destello de luz / Shimmer sheen periódico */}
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-300/15 to-transparent -skew-x-12 pointer-events-none"
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-300/25 dark:via-cyan-300/15 to-transparent -skew-x-12 pointer-events-none"
                   animate={{
                     x: ['-140%', '220%'],
                   }}
@@ -112,7 +112,7 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className="text-cyan-400 group-hover:text-cyan-300 transition-colors drop-shadow-[0_0_6px_rgba(34,211,238,0.4)] flex items-center justify-center"
+                  className="text-white dark:text-cyan-400 group-hover:scale-105 transition-transform drop-shadow-[0_0_6px_rgba(255,255,255,0.4)] dark:drop-shadow-[0_0_6px_rgba(34,211,238,0.4)] flex items-center justify-center"
                 >
                   <Vote size={22} strokeWidth={2.2} />
                 </motion.div>
@@ -123,8 +123,8 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
                 className="absolute -top-1 -right-1 flex h-2.5 w-2.5 pointer-events-none" 
                 title="Tribunal Electoral Activo y Permanente"
               >
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400 border border-[#0d1b2a] shadow-xs"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-500 dark:bg-cyan-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500 dark:bg-cyan-400 border-2 border-white dark:border-[#0d1b2a] shadow-xs"></span>
               </span>
             </div>
 
@@ -139,7 +139,7 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
                   animate={{
                     filter: [
                       'drop-shadow(0 0 0px rgba(56, 189, 248, 0))',
-                      'drop-shadow(0 0 6px rgba(56, 189, 248, 0.55))',
+                      'drop-shadow(0 0 6px rgba(56, 189, 248, 0.45))',
                       'drop-shadow(0 0 0px rgba(56, 189, 248, 0))',
                     ],
                   }}
@@ -149,9 +149,9 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
                     ease: 'easeInOut',
                   }}
                 >
-                  <span className="text-white font-black tracking-wide">TEP</span>
+                  <span className="text-slate-900 dark:text-white font-black tracking-wide">TEP</span>
                   <motion.span
-                    className="bg-gradient-to-r from-cyan-400 via-sky-200 to-blue-400 bg-clip-text text-transparent font-extrabold"
+                    className="bg-gradient-to-r from-blue-700 via-sky-600 to-indigo-700 dark:from-cyan-400 dark:via-sky-200 dark:to-blue-400 bg-clip-text text-transparent font-extrabold"
                     animate={{
                       backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
                     }}
@@ -167,10 +167,10 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
 
                 {/* Micro destello pulsante decorativo */}
                 <motion.span
-                  className="inline-block w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.8)]"
+                  className="inline-block w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-cyan-400 shadow-[0_0_6px_rgba(37,99,235,0.6)] dark:shadow-[0_0_6px_rgba(34,211,238,0.8)]"
                   animate={{
                     scale: [0.8, 1.35, 0.8],
-                    opacity: [0.4, 1, 0.4],
+                    opacity: [0.5, 1, 0.5],
                   }}
                   transition={{
                     duration: 2.2,
@@ -181,7 +181,7 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
               </motion.div>
 
               <p 
-                className="text-[10px] sm:text-[11px] text-blue-400 dark:text-blue-400 font-semibold tracking-tight leading-tight mt-0.5" 
+                className="text-[10px] sm:text-[11px] text-blue-700 dark:text-blue-400 font-bold dark:font-semibold tracking-tight leading-tight mt-0.5" 
                 title="Tribunal Electoral Permanente"
               >
                 Tribunal Electoral Permanente
@@ -196,7 +196,7 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
               e.stopPropagation();
               if (onClose) onClose();
             }}
-            className="lg:hidden text-slate-400 dark:text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer"
+            className="lg:hidden text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white p-1.5 rounded-lg hover:bg-sky-200/60 dark:hover:bg-slate-800 transition cursor-pointer"
             aria-label="Cerrar menú"
           >
             <X size={20} />
@@ -213,14 +213,17 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
                 key={item.id}
                 type="button"
                 onClick={() => handleNavigate(item.path)}
-                className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-[#1b2d45] text-white shadow-sm font-semibold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-[#132238]'
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 font-bold dark:bg-[#1b2d45] dark:text-white dark:shadow-sm dark:font-semibold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-blue-700 dark:hover:text-slate-200 hover:bg-sky-100/70 dark:hover:bg-[#132238] font-medium'
                 }`}
               >
-                <Icon size={18} className={isActive ? 'text-blue-400' : 'text-slate-400'} />
-                <span>{item.label}</span>
+                <Icon 
+                  size={18} 
+                  className={isActive ? 'text-white dark:text-blue-400 shrink-0' : 'text-slate-500 dark:text-slate-400 shrink-0'} 
+                />
+                <span className="truncate">{item.label}</span>
               </button>
             );
           })}

@@ -1,6 +1,7 @@
 import { authFetch } from './authService';
+import { API_BASE } from './apiConfig';
 
-const BASE_URL = 'http://localhost:3000/api/insumos';
+const BASE_URL = `${API_BASE}/insumos`;
 
 /**
  * Obtener listado de insumos activos (estadoActivo = 1)

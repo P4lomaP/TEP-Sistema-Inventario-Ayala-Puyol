@@ -320,7 +320,7 @@ export default function Reportes() {
                 type="date"
                 value={fechaDesde}
                 onChange={(e) => setFechaDesde(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 dark:bg-slate-700/50 focus:bg-white transition"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 dark:bg-slate-700/50 focus:bg-white dark:focus:bg-slate-700 dark:text-white transition"
               />
             </div>
 
@@ -333,7 +333,7 @@ export default function Reportes() {
                 type="date"
                 value={fechaHasta}
                 onChange={(e) => setFechaHasta(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 dark:bg-slate-700/50 focus:bg-white transition"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 dark:bg-slate-700/50 focus:bg-white dark:focus:bg-slate-700 dark:text-white transition"
               />
             </div>
 
@@ -347,7 +347,7 @@ export default function Reportes() {
                 <select
                   value={sectorSeleccionado}
                   onChange={(e) => setSectorSeleccionado(e.target.value)}
-                  className="w-full pl-8 pr-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 dark:bg-slate-700/50 focus:bg-white text-slate-700 dark:text-gray-200 cursor-pointer"
+                  className="w-full pl-8 pr-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 dark:bg-slate-700/50 focus:bg-white dark:focus:bg-slate-700 text-slate-700 dark:text-gray-200 cursor-pointer"
                 >
                   <option value="Todos">Todas las Oficinas</option>
                   {sectores.map((s) => {
@@ -372,7 +372,7 @@ export default function Reportes() {
                 <select
                   value={tipoMovimiento}
                   onChange={(e) => setTipoMovimiento(e.target.value)}
-                  className="w-full pl-8 pr-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 dark:bg-slate-700/50 focus:bg-white text-slate-700 dark:text-gray-200 cursor-pointer"
+                  className="w-full pl-8 pr-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 dark:bg-slate-700/50 focus:bg-white dark:focus:bg-slate-700 text-slate-700 dark:text-gray-200 cursor-pointer"
                 >
                   <option value="Todos">Todos los Movimientos</option>
                   <option value="Egreso">Salidas / Egresos de Stock</option>
@@ -674,7 +674,7 @@ export default function Reportes() {
                 value={busquedaLogs}
                 onChange={(e) => setBusquedaLogs(e.target.value)}
                 placeholder="Filtrar por usuario, acción o módulo..."
-                className="w-full pl-8 pr-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 dark:bg-slate-700/50 focus:bg-white"
+                className="w-full pl-8 pr-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-600 focus:outline-none bg-slate-50/50 dark:bg-slate-700/50 focus:bg-white dark:focus:bg-slate-700 dark:text-white transition"
               />
             </div>
 

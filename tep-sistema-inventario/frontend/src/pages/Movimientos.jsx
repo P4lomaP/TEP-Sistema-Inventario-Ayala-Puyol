@@ -562,7 +562,7 @@ export default function Movimientos() {
                       }
                     }}
                     placeholder="Ej. TEP-PC-042, Dell OptiPlex, HP LaserJet..."
-                    className="w-full pl-10 pr-10 py-2.5 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/40 focus:bg-white transition dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
+                    className="w-full pl-10 pr-10 py-2.5 text-xs border border-slate-200 dark:border-slate-600 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/40 focus:bg-white dark:bg-slate-700 dark:focus:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400 transition"
                   />
                   {equipoTexto && (
                     <button
@@ -692,7 +692,7 @@ export default function Movimientos() {
                       }}
                       onFocus={() => setShowInsumoDropdown(true)}
                       placeholder="Ej. TON-HP-85A, Tóner, Resma A4, Cable HDMI..."
-                      className="w-full pl-10 pr-10 py-2.5 text-xs border border-slate-200 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/40 focus:bg-white transition dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
+                      className="w-full pl-10 pr-10 py-2.5 text-xs border border-slate-200 dark:border-slate-600 rounded-xl focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 bg-slate-50/40 focus:bg-white dark:bg-slate-700 dark:focus:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400 transition"
                     />
                     {insumoTexto && (
                       <button

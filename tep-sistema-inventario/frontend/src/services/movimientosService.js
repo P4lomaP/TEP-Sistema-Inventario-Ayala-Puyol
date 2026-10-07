@@ -1,6 +1,7 @@
 import { authFetch } from './authService';
+import { API_BASE } from './apiConfig';
 
-const BASE_URL = 'http://localhost:3000/api/movimientos';
+const BASE_URL = `${API_BASE}/movimientos`;
 
 /**
  * Obtener listado de todos los movimientos registrados
@@ -106,7 +107,7 @@ export async function anularMovimiento(idMovimiento, idUsuario = 1) {
  * @param {string} [comprobanteRef]
  */
 export async function descargarComprobantePDF(idMovimiento, comprobanteRef = '') {
-  const response = await authFetch(`http://localhost:3000/api/comprobantes/${idMovimiento}/pdf`);
+  const response = await authFetch(`${API_BASE}/comprobantes/${idMovimiento}/pdf`);
 
   if (!response.ok) {
     throw new Error('Error al descargar el comprobante en formato PDF.');

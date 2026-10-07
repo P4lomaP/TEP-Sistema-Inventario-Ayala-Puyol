@@ -1,6 +1,7 @@
 import { authFetch } from './authService';
+import { API_BASE } from './apiConfig';
 
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = API_BASE;
 
 /**
  * Cargar datos consolidados para el Dashboard directamente desde el backend

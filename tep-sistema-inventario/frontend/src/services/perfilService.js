@@ -1,6 +1,7 @@
 import { authFetch } from './authService';
+import { API_BASE } from './apiConfig';
 
-const API_URL = 'http://localhost:3000/api/auth/perfil';
+const API_URL = `${API_BASE}/auth/perfil`;
 
 /**
  * Obtener detalles del perfil del operador en sesión
