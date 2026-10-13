@@ -402,6 +402,14 @@ ALTER TABLE `matriz_compatibilidad`
 --
 ALTER TABLE `movimientos`
   ADD CONSTRAINT `fk_Movimientos_Usuarios1` FOREIGN KEY (`idUsuario`) REFERENCES `usuarios` (`idUsuario`);
+
+--
+-- Cuenta maestra / Super Administrador por defecto (admin.tep)
+-- Contraseña plana por defecto: tuPassword123
+--
+INSERT INTO `usuarios` (`username`, `password`, `rolAcceso`, `estadoActivo`) 
+VALUES ('admin.tep', '$2b$10$XFc7o1SYozyUwJfaq0xwlOjeGrpCUxLJFAsUpg9qBmLLRUpboYk/e', 'Administrador', 1)
+ON DUPLICATE KEY UPDATE `rolAcceso` = 'Administrador', `estadoActivo` = 1;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

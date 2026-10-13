@@ -726,9 +726,6 @@ export default function Login({ initialMode = 'login', onSwitchToRegister, onSwi
                           onChange={(e) => setRegRolAcceso(e.target.value)}
                           className="w-full pb-1.5 pr-8 text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-slate-800 border-b border-gray-300 dark:border-slate-700 focus:border-indigo-600 focus:outline-none transition cursor-pointer appearance-none"
                         >
-                          <option value="Administrador" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 py-1.5">
-                            Administrador (Control total del sistema)
-                          </option>
                           <option value="Tecnico" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 py-1.5">
                             Técnico (Gestión de equipos y stock)
                           </option>

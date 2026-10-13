@@ -96,7 +96,8 @@ const login = async (req, res) => {
  * Genera automáticamente un PIN numérico de 6 dígitos para recuperación interna de contraseñas.
  */
 const register = async (req, res) => {
-    const { username, password, rolAcceso } = req.body;
+    const { username, password, rolAcceso, rol: rolAlias } = req.body;
+    const rolEntrada = rolAcceso || rolAlias || 'Tecnico';
 
     // Validación de campos requeridos
     if (!username || !password) {
@@ -111,18 +112,23 @@ const register = async (req, res) => {
         });
     }
 
-    // Validar y normalizar rol de acceso (soporta 'Administrador', 'ADMIN', 'admin', etc.)
-    let rol = rolAcceso || 'Tecnico';
-    const rolNorm = String(rol).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    // Blindaje de Seguridad (RBAC): El registro público no permite auto-asignarse el rol de Administrador
+    const rolNorm = String(rolEntrada).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     if (['administrador', 'admin'].includes(rolNorm)) {
-        rol = 'Administrador';
-    } else if (['tecnico', 'tec'].includes(rolNorm)) {
+        return res.status(403).json({ 
+            message: 'Acceso denegado: No está permitido auto-asignarse el rol de Administrador mediante el registro público.' 
+        });
+    }
+
+    // Validar y normalizar roles públicos permitidos (únicamente Técnico o Auditor)
+    let rol = 'Tecnico';
+    if (['tecnico', 'tec'].includes(rolNorm)) {
         rol = 'Tecnico';
     } else if (['auditor'].includes(rolNorm)) {
         rol = 'Auditor';
     } else {
         return res.status(400).json({ 
-            message: 'Rol de acceso inválido. Debe ser Administrador, Tecnico o Auditor.' 
+            message: 'Rol de acceso inválido. Los roles permitidos son Técnico o Auditor.' 
         });
     }
 
