@@ -111,10 +111,16 @@ const register = async (req, res) => {
         });
     }
 
-    // Validar rol de acceso
-    const rol = rolAcceso || 'Tecnico';
-    const rolesValidos = ['Administrador', 'Tecnico', 'Auditor'];
-    if (!rolesValidos.includes(rol)) {
+    // Validar y normalizar rol de acceso (soporta 'Administrador', 'ADMIN', 'admin', etc.)
+    let rol = rolAcceso || 'Tecnico';
+    const rolNorm = String(rol).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (['administrador', 'admin'].includes(rolNorm)) {
+        rol = 'Administrador';
+    } else if (['tecnico', 'tec'].includes(rolNorm)) {
+        rol = 'Tecnico';
+    } else if (['auditor'].includes(rolNorm)) {
+        rol = 'Auditor';
+    } else {
         return res.status(400).json({ 
             message: 'Rol de acceso inválido. Debe ser Administrador, Tecnico o Auditor.' 
         });

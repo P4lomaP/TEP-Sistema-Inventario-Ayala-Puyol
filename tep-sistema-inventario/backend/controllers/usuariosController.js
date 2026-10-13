@@ -123,8 +123,15 @@ const cambiarRol = async (req, res) => {
         const { rolAcceso } = req.body;
         const idAdmin = req.usuario?.idUsuario;
 
-        const rolesValidos = ['Administrador', 'Tecnico', 'Auditor'];
-        if (!rolAcceso || !rolesValidos.includes(rolAcceso)) {
+        let nuevoRol = rolAcceso;
+        const rolNorm = String(nuevoRol || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        if (['administrador', 'admin'].includes(rolNorm)) {
+            nuevoRol = 'Administrador';
+        } else if (['tecnico', 'tec'].includes(rolNorm)) {
+            nuevoRol = 'Tecnico';
+        } else if (['auditor'].includes(rolNorm)) {
+            nuevoRol = 'Auditor';
+        } else {
             return res.status(400).json({
                 message: 'Rol no válido. Los roles admitidos son: Administrador, Tecnico o Auditor.'
             });
@@ -137,7 +144,7 @@ const cambiarRol = async (req, res) => {
         }
 
         // Si se intenta degradar a un admin, asegurar que quede al menos otro admin activo
-        if (usuario.rolAcceso === 'Administrador' && rolAcceso !== 'Administrador') {
+        if (usuario.rolAcceso === 'Administrador' && nuevoRol !== 'Administrador') {
             const admins = await executeQuery("SELECT idUsuario FROM Usuarios WHERE rolAcceso = 'Administrador' AND estadoActivo = 1");
             if (admins.length <= 1) {
                 return res.status(400).json({
@@ -146,17 +153,17 @@ const cambiarRol = async (req, res) => {
             }
         }
 
-        await executeQuery('UPDATE Usuarios SET rolAcceso = ? WHERE idUsuario = ?', [rolAcceso, id]);
+        await executeQuery('UPDATE Usuarios SET rolAcceso = ? WHERE idUsuario = ?', [nuevoRol, id]);
 
         await registrarAuditoria(
             idAdmin,
-            `Modificación de rol para @${usuario.username}: de "${usuario.rolAcceso}" a "${rolAcceso}".`,
+            `Modificación de rol para @${usuario.username}: de "${usuario.rolAcceso}" a "${nuevoRol}".`,
             'Seguridad'
         );
 
         return res.status(200).json({
-            message: `Rol del usuario @${usuario.username} actualizado a ${rolAcceso}.`,
-            rolAcceso
+            message: `Rol del usuario @${usuario.username} actualizado a ${nuevoRol}.`,
+            rolAcceso: nuevoRol
         });
     } catch (error) {
         console.error('Error al cambiar rol de usuario:', error);

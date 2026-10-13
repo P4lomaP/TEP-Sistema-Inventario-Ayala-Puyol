@@ -662,7 +662,7 @@ export default function Usuarios() {
               </div>
               <button 
                 onClick={() => setUsuarioEditandoRol(null)} 
-                className="text-slate-400 dark:text-gray-400 hover:text-slate-600 p-1 rounded-lg transition"
+                className="text-slate-400 dark:text-gray-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/60 transition cursor-pointer"
               >
                 <X size={18} />
               </button>
@@ -670,16 +670,23 @@ export default function Usuarios() {
 
             <form onSubmit={handleGuardarCambioRol} className="space-y-4 text-xs">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-gray-200 mb-1.5">
-                  Seleccionar nuevo rol:
+                <label className="block text-xs font-semibold text-slate-700 dark:text-gray-200 mb-2">
+                  Seleccionar nuevo rol operativo:
                 </label>
-                <div className="space-y-2">
-                  <label className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${
-                    nuevoRol === 'Tecnico' ? 'border-blue-600 bg-blue-50/40 text-blue-900' : 'border-slate-200 hover:bg-slate-50'
+                <div className="space-y-2.5">
+                  {/* Técnico */}
+                  <label className={`flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition ${
+                    nuevoRol === 'Tecnico' 
+                      ? 'border-blue-600 bg-blue-50/70 dark:bg-blue-950/40 dark:border-blue-500 shadow-xs ring-1 ring-blue-600/30 dark:ring-blue-500/30' 
+                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50'
                   }`}>
                     <div>
-                      <p className="font-bold text-xs">Técnico</p>
-                      <p className="text-[11px] text-slate-500 dark:text-gray-300">Gestión de insumos, equipos patrimoniales y movimientos.</p>
+                      <p className={`font-bold text-xs ${nuevoRol === 'Tecnico' ? 'text-blue-900 dark:text-blue-200' : 'text-slate-800 dark:text-gray-100'}`}>
+                        Técnico
+                      </p>
+                      <p className={`text-[11px] mt-0.5 ${nuevoRol === 'Tecnico' ? 'text-blue-700 dark:text-blue-300/80' : 'text-slate-500 dark:text-gray-400'}`}>
+                        Gestión de insumos, equipos patrimoniales y movimientos.
+                      </p>
                     </div>
                     <input 
                       type="radio" 
@@ -687,16 +694,23 @@ export default function Usuarios() {
                       value="Tecnico" 
                       checked={nuevoRol === 'Tecnico'} 
                       onChange={() => setNuevoRol('Tecnico')} 
-                      className="text-blue-600"
+                      className="text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
                     />
                   </label>
 
-                  <label className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${
-                    nuevoRol === 'Auditor' ? 'border-amber-600 bg-amber-50/40 text-amber-900' : 'border-slate-200 hover:bg-slate-50'
+                  {/* Auditor */}
+                  <label className={`flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition ${
+                    nuevoRol === 'Auditor' 
+                      ? 'border-amber-600 bg-amber-50/70 dark:bg-amber-950/40 dark:border-amber-500 shadow-xs ring-1 ring-amber-600/30 dark:ring-amber-500/30' 
+                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50'
                   }`}>
                     <div>
-                      <p className="font-bold text-xs">Auditor</p>
-                      <p className="text-[11px] text-slate-500 dark:text-gray-300">Consulta de reportes analíticos, trazabilidad e inspección.</p>
+                      <p className={`font-bold text-xs ${nuevoRol === 'Auditor' ? 'text-amber-900 dark:text-amber-200' : 'text-slate-800 dark:text-gray-100'}`}>
+                        Auditor
+                      </p>
+                      <p className={`text-[11px] mt-0.5 ${nuevoRol === 'Auditor' ? 'text-amber-700 dark:text-amber-300/80' : 'text-slate-500 dark:text-gray-400'}`}>
+                        Consulta de reportes analíticos, trazabilidad e inspección.
+                      </p>
                     </div>
                     <input 
                       type="radio" 
@@ -704,16 +718,23 @@ export default function Usuarios() {
                       value="Auditor" 
                       checked={nuevoRol === 'Auditor'} 
                       onChange={() => setNuevoRol('Auditor')} 
-                      className="text-amber-600"
+                      className="text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer"
                     />
                   </label>
 
-                  <label className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${
-                    nuevoRol === 'Administrador' ? 'border-slate-800 bg-slate-100 text-slate-900' : 'border-slate-200 hover:bg-slate-50'
+                  {/* Administrador */}
+                  <label className={`flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition ${
+                    nuevoRol === 'Administrador' 
+                      ? 'border-indigo-600 bg-indigo-50/70 dark:bg-indigo-950/40 dark:border-indigo-500 shadow-xs ring-1 ring-indigo-600/30 dark:ring-indigo-500/30' 
+                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50'
                   }`}>
                     <div>
-                      <p className="font-bold text-xs">Administrador</p>
-                      <p className="text-[11px] text-slate-500 dark:text-gray-300">Acceso total, gestión de usuarios, roles y copias de seguridad.</p>
+                      <p className={`font-bold text-xs ${nuevoRol === 'Administrador' ? 'text-indigo-950 dark:text-indigo-200' : 'text-slate-800 dark:text-gray-100'}`}>
+                        Administrador
+                      </p>
+                      <p className={`text-[11px] mt-0.5 ${nuevoRol === 'Administrador' ? 'text-indigo-700 dark:text-indigo-300/80' : 'text-slate-500 dark:text-gray-400'}`}>
+                        Acceso total, gestión de usuarios, roles y copias de seguridad.
+                      </p>
                     </div>
                     <input 
                       type="radio" 
@@ -721,7 +742,7 @@ export default function Usuarios() {
                       value="Administrador" 
                       checked={nuevoRol === 'Administrador'} 
                       onChange={() => setNuevoRol('Administrador')} 
-                      className="text-slate-800 dark:text-gray-100"
+                      className="text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer"
                     />
                   </label>
                 </div>

@@ -222,14 +222,14 @@ export default function Register({ onSwitchToLogin }) {
                 onChange={(e) => setRolAcceso(e.target.value)}
                 className="w-full pb-2 pr-8 text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-slate-800 border-b border-gray-300 dark:border-slate-700 focus:border-indigo-600 focus:outline-none transition cursor-pointer appearance-none"
               >
+                <option value="Administrador" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 py-1.5">
+                  Administrador (Control total del sistema)
+                </option>
                 <option value="Tecnico" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 py-1.5">
                   Técnico (Gestión de equipos y stock)
                 </option>
                 <option value="Auditor" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 py-1.5">
                   Auditor (Solo lectura y reportes)
-                </option>
-                <option value="Administrador" className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 py-1.5">
-                  Administrador (Control total)
                 </option>
               </select>
               <div className="pointer-events-none absolute right-0 bottom-2 text-gray-400 dark:text-gray-400">
