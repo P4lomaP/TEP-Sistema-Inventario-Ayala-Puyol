@@ -5,7 +5,6 @@ import {
   Plus, 
   Minus, 
   MapPin, 
-  Package, 
   Layers, 
   Printer, 
   RefreshCw, 
@@ -23,14 +22,11 @@ import MainLayout from '../components/MainLayout';
 import BannerAuditorReadOnly from '../components/BannerAuditorReadOnly';
 import { getStoredUser } from '../services/authService';
 import { listarInsumos } from '../services/insumosService';
-import { listarEquipos } from '../services/equiposService';
 import { 
   FILAS_DISPONIBLES, 
   cargarDimensionesEstante, 
   guardarDimensionesEstante, 
   parsearUbicacion, 
-  cargarEquiposEstante, 
-  guardarEquipoEstante,
   validarReduccionFila,
   validarReduccionColumna,
   calcularDimensionesMinimas
@@ -44,8 +40,6 @@ export default function MapaAlmacen() {
 
   // Estados de datos
   const [insumos, setInsumos] = useState([]);
-  const [equipos, setEquipos] = useState([]);
-  const [equiposMap, setEquiposMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -54,7 +48,7 @@ export default function MapaAlmacen() {
 
   // Búsqueda y Filtros
   const [filtroTexto, setFiltroTexto] = useState('');
-  const [filtroTipo, setFiltroTipo] = useState('todas'); // 'todas', 'ocupadas', 'vacias', 'insumos', 'equipos'
+  const [filtroTipo, setFiltroTipo] = useState('todas'); // 'todas', 'ocupadas', 'vacias', 'insumos'
 
   // Casilla seleccionada para el Panel Lateral
   const [casillaSeleccionada, setCasillaSeleccionada] = useState(null);
@@ -62,50 +56,37 @@ export default function MapaAlmacen() {
   // Estado de Bloqueo / Alerta de Integridad Física
   const [alertaIntegridad, setAlertaIntegridad] = useState(null);
 
-  // Cargar datos desde Backend y LocalStorage
+  // Cargar datos desde Backend (exclusivamente insumos para estanterías)
   const cargarDatos = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [dataIns, dataEq] = await Promise.all([
-        listarInsumos(),
-        listarEquipos()
-      ]);
+      const dataIns = await listarInsumos();
       setInsumos(Array.isArray(dataIns) ? dataIns : []);
-      setEquipos(Array.isArray(dataEq) ? dataEq : []);
-      setEquiposMap(cargarEquiposEstante());
     } catch (err) {
       console.error('Error al sincronizar datos del almacén:', err);
-      setError('No se pudo conectar con el catálogo de insumos y equipos en el servidor.');
+      setError('No se pudo conectar con el catálogo de insumos en el servidor.');
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Carga inicial y escucha reactiva de eventos entre ventanas y foco
+  // Carga inicial y escucha reactiva de eventos
   useEffect(() => {
     cargarDatos();
-
-    const handleActualizacionEquipos = () => {
-      setEquiposMap(cargarEquiposEstante());
-    };
 
     const handleFocus = () => {
       cargarDatos();
     };
 
     window.addEventListener('focus', handleFocus);
-    window.addEventListener('storage', handleActualizacionEquipos);
-    window.addEventListener('tep_shelf_equipment_updated', handleActualizacionEquipos);
 
     return () => {
       window.removeEventListener('focus', handleFocus);
-      window.removeEventListener('storage', handleActualizacionEquipos);
-      window.removeEventListener('tep_shelf_equipment_updated', handleActualizacionEquipos);
     };
   }, [cargarDatos]);
 
-  // Mapear elementos por celda usando el normalizador robusto
+  // Mapear elementos por celda usando el normalizador robusto (solo insumos en estantes)
   const matrizOcupacion = useMemo(() => {
     const mapa = {};
 
@@ -114,22 +95,13 @@ export default function MapaAlmacen() {
       const parsed = parsearUbicacion(ins.ubicacionFila, ins.ubicacionColumna);
       if (parsed) {
         const coord = parsed.coordenada;
-        if (!mapa[coord]) mapa[coord] = { insumos: [], equipos: [] };
+        if (!mapa[coord]) mapa[coord] = { insumos: [] };
         mapa[coord].insumos.push(ins);
       }
     });
 
-    // Equipos en depósito
-    equipos.forEach((eq) => {
-      const coord = equiposMap[eq.idEquipo];
-      if (coord) {
-        if (!mapa[coord]) mapa[coord] = { insumos: [], equipos: [] };
-        mapa[coord].equipos.push(eq);
-      }
-    });
-
     return mapa;
-  }, [insumos, equipos, equiposMap]);
+  }, [insumos]);
 
   // Auto-ajuste de seguridad: asegurar que la cuadrícula abarque todos los ítems almacenados
   useEffect(() => {
@@ -223,7 +195,7 @@ export default function MapaAlmacen() {
       for (let c = 1; c <= dimensiones.columnas; c++) {
         const coord = `${f}${c}`;
         const celda = matrizOcupacion[coord];
-        if (celda && (celda.insumos?.length > 0 || celda.equipos?.length > 0)) {
+        if (celda && celda.insumos?.length > 0) {
           casillasOcupadas++;
         }
       }
@@ -231,11 +203,6 @@ export default function MapaAlmacen() {
 
     const totalInsumosUbicados = Object.values(matrizOcupacion).reduce(
       (sum, celda) => sum + (celda.insumos?.length || 0),
-      0
-    );
-
-    const totalEquiposUbicados = Object.values(matrizOcupacion).reduce(
-      (sum, celda) => sum + (celda.equipos?.length || 0),
       0
     );
 
@@ -248,36 +215,14 @@ export default function MapaAlmacen() {
       casillasOcupadas,
       casillasLibres: totalCasillas - casillasOcupadas,
       porcentajeOcupacion,
-      totalInsumosUbicados,
-      totalEquiposUbicados
+      totalInsumosUbicados
     };
   }, [dimensiones, matrizOcupacion]);
-
-  // Lista de equipos en depósito sin casilla asignada
-  const equiposEnDepositoSinCasilla = useMemo(() => {
-    return equipos.filter(
-      (eq) => eq.estadoOperativo === 'En Depósito' && !equiposMap[eq.idEquipo]
-    );
-  }, [equipos, equiposMap]);
-
-  // Asignar un equipo a la casilla seleccionada
-  const handleAsignarEquipo = (idEquipo) => {
-    if (!casillaSeleccionada || isAuditor) return;
-    const nuevoMap = guardarEquipoEstante(idEquipo, casillaSeleccionada);
-    setEquiposMap(nuevoMap);
-  };
-
-  // Quitar un equipo de su casilla
-  const handleQuitarEquipo = (idEquipo) => {
-    if (isAuditor) return;
-    const nuevoMap = guardarEquipoEstante(idEquipo, null);
-    setEquiposMap(nuevoMap);
-  };
 
   // Imprimir Etiqueta Oficial de Casilla
   const handleImprimirEtiqueta = (coord) => {
     if (!coord) return;
-    const datosCasilla = matrizOcupacion[coord] || { insumos: [], equipos: [] };
+    const datosCasilla = matrizOcupacion[coord] || { insumos: [] };
     const filaLetra = coord.charAt(0);
     const colNum = coord.slice(1);
 
@@ -291,17 +236,6 @@ export default function MapaAlmacen() {
         </tr>
       `).join('')
       : '<tr><td colspan="4" style="padding: 10px; text-align: center; color: #94a3b8; font-style: italic;">Sin insumos asignados</td></tr>';
-
-    const contenidoEquipos = datosCasilla.equipos.length > 0 
-      ? datosCasilla.equipos.map(e => `
-        <tr>
-          <td style="padding: 6px; border-bottom: 1px solid #e2e8f0; font-weight: bold; font-family: monospace;">${e.codPatrimonial || 'S/N'}</td>
-          <td style="padding: 6px; border-bottom: 1px solid #e2e8f0;">${e.marcaModelo}</td>
-          <td style="padding: 6px; border-bottom: 1px solid #e2e8f0; text-align: center; font-family: monospace;">${e.numeroSerie}</td>
-          <td style="padding: 6px; border-bottom: 1px solid #e2e8f0; text-align: right;">${e.estadoOperativo}</td>
-        </tr>
-      `).join('')
-      : '<tr><td colspan="4" style="padding: 10px; text-align: center; color: #94a3b8; font-style: italic;">Sin equipos asignados</td></tr>';
 
     const fechaHoy = new Date().toLocaleDateString('es-AR', {
       day: '2-digit',
@@ -363,21 +297,6 @@ export default function MapaAlmacen() {
             </tbody>
           </table>
 
-          <div class="seccion-titulo" style="margin-top: 18px;">Equipos Patrimoniales en Reserva</div>
-          <table>
-            <thead>
-              <tr>
-                <th style="width: 25%;">Cód. Patrimonial</th>
-                <th style="width: 40%;">Marca / Modelo</th>
-                <th style="width: 20%; text-align: center;">N° Serie</th>
-                <th style="width: 15%; text-align: right;">Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${contenidoEquipos}
-            </tbody>
-          </table>
-
           <div class="pie">
             <span>Fecha de emisión: ${fechaHoy}</span>
             <span>Firma Pañolero / Responsable: _______________________</span>
@@ -399,16 +318,14 @@ export default function MapaAlmacen() {
 
   // Filtrado de casillas
   const cumpleFiltro = (coord) => {
-    const celda = matrizOcupacion[coord] || { insumos: [], equipos: [] };
+    const celda = matrizOcupacion[coord] || { insumos: [] };
     const numInsumos = celda.insumos.length;
-    const numEquipos = celda.equipos.length;
-    const tieneElementos = numInsumos > 0 || numEquipos > 0;
+    const tieneElementos = numInsumos > 0;
 
     // Filtro por tipo
     if (filtroTipo === 'ocupadas' && !tieneElementos) return false;
     if (filtroTipo === 'vacias' && tieneElementos) return false;
     if (filtroTipo === 'insumos' && numInsumos === 0) return false;
-    if (filtroTipo === 'equipos' && numEquipos === 0) return false;
 
     // Filtro por texto de búsqueda
     if (filtroTexto.trim()) {
@@ -417,18 +334,13 @@ export default function MapaAlmacen() {
       const coincideInsumo = celda.insumos.some(
         (i) => i.codigoInterno?.toLowerCase().includes(q) || i.descripcion?.toLowerCase().includes(q)
       );
-      const coincideEquipo = celda.equipos.some(
-        (e) => e.codPatrimonial?.toLowerCase().includes(q) || 
-               e.marcaModelo?.toLowerCase().includes(q) || 
-               e.numeroSerie?.toLowerCase().includes(q)
-      );
-      return coincideCoord || coincideInsumo || coincideEquipo;
+      return coincideCoord || coincideInsumo;
     }
 
     return true;
   };
 
-  const detalleCasilla = casillaSeleccionada ? matrizOcupacion[casillaSeleccionada] || { insumos: [], equipos: [] } : null;
+  const detalleCasilla = casillaSeleccionada ? matrizOcupacion[casillaSeleccionada] || { insumos: [] } : null;
 
   return (
     <MainLayout activePage="almacen">
@@ -597,15 +509,7 @@ export default function MapaAlmacen() {
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-3 h-3 rounded-md bg-blue-100 border border-blue-200"></span>
-                Insumos
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-md bg-amber-100 border border-amber-200"></span>
-                Equipos
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-md bg-indigo-100 border border-indigo-200"></span>
-                Mixta
+                Con Insumos
               </span>
             </div>
           </div>
@@ -619,7 +523,7 @@ export default function MapaAlmacen() {
                 type="text"
                 value={filtroTexto}
                 onChange={(e) => setFiltroTexto(e.target.value)}
-                placeholder="Buscar insumo, código o serie en estantería..."
+                placeholder="Buscar insumo, código o descripción en estantería..."
                 className="w-full pl-9 pr-3.5 py-2 text-xs bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-700 dark:text-white dark:placeholder-slate-400 transition"
               />
               {filtroTexto && (
@@ -639,8 +543,7 @@ export default function MapaAlmacen() {
                 { id: 'todas', label: 'Todas' },
                 { id: 'ocupadas', label: 'Ocupadas' },
                 { id: 'vacias', label: 'Vacías' },
-                { id: 'insumos', label: 'Con Insumos' },
-                { id: 'equipos', label: 'Con Equipos' }
+                { id: 'insumos', label: 'Con Insumos' }
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -698,26 +601,18 @@ export default function MapaAlmacen() {
                     {/* Celdas / Casillas */}
                     {columnas.map((col) => {
                       const coord = `${fila}${col}`;
-                      const celda = matrizOcupacion[coord] || { insumos: [], equipos: [] };
+                      const celda = matrizOcupacion[coord] || { insumos: [] };
                       const numInsumos = celda.insumos.length;
-                      const numEquipos = celda.equipos.length;
                       const tieneInsumos = numInsumos > 0;
-                      const tieneEquipos = numEquipos > 0;
                       const isSelected = casillaSeleccionada === coord;
                       const coincide = cumpleFiltro(coord);
 
                       let estadoClase = 'bg-slate-50/50 dark:bg-slate-800/60 border-slate-200/80 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600';
                       let badgeClase = 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300';
 
-                      if (tieneInsumos && tieneEquipos) {
-                        estadoClase = 'bg-indigo-50/60 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800 hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-indigo-100/50 dark:hover:bg-indigo-900/40';
-                        badgeClase = 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300';
-                      } else if (tieneInsumos) {
+                      if (tieneInsumos) {
                         estadoClase = 'bg-blue-50/60 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-100/50 dark:hover:bg-blue-900/40';
                         badgeClase = 'bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300';
-                      } else if (tieneEquipos) {
-                        estadoClase = 'bg-amber-50/60 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 hover:border-amber-300 dark:hover:border-amber-700 hover:bg-amber-100/50 dark:hover:bg-amber-900/40';
-                        badgeClase = 'bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300';
                       }
 
                       if (!coincide) {
@@ -740,31 +635,18 @@ export default function MapaAlmacen() {
                               {coord}
                             </span>
                             <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${badgeClase}`}>
-                              {tieneInsumos && tieneEquipos
-                                ? 'Mixta'
-                                : tieneInsumos
-                                ? 'Insumos'
-                                : tieneEquipos
-                                ? 'Equipos'
-                                : 'Vacía'}
+                              {tieneInsumos ? 'Insumos' : 'Vacía'}
                             </span>
                           </div>
 
                           {/* Contenido / Miniatura de ocupación */}
                           <div className="space-y-1 my-1.5">
-                            {tieneInsumos && (
+                            {tieneInsumos ? (
                               <div className="flex items-center gap-1.5 text-[11px] text-blue-800 dark:text-blue-300 font-medium">
                                 <Layers size={12} className="shrink-0 text-blue-600 dark:text-blue-400" />
                                 <span>{numInsumos} insumo(s)</span>
                               </div>
-                            )}
-                            {tieneEquipos && (
-                              <div className="flex items-center gap-1.5 text-[11px] text-amber-800 dark:text-amber-300 font-medium">
-                                <Package size={12} className="shrink-0 text-amber-600 dark:text-amber-400" />
-                                <span>{numEquipos} equipo(s)</span>
-                              </div>
-                            )}
-                            {!tieneInsumos && !tieneEquipos && (
+                            ) : (
                               <span className="text-[11px] text-slate-300 dark:text-slate-500 italic block">
                                 Disponible
                               </span>
@@ -776,8 +658,6 @@ export default function MapaAlmacen() {
                             <span className="truncate max-w-[100px] font-medium">
                               {tieneInsumos
                                 ? celda.insumos[0].codigoInterno
-                                : tieneEquipos
-                                ? celda.equipos[0].marcaModelo
                                 : 'Sin asignar'}
                             </span>
                             <span className="text-blue-600 dark:text-blue-400 font-semibold">
@@ -892,90 +772,6 @@ export default function MapaAlmacen() {
                     </div>
                   )}
                 </div>
-
-                {/* Sección 2: Equipos Patrimoniales en Depósito */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center gap-1.5">
-                      <Package size={14} className="text-amber-600 dark:text-amber-400" />
-                      <span>Equipos en Depósito ({detalleCasilla.equipos.length})</span>
-                    </span>
-                  </div>
-
-                  {detalleCasilla.equipos.length === 0 ? (
-                    <div className="p-4 text-center border border-dashed border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-400 dark:text-slate-400">
-                      No hay equipos informáticos asignados a esta casilla.
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {detalleCasilla.equipos.map((eq) => (
-                        <div 
-                          key={eq.idEquipo}
-                          className="p-3.5 bg-amber-50/50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-800/50 rounded-xl space-y-2"
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <span className="text-[10px] font-mono font-bold bg-amber-200/80 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 px-1.5 py-0.5 rounded">
-                                {eq.codPatrimonial || 'S/N Patrimonial'}
-                              </span>
-                              <h5 className="text-xs font-bold text-slate-800 dark:text-white mt-1">
-                                {eq.marcaModelo}
-                              </h5>
-                              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-                                Serie: {eq.numeroSerie}
-                              </p>
-                            </div>
-                            {!isAuditor && (
-                              <button
-                                type="button"
-                                onClick={() => handleQuitarEquipo(eq.idEquipo)}
-                                className="text-[11px] text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-semibold p-1 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded transition cursor-pointer"
-                                title="Quitar equipo de esta casilla"
-                              >
-                                Quitar
-                              </button>
-                            )}
-                          </div>
-                          <div className="flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-400 pt-1 border-t border-amber-200/50 dark:border-amber-800/40">
-                            <span>Tipo: {eq.tipoEquipo}</span>
-                            <span className="font-semibold text-amber-700 dark:text-amber-400">{eq.estadoOperativo}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Asignador de Equipos en Reserva a esta Casilla */}
-                  {!isAuditor && equiposEnDepositoSinCasilla.length > 0 && (
-                    <div className="p-4 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-xl space-y-2.5">
-                      <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
-                        <Plus size={14} className="text-blue-600 dark:text-blue-400" />
-                        <span>Asignar equipo en reserva a esta casilla:</span>
-                      </span>
-                      <select
-                        onChange={(e) => {
-                          if (e.target.value) {
-                            handleAsignarEquipo(Number(e.target.value));
-                            e.target.value = '';
-                          }
-                        }}
-                        defaultValue=""
-                        className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-blue-600 cursor-pointer"
-                      >
-                        <option value="" disabled>-- Seleccione un equipo para almacenar aquí --</option>
-                        {equiposEnDepositoSinCasilla.map((eq) => (
-                          <option key={eq.idEquipo} value={eq.idEquipo}>
-                            {eq.marcaModelo} (Serie: {eq.numeroSerie})
-                          </option>
-                        ))}
-                      </select>
-                      <p className="text-[10px] text-slate-400 dark:text-gray-400">
-                        Solo se listan equipos con estado "En Depósito" que aún no tengan casilla asignada.
-                      </p>
-                    </div>
-                  )}
-                </div>
-
               </div>
 
               {/* Pie del Panel Lateral */}

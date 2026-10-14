@@ -1,43 +1,34 @@
 import { useState, useMemo, useEffect } from 'react';
-import { X, Check, Grid, MapPin, Package, Layers, Info } from 'lucide-react';
+import { X, Check, Grid, MapPin, Layers, Info } from 'lucide-react';
 import { 
   FILAS_DISPONIBLES, 
   cargarDimensionesEstante, 
   parsearUbicacion, 
-  formatearCoordenada,
-  cargarEquiposEstante 
+  formatearCoordenada
 } from '../utils/shelfHelper';
 import { listarInsumos } from '../services/insumosService';
-import { listarEquipos } from '../services/equiposService';
 
 export default function ModalSelectorEstante({
   isOpen,
   onClose,
   onSelect,
   coordenadaActual = '',
-  insumos = [],
-  equipos = []
+  insumos = []
 }) {
   const dimensiones = useMemo(() => cargarDimensionesEstante(), [isOpen]);
-  const equiposMap = useMemo(() => cargarEquiposEstante(), [isOpen]);
 
-  // Cargar inventario automáticamente si no fue inyectado por props
+  // Cargar inventario de insumos automáticamente si no fue inyectado por props
   const [internalInsumos, setInternalInsumos] = useState([]);
-  const [internalEquipos, setInternalEquipos] = useState([]);
 
   useEffect(() => {
     if (isOpen) {
       if (!insumos || insumos.length === 0) {
         listarInsumos().then(d => setInternalInsumos(Array.isArray(d) ? d : [])).catch(() => {});
       }
-      if (!equipos || equipos.length === 0) {
-        listarEquipos().then(d => setInternalEquipos(Array.isArray(d) ? d : [])).catch(() => {});
-      }
     }
-  }, [isOpen, insumos, equipos]);
+  }, [isOpen, insumos]);
 
   const effectiveInsumos = (insumos && insumos.length > 0) ? insumos : internalInsumos;
-  const effectiveEquipos = (equipos && equipos.length > 0) ? equipos : internalEquipos;
 
   // Normalizar coordenada inicial seleccionada
   const [seleccionada, setSeleccionada] = useState(() => {
@@ -57,7 +48,7 @@ export default function ModalSelectorEstante({
     }
   }, [isOpen, coordenadaActual]);
 
-  // Mapear ocupación por casilla
+  // Mapear ocupación por casilla (exclusivamente insumos)
   const ocupacionMapa = useMemo(() => {
     const mapa = {};
 
@@ -66,22 +57,13 @@ export default function ModalSelectorEstante({
       const parsed = parsearUbicacion(ins.ubicacionFila, ins.ubicacionColumna);
       if (parsed) {
         const coord = parsed.coordenada;
-        if (!mapa[coord]) mapa[coord] = { insumos: [], equipos: [] };
+        if (!mapa[coord]) mapa[coord] = { insumos: [] };
         mapa[coord].insumos.push(ins);
       }
     });
 
-    // Equipos en depósito
-    effectiveEquipos.forEach((eq) => {
-      const coord = equiposMap[eq.idEquipo];
-      if (coord) {
-        if (!mapa[coord]) mapa[coord] = { insumos: [], equipos: [] };
-        mapa[coord].equipos.push(eq);
-      }
-    });
-
     return mapa;
-  }, [effectiveInsumos, effectiveEquipos, equiposMap]);
+  }, [effectiveInsumos]);
 
   if (!isOpen) return null;
 
@@ -154,14 +136,6 @@ export default function ModalSelectorEstante({
                 <span className="w-3 h-3 rounded bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800"></span>
                 Con Insumos
               </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800"></span>
-                Con Equipos
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800"></span>
-                Mixta
-              </span>
             </div>
             <span className="font-semibold text-slate-600 dark:text-gray-300">
               Estantería: {dimensiones.filas} Filas × {dimensiones.columnas} Columnas
@@ -208,17 +182,11 @@ export default function ModalSelectorEstante({
                       const isSel = seleccionada === coord;
                       const ocup = ocupacionMapa[coord];
                       const numInsumos = ocup?.insumos?.length || 0;
-                      const numEquipos = ocup?.equipos?.length || 0;
                       const tieneInsumos = numInsumos > 0;
-                      const tieneEquipos = numEquipos > 0;
 
                       let bgStyle = 'bg-white dark:bg-slate-800/70 hover:bg-slate-50 dark:hover:bg-slate-700/60 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100';
-                      if (tieneInsumos && tieneEquipos) {
-                        bgStyle = 'bg-indigo-50/70 dark:bg-indigo-950/40 hover:bg-indigo-100/70 dark:hover:bg-indigo-900/40 border-indigo-200 dark:border-indigo-800 text-indigo-950 dark:text-indigo-200';
-                      } else if (tieneInsumos) {
+                      if (tieneInsumos) {
                         bgStyle = 'bg-blue-50/70 dark:bg-blue-950/40 hover:bg-blue-100/70 dark:hover:bg-blue-900/40 border-blue-200 dark:border-blue-800 text-blue-950 dark:text-blue-200';
-                      } else if (tieneEquipos) {
-                        bgStyle = 'bg-amber-50/70 dark:bg-amber-950/40 hover:bg-amber-100/70 dark:hover:bg-amber-900/40 border-amber-200 dark:border-amber-800 text-amber-950 dark:text-amber-200';
                       }
 
                       return (
@@ -245,19 +213,12 @@ export default function ModalSelectorEstante({
 
                           {/* Indicadores de ocupación */}
                           <div className="flex items-center gap-1 mt-1 text-[10px]">
-                            {tieneInsumos && (
+                            {tieneInsumos ? (
                               <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200/50 dark:border-blue-700/50" title={`${numInsumos} insumos`}>
                                 <Layers size={10} />
                                 {numInsumos}
                               </span>
-                            )}
-                            {tieneEquipos && (
-                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 font-semibold border border-amber-200/50 dark:border-amber-700/50" title={`${numEquipos} equipos`}>
-                                <Package size={10} />
-                                {numEquipos}
-                              </span>
-                            )}
-                            {!tieneInsumos && !tieneEquipos && (
+                            ) : (
                               <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">Libre</span>
                             )}
                           </div>
@@ -284,8 +245,8 @@ export default function ModalSelectorEstante({
                         Casilla Seleccionada: {seleccionada} (Fila {seleccionada.charAt(0)} - Columna {seleccionada.slice(1)})
                       </span>
                       <p className="text-[11px] text-slate-500 dark:text-gray-300">
-                        {detalleSeleccionada?.insumos?.length || detalleSeleccionada?.equipos?.length
-                          ? `Actualmente aloja ${detalleSeleccionada.insumos?.length || 0} insumo(s) y ${detalleSeleccionada.equipos?.length || 0} equipo(s)`
+                        {detalleSeleccionada?.insumos?.length
+                          ? `Actualmente aloja ${detalleSeleccionada.insumos.length} insumo(s)`
                           : 'Casilla completamente vacía y disponible para almacenamiento'}
                       </p>
                     </div>
@@ -300,18 +261,12 @@ export default function ModalSelectorEstante({
                 </div>
 
                 {/* Vista previa de lo que hay en la casilla */}
-                {detalleSeleccionada && (
+                {detalleSeleccionada && detalleSeleccionada.insumos?.length > 0 && (
                   <div className="max-h-24 overflow-y-auto space-y-1 text-xs pt-1 border-t border-slate-200/60 dark:border-slate-700">
-                    {detalleSeleccionada.insumos?.map((i) => (
+                    {detalleSeleccionada.insumos.map((i) => (
                       <div key={i.idInsumo} className="flex items-center justify-between text-[11px] text-slate-600 dark:text-gray-300 bg-white dark:bg-slate-800/90 px-2 py-1 rounded border border-slate-100 dark:border-slate-700">
                         <span className="truncate max-w-[320px] font-medium">📦 {i.codigoInterno} - {i.descripcion}</span>
                         <span className="font-semibold text-slate-700 dark:text-gray-200 shrink-0">Stock: {i.stockActual}</span>
-                      </div>
-                    ))}
-                    {detalleSeleccionada.equipos?.map((e) => (
-                      <div key={e.idEquipo} className="flex items-center justify-between text-[11px] text-slate-600 dark:text-gray-300 bg-white dark:bg-slate-800/90 px-2 py-1 rounded border border-slate-100 dark:border-slate-700">
-                        <span className="truncate max-w-[320px] font-medium">💻 {e.codPatrimonial || 'S/N'} - {e.marcaModelo}</span>
-                        <span className="font-semibold text-amber-700 dark:text-amber-400 shrink-0">{e.estadoOperativo}</span>
                       </div>
                     ))}
                   </div>

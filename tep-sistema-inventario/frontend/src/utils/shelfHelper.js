@@ -182,7 +182,7 @@ export function guardarEquipoEstante(idEquipo, coordenada) {
 
 /**
  * Validación de Integridad Física: Verifica si es seguro reducir una fila
- * Devuelve falso si existen insumos o equipos almacenados en esa fila.
+ * Devuelve falso si existen insumos almacenados en esa fila.
  */
 export function validarReduccionFila(filaLetra, columnasTotal, matrizOcupacion) {
   const items = [];
@@ -199,15 +199,6 @@ export function validarReduccionFila(filaLetra, columnasTotal, matrizOcupacion) 
           cantidad: ins.stockActual
         });
       });
-      (celda.equipos || []).forEach(eq => {
-        items.push({
-          tipo: 'equipo',
-          coordenada: coord,
-          nombre: eq.marcaModelo,
-          codigo: eq.codPatrimonial || eq.numeroSerie,
-          serie: eq.numeroSerie
-        });
-      });
     }
   }
   return {
@@ -219,7 +210,7 @@ export function validarReduccionFila(filaLetra, columnasTotal, matrizOcupacion) 
 
 /**
  * Validación de Integridad Física: Verifica si es seguro reducir una columna
- * Devuelve falso si existen insumos o equipos almacenados en esa columna.
+ * Devuelve falso si existen insumos almacenados en esa columna.
  */
 export function validarReduccionColumna(columnaNum, filasTotal, matrizOcupacion) {
   const items = [];
@@ -237,15 +228,6 @@ export function validarReduccionColumna(columnaNum, filasTotal, matrizOcupacion)
           cantidad: ins.stockActual
         });
       });
-      (celda.equipos || []).forEach(eq => {
-        items.push({
-          tipo: 'equipo',
-          coordenada: coord,
-          nombre: eq.marcaModelo,
-          codigo: eq.codPatrimonial || eq.numeroSerie,
-          serie: eq.numeroSerie
-        });
-      });
     }
   }
   return {
@@ -257,7 +239,7 @@ export function validarReduccionColumna(columnaNum, filasTotal, matrizOcupacion)
 
 /**
  * Auto-ajuste de seguridad: Calcula las dimensiones mínimas para que ningún
- * material registrado quede fuera del mapa visual.
+ * insumo registrado quede fuera del mapa visual.
  */
 export function calcularDimensionesMinimas(matrizOcupacion, dimensionesBase = { filas: 4, columnas: 5 }) {
   let maxFilaIdx = Math.max(dimensionesBase.filas - 1, 3); // mínimo fila D (índice 3)
@@ -265,8 +247,7 @@ export function calcularDimensionesMinimas(matrizOcupacion, dimensionesBase = { 
 
   Object.entries(matrizOcupacion).forEach(([coord, celda]) => {
     const tieneInsumos = celda.insumos && celda.insumos.length > 0;
-    const tieneEquipos = celda.equipos && celda.equipos.length > 0;
-    if (tieneInsumos || tieneEquipos) {
+    if (tieneInsumos) {
       const filaLetra = coord.charAt(0);
       const colNum = parseInt(coord.slice(1), 10);
       const idx = FILAS_DISPONIBLES.indexOf(filaLetra);

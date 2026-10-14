@@ -6,10 +6,8 @@ import {
   Printer, 
   Cpu, 
   CheckCircle2, 
-  AlertCircle,
-  Boxes
+  AlertCircle
 } from 'lucide-react';
-import ModalSelectorEstante from './ModalSelectorEstante';
 
 export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [], insumos = [], equipos = [] }) {
   // Tipo de equipo seleccionado: limitado estrictamente a Computadoras e Impresoras
@@ -42,8 +40,6 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
   });
 
   const [error, setError] = useState('');
-  const [casillaEstante, setCasillaEstante] = useState(null);
-  const [isSelectorOpen, setIsSelectorOpen] = useState(false);
 
   // Detección preventiva de conflictos de unicidad (S/N, Código Patrimonial, IP)
   const serieEnUso = equipos.find(
@@ -138,8 +134,7 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
       tecnologiaImpresion: esImp ? formData.tipoImpresion : null,
       tipoConexion: esImp ? formData.conexionImpresora : null,
       formatoPapel: esImp ? formData.formatoPapel : null,
-      idInsumoCompatible: esImp && formData.idInsumoCompatible ? Number(formData.idInsumoCompatible) : null,
-      casillaEstante: formData.estadoOperativo === 'En Depósito' ? casillaEstante : null
+      idInsumoCompatible: esImp && formData.idInsumoCompatible ? Number(formData.idInsumoCompatible) : null
     };
 
     setError('');
@@ -326,32 +321,6 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
                   </select>
                 </div>
               </div>
-
-              {/* Selector de casilla si el equipo va a depósito */}
-              {formData.estadoOperativo === 'En Depósito' && (
-                <div className="p-3 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between gap-3 animate-in fade-in">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 bg-blue-600 text-white rounded-lg shadow-xs">
-                      <Boxes size={15} />
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-slate-800 dark:text-gray-100">
-                        {casillaEstante ? `Casilla de Estante: ${casillaEstante}` : 'Sin casilla física asignada'}
-                      </span>
-                      <p className="text-[11px] text-slate-500 dark:text-gray-400">
-                        Ubicación física en el pañol institucional
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsSelectorOpen(true)}
-                    className="px-3 py-1.5 text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/40 border border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 rounded-lg shadow-2xs transition cursor-pointer"
-                  >
-                    {casillaEstante ? 'Cambiar Casilla' : 'Elegir en Estante'}
-                  </button>
-                </div>
-              )}
             </div>
           </div>
 
@@ -583,16 +552,6 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
             </button>
           </div>
         </form>
-
-        {/* Modal Selector de Casilla de Estante */}
-        <ModalSelectorEstante
-          isOpen={isSelectorOpen}
-          onClose={() => setIsSelectorOpen(false)}
-          coordenadaActual={casillaEstante}
-          onSelect={(info) => {
-            setCasillaEstante(info ? info.coordenada : null);
-          }}
-        />
       </div>
     </div>
   );
