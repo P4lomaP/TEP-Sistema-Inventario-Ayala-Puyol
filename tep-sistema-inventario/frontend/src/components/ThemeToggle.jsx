@@ -1,4 +1,5 @@
 import { Sun, Moon } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 
 /**
@@ -37,18 +38,38 @@ export default function ThemeToggle({ className = '', variant = 'button' }) {
   }
 
   return (
-    <button
+    <motion.button
       type="button"
       onClick={toggleTheme}
-      className={`px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs ${className}`}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      className={`p-2 rounded-xl bg-slate-100/80 hover:bg-slate-200/80 dark:bg-slate-800/50 dark:hover:bg-slate-700/60 border border-slate-200/90 dark:border-slate-700/60 transition-colors duration-200 cursor-pointer flex items-center justify-center shadow-2xs relative overflow-hidden ${className}`}
       aria-label="Alternar tema de interfaz"
       title={isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
     >
-      {isDarkMode ? (
-        <Sun size={18} className="text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.6)] hover:rotate-45 transition-transform" />
-      ) : (
-        <Moon size={18} className="text-slate-800 hover:-rotate-12 transition-transform" />
-      )}
-    </button>
+      <AnimatePresence mode="wait" initial={false}>
+        {isDarkMode ? (
+          <motion.div
+            key="sun"
+            initial={{ rotate: -90, opacity: 0, scale: 0.7 }}
+            animate={{ rotate: 0, opacity: 1, scale: 1 }}
+            exit={{ rotate: 90, opacity: 0, scale: 0.7 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Sun size={18} className="text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.6)]" />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="moon"
+            initial={{ rotate: 90, opacity: 0, scale: 0.7 }}
+            animate={{ rotate: 0, opacity: 1, scale: 1 }}
+            exit={{ rotate: -90, opacity: 0, scale: 0.7 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Moon size={18} className="text-slate-700" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.button>
   );
 }
