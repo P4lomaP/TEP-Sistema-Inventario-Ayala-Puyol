@@ -503,14 +503,8 @@ export default function MapaAlmacen() {
 
             {/* Leyenda de Colores */}
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-gray-300">
-              <span className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"></span>
-                Vacía
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-md bg-blue-100 border border-blue-200"></span>
-                Con Insumos
-              </span>
+              
+              
             </div>
           </div>
 
