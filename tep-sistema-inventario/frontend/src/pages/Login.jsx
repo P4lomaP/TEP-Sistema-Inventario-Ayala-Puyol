@@ -15,7 +15,6 @@ import {
   Copy,
   Check,
   User,
-  Vote,
   Workflow,
   Activity,
   Lock,
@@ -432,8 +431,12 @@ export default function Login({ initialMode = 'login', onSwitchToRegister, onSwi
             {/* 2. Logo institucional + Título y Subtítulo */}
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-800 dark:from-slate-900 dark:via-[#0c1829] dark:to-[#08101a] border border-blue-400/30 dark:border-cyan-500/40 ring-1 ring-cyan-500/30 shadow-lg shadow-blue-500/20 dark:shadow-cyan-500/10 flex items-center justify-center shrink-0">
-                  <Vote size={24} className="text-white dark:text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]" />
+                <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-cyan-500/40 ring-1 ring-cyan-500/20 shadow-lg shadow-blue-500/15 dark:shadow-cyan-500/10 flex items-center justify-center shrink-0 p-1 overflow-hidden">
+                  <img
+                    src="/images/logo-tep-icon.png"
+                    alt="Logo TEP Inventario"
+                    className="w-full h-full object-contain drop-shadow-[0_2px_6px_rgba(6,182,212,0.3)]"
+                  />
                 </div>
                 <div>
                   <h1 className="text-lg font-black tracking-tight text-slate-900 dark:text-white leading-tight">
@@ -815,7 +818,7 @@ export default function Login({ initialMode = 'login', onSwitchToRegister, onSwi
                               type="text"
                               value={regNombreCompleto}
                               onChange={(e) => setRegNombreCompleto(e.target.value)}
-                              placeholder="Ej: María González"
+                              placeholder="Ej: Gustavo Morel"
                               className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50/70 dark:bg-slate-800/60 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all shadow-2xs"
                             />
                           </div>

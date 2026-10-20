@@ -9,7 +9,6 @@ import {
   Workflow, 
   FileText, 
   ShieldCheck,
-  Vote,
   X,
   LogOut,
   AlertTriangle,
@@ -106,14 +105,14 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
                 />
 
                 <motion.div
-                  className="relative w-11 h-11 rounded-xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 dark:from-slate-900 dark:via-[#0c1829] dark:to-[#08101a] border border-blue-400/30 dark:border-cyan-500/40 ring-1 ring-cyan-500/30 shadow-lg shadow-cyan-500/10 flex items-center justify-center overflow-hidden"
+                  className="relative w-11 h-11 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-cyan-500/40 ring-1 ring-cyan-500/20 shadow-lg shadow-cyan-500/10 flex items-center justify-center overflow-hidden p-1"
                   whileHover={{ scale: 1.08, rotate: [0, -2, 2, 0] }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
                 >
                   {/* Destello de luz */}
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-300/30 dark:via-cyan-300/20 to-transparent -skew-x-12 pointer-events-none"
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-300/30 dark:via-cyan-300/20 to-transparent -skew-x-12 pointer-events-none z-10"
                     animate={{ x: ['-140%', '220%'] }}
                     transition={{
                       duration: 4,
@@ -123,8 +122,12 @@ export default function Sidebar({ activePage = 'dashboard', isOpen = true, onClo
                     }}
                   />
 
-                  {/* Ícono institucional electoral */}
-                  <Vote size={22} className="text-white dark:text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]" strokeWidth={2.2} />
+                  {/* Logo institucional electoral (Mouse TEP) */}
+                  <img
+                    src="/images/logo-tep-icon.png"
+                    alt="Logo TEP Inventario"
+                    className="w-full h-full object-contain drop-shadow-[0_2px_6px_rgba(6,182,212,0.3)]"
+                  />
                 </motion.div>
               </div>
 
