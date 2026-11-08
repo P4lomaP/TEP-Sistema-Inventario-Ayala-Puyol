@@ -52,6 +52,18 @@ app.get('/', (req, res) => {
     res.send('¡El servidor está funcionando a la perfección! 🚀');
 });
 
+// Middleware global de manejo de errores para devolver siempre JSON válido (y nunca HTML)
+app.use((err, req, res, next) => {
+    console.error('Error no controlado en el servidor:', err);
+    if (res.headersSent) {
+        return next(err);
+    }
+    return res.status(err.status || 500).json({
+        message: err.message || 'Error interno en el servidor backend.',
+        error: err.message
+    });
+});
+
 // Encendemos el motor del servidor
 if (require.main === module) {
     app.listen(PORT, () => {

@@ -410,7 +410,7 @@ export default function Movimientos() {
         tipoMovimiento: 'Egreso',
         comprobanteRef: compRef,
         agenteReceptor: agenteReceptorFinal,
-        idUsuario: 1,
+        idUsuario: currentUser?.idUsuario || 1,
         detalles: detallesPayload
       });
 

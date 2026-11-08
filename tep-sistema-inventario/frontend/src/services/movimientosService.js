@@ -4,6 +4,25 @@ import { API_BASE } from './apiConfig';
 const BASE_URL = `${API_BASE}/movimientos`;
 
 /**
+ * Helper seguro para parsear respuestas JSON evitando el error "Unexpected token < is not valid JSON"
+ * cuando el servidor o el proxy devuelven HTML o texto plano ante un fallo de red/backend.
+ */
+async function parseJsonSafe(response, defaultErrorMessage) {
+  const text = await response.text().catch(() => '');
+  let data = {};
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      if (!response.ok) {
+        throw new Error(defaultErrorMessage || `Error del servidor (HTTP ${response.status}). Verifique que el backend esté en ejecución.`);
+      }
+    }
+  }
+  return data;
+}
+
+/**
  * Obtener listado de todos los movimientos registrados
  * GET /api/movimientos
  */
@@ -31,10 +50,10 @@ export async function listarMovimientos() {
  */
 export async function obtenerMovimientoPorId(idMovimiento) {
   const response = await authFetch(`${BASE_URL}/${idMovimiento}`);
-  const data = await response.json();
+  const data = await parseJsonSafe(response, 'Error al obtener los detalles del movimiento.');
 
   if (!response.ok) {
-    throw new Error(data.message || 'Error al obtener los detalles del movimiento.');
+    throw new Error(data.message || data.error || 'Error al obtener los detalles del movimiento.');
   }
 
   return data;
@@ -63,15 +82,20 @@ export async function crearMovimiento(movimientoData) {
     }))
   };
 
-  const response = await authFetch(BASE_URL, {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  });
+  let response;
+  try {
+    response = await authFetch(BASE_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  } catch {
+    throw new Error('No se pudo conectar con el servidor backend (http://localhost:3000). Verifique que esté iniciado.');
+  }
 
-  const data = await response.json();
+  const data = await parseJsonSafe(response, 'Error al procesar el movimiento en el servidor.');
 
   if (!response.ok) {
-    throw new Error(data.message || 'Error al registrar el movimiento.');
+    throw new Error(data.message || data.error || 'Error al registrar el movimiento.');
   }
 
   return data;
@@ -91,10 +115,10 @@ export async function anularMovimiento(idMovimiento, idUsuario = 1) {
     }),
   });
 
-  const data = await response.json();
+  const data = await parseJsonSafe(response, 'Error al anular el movimiento.');
 
   if (!response.ok) {
-    throw new Error(data.message || 'Error al anular el movimiento.');
+    throw new Error(data.message || data.error || 'Error al anular el movimiento.');
   }
 
   return data;
@@ -147,5 +171,3 @@ export async function descargarMovimientosPDF() {
   a.remove();
   window.URL.revokeObjectURL(url);
 }
-
-

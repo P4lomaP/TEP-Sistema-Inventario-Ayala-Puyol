@@ -2,17 +2,26 @@ const PDFDocument = require('pdfkit');
 const db = require('../database');
 const { registrarAuditoria } = require('../utils/auditoriaHelper');
 
-// Helpers basados en promesas para gestionar transacciones ACID de forma limpia
-const beginTransaction = () => new Promise((resolve, reject) => {
-    db.beginTransaction(err => err ? reject(err) : resolve());
+// Helpers basados en promesas para gestionar transacciones ACID con Pool de conexiones MySQL2
+const getConnection = () => new Promise((resolve, reject) => {
+    db.getConnection((err, conn) => err ? reject(err) : resolve(conn));
 });
 
-const commit = () => new Promise((resolve, reject) => {
-    db.commit(err => err ? reject(err) : resolve());
+const beginTransaction = (conn) => new Promise((resolve, reject) => {
+    conn.beginTransaction(err => err ? reject(err) : resolve());
 });
 
-const rollback = () => new Promise((resolve) => {
-    db.rollback(() => resolve());
+const commit = (conn) => new Promise((resolve, reject) => {
+    conn.commit(err => err ? reject(err) : resolve());
+});
+
+const rollback = (conn) => new Promise((resolve) => {
+    if (!conn) return resolve();
+    conn.rollback(() => resolve());
+});
+
+const executeConnQuery = (conn, sql, values = []) => new Promise((resolve, reject) => {
+    conn.query(sql, values, (err, results) => err ? reject(err) : resolve(results));
 });
 
 const executeQuery = (sql, values = []) => new Promise((resolve, reject) => {
@@ -125,8 +134,10 @@ const registrarMovimiento = async (req, res) => {
         detalles
     } = req.body;
 
+    const usuarioOperadorId = req.usuario?.idUsuario || idUsuario;
+
     // 1. Validaciones de la cabecera
-    if (!tipoMovimiento || !comprobanteRef || !idUsuario) {
+    if (!tipoMovimiento || !comprobanteRef || !usuarioOperadorId) {
         return res.status(400).json({ 
             message: 'tipoMovimiento, comprobanteRef e idUsuario son campos obligatorios.' 
         });
@@ -149,9 +160,11 @@ const registrarMovimiento = async (req, res) => {
         });
     }
 
-    // Iniciar Transacción SQL (BEGIN TRANSACTION)
+    let conn;
+    // Iniciar Transacción SQL (BEGIN TRANSACTION) en una conexión dedicada del Pool
     try {
-        await beginTransaction();
+        conn = await getConnection();
+        await beginTransaction(conn);
 
         // 3. Insertar la cabecera en Movimientos con estado 'Activo'
         const queryMovimiento = `
@@ -169,10 +182,10 @@ const registrarMovimiento = async (req, res) => {
             tipoNormalizado,
             comprobanteRef.trim(),
             agenteReceptor ? agenteReceptor.trim() : null,
-            parseInt(idUsuario, 10)
+            parseInt(usuarioOperadorId, 10)
         ];
 
-        const resultMovimiento = await executeQuery(queryMovimiento, valuesMovimiento);
+        const resultMovimiento = await executeConnQuery(conn, queryMovimiento, valuesMovimiento);
         const idMovimiento = resultMovimiento.insertId;
 
         // 4. Procesar cada detalle
@@ -186,7 +199,8 @@ const registrarMovimiento = async (req, res) => {
             }
 
             // Verificar existencia y disponibilidad de stock en caso de Egreso
-            const [insumo] = await executeQuery(
+            const [insumo] = await executeConnQuery(
+                conn,
                 'SELECT idInsumo, descripcion, stockActual, estadoActivo FROM Insumos WHERE idInsumo = ?', 
                 [idInsumo]
             );
@@ -205,7 +219,8 @@ const registrarMovimiento = async (req, res) => {
 
             // Si se especifica un equipo destino, validar existencia, estado activo y compatibilidad técnica
             if (idEquipoDestino) {
-                const [equipo] = await executeQuery(
+                const [equipo] = await executeConnQuery(
+                    conn,
                     'SELECT idEquipo, marcaModelo, codPatrimonial, tipoEquipo, estadoOperativo FROM Equipos WHERE idEquipo = ?',
                     [idEquipoDestino]
                 );
@@ -220,7 +235,8 @@ const registrarMovimiento = async (req, res) => {
 
                 // En egresos, verificar compatibilidad en la Matriz de Compatibilidad
                 if (esEgreso) {
-                    const [compat] = await executeQuery(
+                    const [compat] = await executeConnQuery(
+                        conn,
                         'SELECT idRegla FROM matriz_compatibilidad WHERE idEquipo = ? AND idInsumo = ?',
                         [idEquipoDestino, idInsumo]
                     );
@@ -241,7 +257,7 @@ const registrarMovimiento = async (req, res) => {
                 ) VALUES (?, ?, ?, ?)
             `;
 
-            await executeQuery(queryDetalle, [
+            await executeConnQuery(conn, queryDetalle, [
                 cantidad,
                 idMovimiento,
                 idInsumo,
@@ -253,15 +269,15 @@ const registrarMovimiento = async (req, res) => {
                 ? 'UPDATE Insumos SET stockActual = stockActual + ? WHERE idInsumo = ?'
                 : 'UPDATE Insumos SET stockActual = stockActual - ? WHERE idInsumo = ?';
 
-            await executeQuery(queryStock, [cantidad, idInsumo]);
+            await executeConnQuery(conn, queryStock, [cantidad, idInsumo]);
         }
 
         // 5. Confirmar la transacción (COMMIT)
-        await commit();
+        await commit(conn);
 
         // 6. Registrar en auditoría
         registrarAuditoria(
-            idUsuario,
+            usuarioOperadorId,
             `Registro de movimiento ID ${idMovimiento} (${tipoNormalizado} - Ref: ${comprobanteRef.trim()})`,
             'Movimientos'
         ).catch(() => {});
@@ -275,13 +291,15 @@ const registrarMovimiento = async (req, res) => {
         });
 
     } catch (error) {
-        await rollback();
+        await rollback(conn);
         console.error('Transacción abortada (ROLLBACK ejecutado):', error.message);
 
         return res.status(500).json({ 
-            message: 'Error al procesar la transacción de movimiento.',
+            message: error.message || 'Error al procesar la transacción de movimiento.',
             error: error.message 
         });
+    } finally {
+        if (conn) conn.release();
     }
 };
 
@@ -304,27 +322,29 @@ const actualizarMovimiento = async (req, res) => {
         return res.status(400).json({ message: 'Debe especificar el ID del movimiento a modificar.' });
     }
 
+    let conn;
     try {
-        await beginTransaction();
+        conn = await getConnection();
+        await beginTransaction(conn);
 
         // 1. Obtener el movimiento previo
-        const [movimientoPrevio] = await executeQuery('SELECT * FROM Movimientos WHERE idMovimiento = ?', [id]);
+        const [movimientoPrevio] = await executeConnQuery(conn, 'SELECT * FROM Movimientos WHERE idMovimiento = ?', [id]);
 
         if (!movimientoPrevio) {
-            await rollback();
+            await rollback(conn);
             return res.status(404).json({ message: 'Movimiento no encontrado.' });
         }
 
         // No permitir modificar un movimiento que ya está anulado
         if (movimientoPrevio.estado === 'Anulado') {
-            await rollback();
+            await rollback(conn);
             return res.status(400).json({ 
                 message: 'No se puede modificar un movimiento que ha sido anulado previamente.' 
             });
         }
 
         // 2. Obtener los detalles previos
-        const detallesPrevios = await executeQuery('SELECT * FROM Detalle_Movimientos WHERE idMovimiento = ?', [id]);
+        const detallesPrevios = await executeConnQuery(conn, 'SELECT * FROM Detalle_Movimientos WHERE idMovimiento = ?', [id]);
 
         // 3. Revertir el impacto previo en el stock de Insumos
         const eraIngreso = movimientoPrevio.tipoMovimiento.toLowerCase().includes('ingreso');
@@ -336,14 +356,14 @@ const actualizarMovimiento = async (req, res) => {
                 ? 'UPDATE Insumos SET stockActual = stockActual - ? WHERE idInsumo = ?'
                 : 'UPDATE Insumos SET stockActual = stockActual + ? WHERE idInsumo = ?';
 
-            await executeQuery(queryReversion, [oldItem.cantidadAfectada, oldItem.idInsumo]);
+            await executeConnQuery(conn, queryReversion, [oldItem.cantidadAfectada, oldItem.idInsumo]);
         }
 
         // 4. Actualizar la cabecera del movimiento
         const nuevoTipo = tipoMovimiento ? tipoMovimiento.trim() : movimientoPrevio.tipoMovimiento;
         const nuevoComprobante = comprobanteRef ? comprobanteRef.trim() : movimientoPrevio.comprobanteRef;
         const nuevoReceptor = agenteReceptor !== undefined ? (agenteReceptor ? agenteReceptor.trim() : null) : movimientoPrevio.agenteReceptor;
-        const usuarioOperador = idUsuario ? parseInt(idUsuario, 10) : movimientoPrevio.idUsuario;
+        const usuarioOperador = req.usuario?.idUsuario || (idUsuario ? parseInt(idUsuario, 10) : movimientoPrevio.idUsuario);
 
         const queryUpdateCabecera = `
             UPDATE Movimientos SET
@@ -354,12 +374,12 @@ const actualizarMovimiento = async (req, res) => {
             WHERE idMovimiento = ?
         `;
 
-        await executeQuery(queryUpdateCabecera, [nuevoTipo, nuevoComprobante, nuevoReceptor, usuarioOperador, id]);
+        await executeConnQuery(conn, queryUpdateCabecera, [nuevoTipo, nuevoComprobante, nuevoReceptor, usuarioOperador, id]);
 
         // 5. Si se proporciona un nuevo conjunto de detalles, procesarlos
         if (Array.isArray(detalles) && detalles.length > 0) {
             // Eliminar detalles antiguos
-            await executeQuery('DELETE FROM Detalle_Movimientos WHERE idMovimiento = ?', [id]);
+            await executeConnQuery(conn, 'DELETE FROM Detalle_Movimientos WHERE idMovimiento = ?', [id]);
 
             const esNuevoIngreso = nuevoTipo.toLowerCase().includes('ingreso');
 
@@ -373,7 +393,7 @@ const actualizarMovimiento = async (req, res) => {
                 }
 
                 // Consultar stock actual (ya revertido)
-                const [insumo] = await executeQuery('SELECT idInsumo, descripcion, stockActual, estadoActivo FROM Insumos WHERE idInsumo = ?', [idInsumo]);
+                const [insumo] = await executeConnQuery(conn, 'SELECT idInsumo, descripcion, stockActual, estadoActivo FROM Insumos WHERE idInsumo = ?', [idInsumo]);
 
                 if (!insumo) {
                     throw new Error(`El insumo con ID ${idInsumo} no existe.`);
@@ -384,7 +404,8 @@ const actualizarMovimiento = async (req, res) => {
                 }
 
                 if (idEquipoDestino && !esNuevoIngreso) {
-                    const [equipo] = await executeQuery(
+                    const [equipo] = await executeConnQuery(
+                        conn,
                         'SELECT idEquipo, marcaModelo, codPatrimonial, tipoEquipo, estadoOperativo FROM Equipos WHERE idEquipo = ?',
                         [idEquipoDestino]
                     );
@@ -397,7 +418,8 @@ const actualizarMovimiento = async (req, res) => {
                         throw new Error(`El equipo "${equipo.marcaModelo}" está dado de baja.`);
                     }
 
-                    const [compat] = await executeQuery(
+                    const [compat] = await executeConnQuery(
+                        conn,
                         'SELECT idRegla FROM matriz_compatibilidad WHERE idEquipo = ? AND idInsumo = ?',
                         [idEquipoDestino, idInsumo]
                     );
@@ -416,19 +438,19 @@ const actualizarMovimiento = async (req, res) => {
                         idEquipoDestino
                     ) VALUES (?, ?, ?, ?)
                 `;
-                await executeQuery(insertDetalle, [cantidad, id, idInsumo, idEquipoDestino]);
+                await executeConnQuery(conn, insertDetalle, [cantidad, id, idInsumo, idEquipoDestino]);
 
                 // Aplicar el nuevo impacto al stock
                 const queryAplicaStock = esNuevoIngreso
                     ? 'UPDATE Insumos SET stockActual = stockActual + ? WHERE idInsumo = ?'
                     : 'UPDATE Insumos SET stockActual = stockActual - ? WHERE idInsumo = ?';
 
-                await executeQuery(queryAplicaStock, [cantidad, idInsumo]);
+                await executeConnQuery(conn, queryAplicaStock, [cantidad, idInsumo]);
             }
         }
 
         // 6. Confirmar la transacción
-        await commit();
+        await commit(conn);
 
         // 7. Registrar en Log_Auditoria
         registrarAuditoria(
@@ -445,12 +467,14 @@ const actualizarMovimiento = async (req, res) => {
         });
 
     } catch (error) {
-        await rollback();
+        await rollback(conn);
         console.error('Error al actualizar movimiento (ROLLBACK ejecutado):', error.message);
         return res.status(500).json({ 
-            message: 'Error al actualizar el movimiento y recalcular stock.',
+            message: error.message || 'Error al actualizar el movimiento y recalcular stock.',
             error: error.message 
         });
+    } finally {
+        if (conn) conn.release();
     }
 };
 
@@ -462,33 +486,35 @@ const actualizarMovimiento = async (req, res) => {
  */
 const eliminarMovimiento = async (req, res) => {
     const { id } = req.params;
-    const idUsuario = req.body?.idUsuario || req.query?.idUsuario;
+    const idUsuario = req.usuario?.idUsuario || req.body?.idUsuario || req.query?.idUsuario;
 
     if (!id) {
         return res.status(400).json({ message: 'Debe especificar el ID del movimiento a anular.' });
     }
 
+    let conn;
     try {
-        await beginTransaction();
+        conn = await getConnection();
+        await beginTransaction(conn);
 
         // 1. Obtener el movimiento a anular
-        const [movimiento] = await executeQuery('SELECT * FROM Movimientos WHERE idMovimiento = ?', [id]);
+        const [movimiento] = await executeConnQuery(conn, 'SELECT * FROM Movimientos WHERE idMovimiento = ?', [id]);
 
         if (!movimiento) {
-            await rollback();
+            await rollback(conn);
             return res.status(404).json({ message: 'Movimiento no encontrado.' });
         }
 
         // 2. Prevenir doble anulación
         if (movimiento.estado === 'Anulado') {
-            await rollback();
+            await rollback(conn);
             return res.status(400).json({ 
                 message: 'El movimiento ya se encuentra anulado previamente.' 
             });
         }
 
         // 3. Obtener los detalles asociados para revertir las existencias
-        const detalles = await executeQuery('SELECT * FROM Detalle_Movimientos WHERE idMovimiento = ?', [id]);
+        const detalles = await executeConnQuery(conn, 'SELECT * FROM Detalle_Movimientos WHERE idMovimiento = ?', [id]);
 
         // 4. Revertir el stock en la tabla Insumos
         const eraIngreso = movimiento.tipoMovimiento.toLowerCase().includes('ingreso');
@@ -500,15 +526,15 @@ const eliminarMovimiento = async (req, res) => {
                 ? 'UPDATE Insumos SET stockActual = stockActual - ? WHERE idInsumo = ?'
                 : 'UPDATE Insumos SET stockActual = stockActual + ? WHERE idInsumo = ?';
 
-            await executeQuery(queryReversion, [item.cantidadAfectada, item.idInsumo]);
+            await executeConnQuery(conn, queryReversion, [item.cantidadAfectada, item.idInsumo]);
         }
 
         // 5. BAJA LÓGICA (No borrado físico): Actualizar estado a 'Anulado'
         const queryBajaLogica = "UPDATE Movimientos SET estado = 'Anulado' WHERE idMovimiento = ?";
-        await executeQuery(queryBajaLogica, [id]);
+        await executeConnQuery(conn, queryBajaLogica, [id]);
 
         // 6. Confirmar la transacción
-        await commit();
+        await commit(conn);
 
         // 7. Registrar en Log_Auditoria para cumplimiento de auditoría legal
         const usuarioOperador = idUsuario ? parseInt(idUsuario, 10) : movimiento.idUsuario;
@@ -525,12 +551,14 @@ const eliminarMovimiento = async (req, res) => {
         });
 
     } catch (error) {
-        await rollback();
+        await rollback(conn);
         console.error('Error al anular movimiento (ROLLBACK ejecutado):', error.message);
         return res.status(500).json({ 
-            message: 'Error al anular el movimiento y revertir existencias.',
+            message: error.message || 'Error al anular el movimiento y revertir existencias.',
             error: error.message 
         });
+    } finally {
+        if (conn) conn.release();
     }
 };
 
