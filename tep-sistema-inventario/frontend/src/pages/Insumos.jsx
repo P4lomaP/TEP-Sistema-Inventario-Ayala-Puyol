@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { 
   Search, 
   SlidersHorizontal, 
@@ -45,6 +45,10 @@ export default function Insumos() {
   const [isModalNuevoOpen, setIsModalNuevoOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoriaFiltro, setCategoriaFiltro] = useState('Todas');
+
+  // Paginación
+  const [paginaActual, setPaginaActual] = useState(1);
+  const elementosPorPagina = 10;
 
   // Estados para Modal de Detalle / Edición / Eliminación (Doble Clic)
   const [insumoSeleccionado, setInsumoSeleccionado] = useState(null);
@@ -206,20 +210,40 @@ export default function Insumos() {
   };
 
   // Filtrado reactivo en frontend por código, descripción y categoría
-  const insumosFiltrados = insumos.filter((item) => {
-    const coincideTexto = 
-      (item.codigoInterno || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (item.descripcion || '').toLowerCase().includes(searchTerm.toLowerCase());
-    
-    let coincideCategoria = true;
-    if (categoriaFiltro === 'Insumo') {
-      coincideCategoria = item.categoria === 'Insumo' || (!item.categoria?.toLowerCase().startsWith('perif'));
-    } else if (categoriaFiltro === 'Periférico') {
-      coincideCategoria = item.categoria === 'Periférico' || item.categoria?.toLowerCase().startsWith('perif');
-    }
+  const insumosFiltrados = useMemo(() => {
+    return insumos.filter((item) => {
+      const coincideTexto = 
+        (item.codigoInterno || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.descripcion || '').toLowerCase().includes(searchTerm.toLowerCase());
+      
+      let coincideCategoria = true;
+      if (categoriaFiltro === 'Insumo') {
+        coincideCategoria = item.categoria === 'Insumo' || (!item.categoria?.toLowerCase().startsWith('perif'));
+      } else if (categoriaFiltro === 'Periférico') {
+        coincideCategoria = item.categoria === 'Periférico' || item.categoria?.toLowerCase().startsWith('perif');
+      }
 
-    return coincideTexto && coincideCategoria;
-  });
+      return coincideTexto && coincideCategoria;
+    });
+  }, [insumos, searchTerm, categoriaFiltro]);
+
+  // Paginación reactiva (10 ítems por página, igual que en Equipos)
+  const totalPaginas = Math.ceil(insumosFiltrados.length / elementosPorPagina) || 1;
+  const insumosPaginados = useMemo(() => {
+    const inicio = (paginaActual - 1) * elementosPorPagina;
+    return insumosFiltrados.slice(inicio, inicio + elementosPorPagina);
+  }, [insumosFiltrados, paginaActual]);
+
+  // Reset de página al filtrar o si la página actual supera el total tras una baja
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [searchTerm, categoriaFiltro]);
+
+  useEffect(() => {
+    if (paginaActual > totalPaginas) {
+      setPaginaActual(totalPaginas);
+    }
+  }, [paginaActual, totalPaginas]);
 
   // Abrir modal de detalle por doble clic
   const handleFilaDoubleClick = (item) => {
@@ -381,7 +405,7 @@ export default function Insumos() {
                     </td>
                   </tr>
                 ) : (
-                  insumosFiltrados.map((item) => {
+                  insumosPaginados.map((item) => {
                     const obs = getObservacionInfo(item);
                     const IconoObs = obs.icono;
                     const isCritico = Number(item.stockActual) <= Number(item.stockSeguridad);
@@ -458,17 +482,33 @@ export default function Insumos() {
             </table>
           </div>
 
-          {/* Paginación al pie */}
-          <div className="p-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-end gap-1 select-none">
-            <button type="button" className="p-1.5 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-400 dark:text-gray-400 hover:bg-slate-50 dark:hover:bg-slate-700/60 cursor-pointer">
-              <ChevronLeft size={16} />
-            </button>
-            <button type="button" className="w-8 h-8 rounded-lg bg-blue-600 text-white font-semibold text-xs cursor-pointer">
-              1
-            </button>
-            <button type="button" className="p-1.5 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-400 dark:text-gray-400 hover:bg-slate-50 dark:hover:bg-slate-700/60 cursor-pointer">
-              <ChevronRight size={16} />
-            </button>
+          {/* Paginación y Resumen */}
+          <div className="p-4 border-t border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-3 select-none">
+            <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600">
+              <CheckCircle2 size={16} />
+              <span className="tracking-wider uppercase text-[11px]">Catálogo Sincronizado en Tiempo Real</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button 
+                type="button" 
+                disabled={paginaActual <= 1}
+                onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))}
+                className="p-1.5 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-500 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700/60 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <span className="text-xs text-slate-600 dark:text-gray-300 font-semibold px-2">
+                Página {paginaActual} de {totalPaginas}
+              </span>
+              <button 
+                type="button" 
+                disabled={paginaActual >= totalPaginas}
+                onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))}
+                className="p-1.5 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-500 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700/60 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
           </div>
         </div>
 

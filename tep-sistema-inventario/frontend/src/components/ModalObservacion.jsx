@@ -77,8 +77,8 @@ export default function ModalObservacion({
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-xl ${
               tieneAlertas 
-                ? 'bg-amber-500/15 text-amber-700' 
-                : 'bg-emerald-500/15 text-emerald-700'
+                ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400' 
+                : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
             }`}>
               {tieneAlertas ? <ShieldAlert size={22} /> : <CheckCircle2 size={22} />}
             </div>
@@ -87,7 +87,7 @@ export default function ModalObservacion({
                 <h3 className="text-base font-bold text-slate-800 dark:text-gray-100">
                   Aviso de Observación Técnica
                 </h3>
-                <span className="bg-white/80 text-slate-700 dark:text-gray-200 text-[10px] font-mono font-bold px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                <span className="bg-white/80 dark:bg-slate-700 text-slate-700 dark:text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded border border-slate-200 dark:border-slate-600">
                   {insumo.codigoInterno}
                 </span>
               </div>
@@ -99,7 +99,7 @@ export default function ModalObservacion({
           <button 
             type="button" 
             onClick={onClose}
-            className="text-slate-400 dark:text-gray-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/60 transition cursor-pointer"
+            className="text-slate-400 dark:text-gray-400 hover:text-slate-600 dark:hover:text-gray-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/60 transition cursor-pointer"
             aria-label="Cerrar modal"
           >
             <X size={18} />
@@ -194,7 +194,7 @@ export default function ModalObservacion({
               </div>
             ) : (
               <div className="p-3.5 bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-700 rounded-2xl flex items-center gap-3">
-                <div className="p-2 bg-blue-50 text-blue-600 rounded-xl shrink-0">
+                <div className="p-2 bg-blue-50 dark:bg-slate-700 text-blue-600 dark:text-blue-300 rounded-xl shrink-0">
                   <Clock size={16} />
                 </div>
                 <div>
@@ -209,14 +209,14 @@ export default function ModalObservacion({
 
           {!vencimientoInfo && (
             <div className="p-3.5 bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-700 rounded-2xl flex items-center gap-3">
-              <div className="p-2 bg-slate-200 text-slate-600 dark:text-gray-300 rounded-xl shrink-0">
+              <div className="p-2 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-white rounded-xl shrink-0">
                 <Box size={16} />
               </div>
               <div>
                 <h4 className="text-xs font-semibold text-slate-700 dark:text-gray-200">
                   {esPeriferico ? 'Periférico Informático (Hardware)' : 'Bien de Consumo / Uso Continuo'}
                 </h4>
-                <p className="text-xs text-slate-400 dark:text-gray-400 mt-0.5">
+                <p className="text-xs text-slate-400 dark:text-gray-300 mt-0.5">
                   {esPeriferico
                     ? 'Los periféricos no cuentan con fecha de caducidad perecedera (valor nulo reglamentario).'
                     : 'No posee fecha de vencimiento perecedera registrada.'}
@@ -231,7 +231,7 @@ export default function ModalObservacion({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-gray-300 hover:bg-slate-200/60 rounded-xl transition cursor-pointer"
+            className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-gray-200 hover:bg-slate-200/60 dark:hover:bg-slate-600/60 rounded-xl transition cursor-pointer"
           >
             Entendido
           </button>
