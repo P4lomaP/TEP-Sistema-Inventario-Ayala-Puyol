@@ -273,7 +273,7 @@ export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
             </div>
           </div>
 
-          {/* Fila 4.5: Atajo de Asociación de Equipos Compatibles (Checkboxes) */}
+          {/* Fila 4.5: Atajo de Asociación de Equipos Compatibles (Checkboxes agrupados) */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300">
@@ -283,7 +283,7 @@ export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
                 {formData.equiposAsociados.length} seleccionados
               </span>
             </div>
-            <div className="max-h-44 overflow-y-auto divide-y divide-slate-200 dark:divide-slate-700/80 bg-slate-50/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-300 dark:[&::-webkit-scrollbar-thumb]:bg-slate-600 [&::-webkit-scrollbar-thumb]:rounded-full">
+            <div className="max-h-48 overflow-y-auto divide-y divide-slate-200 dark:divide-slate-700/80 bg-slate-50/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-300 dark:[&::-webkit-scrollbar-thumb]:bg-slate-600 [&::-webkit-scrollbar-thumb]:rounded-full">
               {cargandoEquipos ? (
                 <p className="text-xs text-slate-400 dark:text-gray-400 py-4 text-center">
                   Cargando equipos disponibles...
@@ -293,48 +293,87 @@ export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
                   No hay equipos activos disponibles para asociar.
                 </p>
               ) : (
-                equiposDisponibles.map((eq) => {
-                  const isChecked = formData.equiposAsociados.includes(Number(eq.idEquipo));
-                  const esImp = (eq.tipoEquipo || '').toLowerCase().includes('impresora');
-
+                [
+                  {
+                    titulo: 'Impresoras y Escáneres',
+                    icono: Printer,
+                    colorIcono: 'text-amber-600 dark:text-amber-400',
+                    items: equiposDisponibles.filter((eq) =>
+                      (eq.tipoEquipo || '').toLowerCase().includes('impresora')
+                    )
+                  },
+                  {
+                    titulo: 'Computadoras y Laptops',
+                    icono: Laptop,
+                    colorIcono: 'text-blue-600 dark:text-blue-400',
+                    items: equiposDisponibles.filter(
+                      (eq) => !(eq.tipoEquipo || '').toLowerCase().includes('impresora')
+                    )
+                  }
+                ].map((grupo) => {
+                  const IconoGrupo = grupo.icono;
                   return (
-                    <label
-                      key={eq.idEquipo}
-                      className={`flex items-center justify-between gap-3 px-3.5 py-3 text-xs cursor-pointer transition-colors select-none group ${
-                        isChecked
-                          ? 'bg-blue-50/70 dark:bg-blue-950/35 hover:bg-blue-100/60 dark:hover:bg-blue-900/40'
-                          : 'hover:bg-slate-100/80 dark:hover:bg-slate-700/30'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => handleToggleEquipo(eq.idEquipo)}
-                          className="peer sr-only accent-blue-600"
-                        />
-                        <span
-                          className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-all shrink-0 ${
-                            isChecked
-                              ? 'bg-blue-600 border-blue-600 text-white shadow-2xs'
-                              : 'bg-transparent border-slate-300 dark:border-slate-500 group-hover:border-blue-500 dark:group-hover:border-slate-400'
-                          }`}
-                        >
-                          {isChecked && <Check size={11} strokeWidth={3} />}
+                    <div key={grupo.titulo} className="divide-y divide-slate-200 dark:divide-slate-700/80">
+                      <div className="px-3.5 py-1.5 bg-slate-100/90 dark:bg-slate-900/60 flex items-center justify-between select-none">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                          <IconoGrupo size={12} className={grupo.colorIcono} />
+                          {grupo.titulo}
                         </span>
-                        {esImp ? (
-                          <Printer size={14} className="text-amber-600 dark:text-amber-400 shrink-0" />
-                        ) : (
-                          <Laptop size={14} className="text-blue-600 dark:text-blue-400 shrink-0" />
-                        )}
-                        <span className="font-semibold text-slate-800 dark:text-slate-100 group-hover:text-slate-950 dark:group-hover:text-white truncate transition-colors">
-                          {eq.marcaModelo}
+                        <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">
+                          {grupo.items.length}
                         </span>
                       </div>
-                      <span className="font-mono text-[11px] text-slate-400 dark:text-slate-400 shrink-0">
-                        {eq.codPatrimonial || 'S/N'}
-                      </span>
-                    </label>
+                      {grupo.items.length === 0 ? (
+                        <p className="px-3.5 py-2.5 text-[11px] text-slate-400 dark:text-slate-500 italic">
+                          Sin equipos registrados en este grupo
+                        </p>
+                      ) : (
+                        grupo.items.map((eq) => {
+                          const isChecked = formData.equiposAsociados.includes(Number(eq.idEquipo));
+                          const esImp = (eq.tipoEquipo || '').toLowerCase().includes('impresora');
+
+                          return (
+                            <label
+                              key={eq.idEquipo}
+                              className={`flex items-center justify-between gap-3 px-3.5 py-3 text-xs cursor-pointer transition-colors select-none group ${
+                                isChecked
+                                  ? 'bg-blue-50/70 dark:bg-blue-950/35 hover:bg-blue-100/60 dark:hover:bg-blue-900/40'
+                                  : 'hover:bg-slate-100/80 dark:hover:bg-slate-700/30'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3 min-w-0">
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  onChange={() => handleToggleEquipo(eq.idEquipo)}
+                                  className="peer sr-only accent-blue-600"
+                                />
+                                <span
+                                  className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-all shrink-0 ${
+                                    isChecked
+                                      ? 'bg-blue-600 border-blue-600 text-white shadow-2xs'
+                                      : 'bg-transparent border-slate-300 dark:border-slate-500 group-hover:border-blue-500 dark:group-hover:border-slate-400'
+                                  }`}
+                                >
+                                  {isChecked && <Check size={11} strokeWidth={3} />}
+                                </span>
+                                {esImp ? (
+                                  <Printer size={14} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                                ) : (
+                                  <Laptop size={14} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                                )}
+                                <span className="font-semibold text-slate-800 dark:text-slate-100 group-hover:text-slate-950 dark:group-hover:text-white truncate transition-colors">
+                                  {eq.marcaModelo}
+                                </span>
+                              </div>
+                              <span className="font-mono text-[11px] text-slate-400 dark:text-slate-400 shrink-0">
+                                {eq.codPatrimonial || 'S/N'}
+                              </span>
+                            </label>
+                          );
+                        })
+                      )}
+                    </div>
                   );
                 })
               )}
