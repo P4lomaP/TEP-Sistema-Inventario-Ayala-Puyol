@@ -1,12 +1,3 @@
--- phpMyAdmin SQL Dump
--- version 5.2.3
--- https://www.phpmyadmin.net/
---
--- Host: localhost:3306
--- Generation Time: Sep 17, 2026 at 09:33 PM
--- Server version: 8.4.3
--- PHP Version: 8.3.33
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
@@ -411,6 +402,105 @@ INSERT INTO `usuarios` (`username`, `password`, `rolAcceso`, `estadoActivo`)
 VALUES ('admin.tep', '$2b$10$XFc7o1SYozyUwJfaq0xwlOjeGrpCUxLJFAsUpg9qBmLLRUpboYk/e', 'Administrador', 1)
 ON DUPLICATE KEY UPDATE `rolAcceso` = 'Administrador', `estadoActivo` = 1;
 COMMIT;
+
+-- ====================================================
+-- INSERTS DEL RELEVAMIENTO FÍSICO - DATOS REALES TEP
+-- ====================================================
+
+-- 1. CARGA DE SECTORES
+INSERT INTO `sectores` (`idSector`, `nombreOficina`, `estadoActivo`) VALUES
+(1, 'Departamento de Informática', 1),
+(2, 'Secretaría Electoral', 1),
+(3, 'Mesa de Entradas y Notificaciones', 1),
+(4, 'Fiscalía', 1),
+(5, 'Despacho Dr. Claudio Daniel Moreno', 1),
+(6, 'Despacho Dra. Sandra Mercedes Moreno', 1),
+(7, 'Despacho Dra. Verónica Gabriela Hans de Dorrego', 1)
+ON DUPLICATE KEY UPDATE `nombreOficina`=VALUES(`nombreOficina`), `estadoActivo`=VALUES(`estadoActivo`);
+
+
+-- 2. CARGA DE INSUMOS (Tóners, Periféricos, Papelería)
+INSERT IGNORE INTO `insumos` (`codigoInterno`, `descripcion`, `categoria`, `stockActual`, `stockSeguridad`, `estadoActivo`, `ubicacionFila`, `ubicacionColumna`, `fechaVencimiento`) VALUES
+('INS-001', 'Tóner HP 85A Negro (CE285A) p/ LaserJet P1102w', 'Insumo (Consumibles, tóner, hojas, tintas)', 10, 4, 1, 'A', '1', NULL),
+('GN-TOML2160', 'Toner GNEISS', 'Insumo Consumible', 15, 5, 1, 'B', '1', '2022.0'),
+('OR-SMLT101', 'ORINK', 'Insumo (Consumibles, tóner, hojas, tintas)', 1, 5, 1, 'B', '1', '2026.0'),
+('LA-BRT419K', 'PREMIUN TONER', 'Insumo (Consumibles, tóner, hojas, tintas)', 11, 5, 1, 'C', '1', '2026.0'),
+('CE310/CF350A', 'NEXT ONE', 'Insumo (Consumibles, tóner, hojas, tintas)', 28, 5, 1, 'C', '1', '2026.0'),
+('MP501', 'FOOTPRINT', 'Insumo (Consumibles, tóner, hojas, tintas)', 7, 5, 1, 'C', '1', '2026.0'),
+('INF-TN880/3479', 'INFINITY', 'Insumo (Consumibles, tóner, hojas, tintas)', 1, 5, 1, 'D', '1', '2026.0'),
+('LBTN419BK/NN/C', 'VeryJet', 'Insumo (Consumibles, tóner, hojas, tintas)', 7, 5, 1, 'D', '1', '2026.0'),
+('ECO-BRO-TN880/3479', 'ECOLASER', 'Insumo (Consumibles, tóner, hojas, tintas)', 2, 5, 1, 'D', '1', '2026.0'),
+('MGN-3550A', 'MGN Laser', 'Insumo (Consumibles, tóner, hojas, tintas)', 4, 5, 1, 'D', '1', '2025.0'),
+('MLT-D205L', 'Evertec', 'Insumo (Consumibles, tóner, hojas, tintas)', 7, 5, 1, 'C', '2', '2017.0'),
+('GN-TOD116L', 'MAGNUM', 'Insumo (Consumibles, tóner, hojas, tintas)', 4, 5, 1, 'D', '1', '2026.0'),
+('CF287A', 'AQX', 'Insumo (Consumibles, tóner, hojas, tintas)', 3, 5, 1, 'D', '2', '2026.0'),
+('TN880/3479', 'PREMIUN LASER', 'Insumo (Consumibles, tóner, hojas, tintas)', 5, 5, 1, 'C', '3', '2026.0'),
+('CF287ACOMP', 'GLOBAL', 'Insumo (Consumibles, tóner, hojas, tintas)', 9, 5, 1, 'C', '3', '2026.0'),
+('D115L', 'Tecnovibe', 'Insumo (Consumibles, tóner, hojas, tintas)', 3, 5, 1, 'D', '3', '2024.0'),
+('H-CE311A', 'LTC', 'Insumo (Consumibles, tóner, hojas, tintas)', 8, 5, 1, 'D', '4', '2026.0'),
+('DC-1560/1860/2360', 'mita', 'Insumo (Consumibles, tóner, hojas, tintas)', 2, 5, 1, 'B', '3', '2019.0'),
+('PER-MOU-001', 'Mouse Óptico USB Genius DX-110', 'Periférico (Teclados, mouse, auriculares, cables)', 35, 10, 1, 'C', '1', NULL),
+('PER-TEC-001', 'Teclado USB Genius KB-118', 'Periférico (Teclados, mouse, auriculares, cables)', 20, 5, 1, 'C', '2', NULL),
+('PER-CAB-001', 'Patch Cord UTP Cat 6 (3 metros)', 'Conectividad y Red (Patch cords, switches, routers)', 50, 15, 1, 'C', '3', NULL),
+('PER-CAB-002', 'Cable HDMI 2.0 (2 metros)', 'Periférico (Teclados, mouse, auriculares, cables)', 15, 5, 1, 'C', '4', NULL),
+('INS-RES-A4', 'Resma A4 75g Autor', 'Útiles de Oficina y Papelería', 80, 20, 1, 'D', '1', NULL),
+('INS-RES-OFI', 'Resma Oficio 75g Autor', 'Útiles de Oficina y Papelería', 40, 15, 1, 'D', '2', NULL),
+('INS-TIN-EPS-N', 'Botella Tinta Epson 544 Negro', 'Insumo (Consumibles, tóner, hojas, tintas)', 12, 4, 1, 'B', '4', NULL),
+('INS-TIN-EPS-C', 'Botella Tinta Epson 544 Cian', 'Insumo (Consumibles, tóner, hojas, tintas)', 8, 3, 1, 'B', '5', NULL);
+
+-- 3. CARGA DE EQUIPOS
+INSERT IGNORE INTO `equipos` (`codPatrimonial`, `tipoEquipo`, `marcaModelo`, `numeroSerie`, `ipFija`, `mascaraSubred`, `workgroup`, `estadoOperativo`, `idSector`, `procesador`, `memoriaRAM`, `almacenamiento`, `sistemaOperativo`, `tecnologiaImpresion`, `tipoConexion`, `formatoPapel`, `idInsumoCompatible`) VALUES
+('PAT-2026-101', 'Computadora', 'Dell OptiPlex 3080', 'SN-INF-101', '192.168.1.101', '255.255.255.0', 'TRIBUNAL', 'Operativo', 1, 'Intel Core i5-10400', '16GB DDR4', '512GB SSD NVMe', 'Windows 11 Pro 64-bit', NULL, NULL, NULL, NULL),
+('PAT-2026-102', 'Computadora', 'Dell OptiPlex 3080', 'SN-INF-102', '192.168.1.102', '255.255.255.0', 'TRIBUNAL', 'Operativo', 1, 'Intel Core i5-10400', '16GB DDR4', '512GB SSD NVMe', 'Windows 11 Pro 64-bit', NULL, NULL, NULL, NULL),
+('PAT-2026-103', 'Computadora', 'Dell OptiPlex 3080', 'SN-INF-103', '192.168.1.103', '255.255.255.0', 'TRIBUNAL', 'Operativo', 1, 'Intel Core i5-10400', '16GB DDR4', '512GB SSD NVMe', 'Windows 11 Pro 64-bit', NULL, NULL, NULL, NULL),
+('PAT-2026-104', 'Computadora', 'Dell OptiPlex 3080', 'SN-INF-104', '192.168.1.104', '255.255.255.0', 'TRIBUNAL', 'Operativo', 1, 'Intel Core i5-10400', '16GB DDR4', '512GB SSD NVMe', 'Windows 11 Pro 64-bit', NULL, NULL, NULL, NULL),
+('PAT-2026-105', 'Computadora', 'HP ProDesk 400 G7', 'SN-INF-105', '192.168.1.105', '255.255.255.0', 'TRIBUNAL', 'Operativo', 1, 'Intel Core i7-10700', '16GB DDR4', '1TB SSD NVMe', 'Windows 11 Pro 64-bit', NULL, NULL, NULL, NULL),
+('PAT-2026-106', 'Computadora', 'HP ProDesk 400 G7', 'SN-INF-106', '192.168.1.106', '255.255.255.0', 'TRIBUNAL', 'Operativo', 1, 'Intel Core i7-10700', '16GB DDR4', '1TB SSD NVMe', 'Windows 11 Pro 64-bit', NULL, NULL, NULL, NULL),
+('PAT-2026-107', 'Computadora', 'Lenovo ThinkCentre M70s', 'SN-SEC-101', '192.168.1.50', '255.255.255.0', 'TRIBUNAL', 'Operativo', 2, 'Intel Core i5-10400', '8GB DDR4', '512GB SSD NVMe', 'Windows 10 Pro 64-bit', NULL, NULL, NULL, NULL),
+('PAT-2026-108', 'Computadora', 'Lenovo ThinkCentre M70s', 'SN-MES-101', '192.168.1.40', '255.255.255.0', 'TRIBUNAL', 'Operativo', 3, 'Intel Core i5-10400', '8GB DDR4', '256GB SSD', 'Windows 10 Pro 64-bit', NULL, NULL, NULL, NULL),
+('PAT-2026-109', 'Computadora', 'Dell OptiPlex 3080', 'SN-FIS-101', '192.168.1.60', '255.255.255.0', 'TRIBUNAL', 'Operativo', 4, 'Intel Core i5-10400', '16GB DDR4', '512GB SSD NVMe', 'Windows 10 Pro 64-bit', NULL, NULL, NULL, NULL),
+('PAT-2026-110', 'Computadora', 'HP ProDesk 400 G7', 'SN-DES-MOR1', '192.168.1.70', '255.255.255.0', 'TRIBUNAL', 'Operativo', 5, 'Intel Core i7-10700', '16GB DDR4', '512GB SSD NVMe', 'Windows 11 Pro 64-bit', NULL, NULL, NULL, NULL),
+('PAT-2026-111', 'Computadora', 'HP ProDesk 400 G7', 'SN-DES-MOR2', '192.168.1.71', '255.255.255.0', 'TRIBUNAL', 'Operativo', 6, 'Intel Core i7-10700', '16GB DDR4', '512GB SSD NVMe', 'Windows 11 Pro 64-bit', NULL, NULL, NULL, NULL),
+('PAT-2026-112', 'Computadora', 'HP ProDesk 400 G7', 'SN-DES-HAN1', '192.168.1.72', '255.255.255.0', 'TRIBUNAL', 'Operativo', 7, 'Intel Core i7-10700', '16GB DDR4', '512GB SSD NVMe', 'Windows 11 Pro 64-bit', NULL, NULL, NULL, NULL),
+('PAT-2026-201', 'Impresora / Escáner', 'RICOH M501', 'SN-RIC-501', '192.168.137.240', '255.255.255.0', 'TRIBUNAL', 'Operativo', 1, 'N/A (Impresora)', 'N/A (Impresora)', 'N/A (Impresora)', 'N/A (Impresora)', NULL, NULL, NULL, NULL),
+('PAT-2026-202', 'Impresora / Escáner', 'Brother HL-L6200DW', 'SN-BRO-620', '192.168.0.090', '255.255.255.0', 'TRIBUNAL', 'Operativo', 1, 'N/A (Impresora)', 'N/A (Impresora)', 'N/A (Impresora)', 'N/A (Impresora)', NULL, NULL, NULL, NULL),
+('PAT-2026-203', 'Impresora / Escáner', 'RICOH M 320F', 'SN-RIC-320', '192.168.137.66', '255.255.255.0', 'TRIBUNAL', 'Operativo', 1, 'N/A (Impresora)', 'N/A (Impresora)', 'N/A (Impresora)', 'N/A (Impresora)', NULL, NULL, NULL, NULL),
+('PAT-2026-204', 'Impresora / Escáner', 'XEROX WORKCENTRE 3550', 'SN-XER-355', '192.168.137.112', '255.255.255.0', 'TRIBUNAL', 'Operativo', 1, 'N/A (Impresora)', 'N/A (Impresora)', 'N/A (Impresora)', 'N/A (Impresora)', NULL, NULL, NULL, NULL),
+('PAT-2026-205', 'Impresora / Escáner', 'Brother HL-L8360CDW', 'SN-BRO-836', '192.168.137.67', '255.255.255.0', 'TRIBUNAL', 'Operativo', 1, 'N/A (Impresora)', 'N/A (Impresora)', 'N/A (Impresora)', 'N/A (Impresora)', NULL, NULL, NULL, NULL);
+
+-- ====================================================
+-- INSERTS DE LA MATRIZ DE COMPATIBILIDAD (Cruces)
+-- ====================================================
+
+-- Usamos SELECTs internos para obtener los IDs reales generados por la base de datos
+-- sin importar en qué número de auto-increment hayan quedado.
+
+-- 1. Brother HL-L6200DW (PAT-2026-202) -> Usa tóners serie TN880/3479
+INSERT IGNORE INTO `matriz_compatibilidad` (`idInsumo`, `idEquipo`)
+SELECT i.idInsumo, e.idEquipo FROM insumos i, equipos e 
+WHERE i.codigoInterno IN ('INF-TN880/3479', 'ECO-BRO-TN880/3479', 'TN880/3479') 
+AND e.codPatrimonial = 'PAT-2026-202';
+
+-- 2. Brother HL-L8360CDW (PAT-2026-205) -> Usa tóners serie TN419 (Color)
+INSERT IGNORE INTO `matriz_compatibilidad` (`idInsumo`, `idEquipo`)
+SELECT i.idInsumo, e.idEquipo FROM insumos i, equipos e 
+WHERE i.codigoInterno IN ('LA-BRT419K', 'LBTN419BK/NN/C') 
+AND e.codPatrimonial = 'PAT-2026-205';
+
+-- 3. XEROX WORKCENTRE 3550 (PAT-2026-204) -> Usa tóner MGN-3550A
+INSERT IGNORE INTO `matriz_compatibilidad` (`idInsumo`, `idEquipo`)
+SELECT i.idInsumo, e.idEquipo FROM insumos i, equipos e 
+WHERE i.codigoInterno = 'MGN-3550A' 
+AND e.codPatrimonial = 'PAT-2026-204';
+
+-- 4. RICOH M501 (PAT-2026-201) -> Usa tóner MP501
+INSERT IGNORE INTO `matriz_compatibilidad` (`idInsumo`, `idEquipo`)
+SELECT i.idInsumo, e.idEquipo FROM insumos i, equipos e 
+WHERE i.codigoInterno = 'MP501' 
+AND e.codPatrimonial = 'PAT-2026-201';
+
+-- Nota: Para la RICOH M 320F (PAT-2026-203) no hay tóners SP-3710SF cargados 
+-- actualmente en el listado de insumos activos.
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
