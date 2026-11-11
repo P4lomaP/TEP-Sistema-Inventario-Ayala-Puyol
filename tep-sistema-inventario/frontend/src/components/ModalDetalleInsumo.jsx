@@ -13,10 +13,15 @@ import {
   RotateCcw,
   AlertCircle,
   Info,
-  Grid
+  Grid,
+  Laptop,
+  Printer,
+  Check
 } from 'lucide-react';
 import ModalSelectorEstante from './ModalSelectorEstante';
 import { parsearUbicacion } from '../utils/shelfHelper';
+import { listarEquipos } from '../services/equiposService';
+import { obtenerInsumoPorId } from '../services/insumosService';
 
 export default function ModalDetalleInsumo({ 
   isOpen, 
@@ -33,12 +38,21 @@ export default function ModalDetalleInsumo({
   const [formData, setFormData] = useState(null);
   const [error, setError] = useState('');
 
+  const [equiposDisponibles, setEquiposDisponibles] = useState([]);
+  const [equiposVinculados, setEquiposVinculados] = useState([]);
+  const [cargandoEquipos, setCargandoEquipos] = useState(false);
+
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Sincronizar formData cuando cambia el insumo seleccionado
+  // Sincronizar formData y consultar equipos compatibles desde el GET del backend
   useEffect(() => {
-    if (insumo) {
+    if (insumo && isOpen) {
+      const inicialesVinculados = Array.isArray(insumo.equiposCompatibles) ? insumo.equiposCompatibles : [];
+      const inicialesIds = Array.isArray(insumo.equiposAsociados)
+        ? insumo.equiposAsociados.map(Number)
+        : inicialesVinculados.map((eq) => Number(eq.idEquipo));
+
       setFormData({
         idInsumo: insumo.idInsumo,
         codigoInterno: insumo.codigoInterno || '',
@@ -49,13 +63,55 @@ export default function ModalDetalleInsumo({
         ubicacionFila: insumo.ubicacionFila || '',
         ubicacionColumna: insumo.ubicacionColumna || '',
         fechaVencimiento: insumo.fechaVencimiento === '9999-12-31' ? '' : (insumo.fechaVencimiento || ''),
-        estadoActivo: insumo.estadoActivo ?? 1
+        estadoActivo: insumo.estadoActivo ?? 1,
+        equiposAsociados: inicialesIds
       });
+      setEquiposVinculados(inicialesVinculados);
       setIsEditing(false);
       setShowDeleteConfirm(false);
       setError('');
+
+      setCargandoEquipos(true);
+      Promise.all([
+        listarEquipos().catch(() => []),
+        obtenerInsumoPorId(insumo.idInsumo).catch(() => null)
+      ])
+        .then(([listaEquipos, detalleInsumo]) => {
+          const activos = (Array.isArray(listaEquipos) ? listaEquipos : []).filter(
+            (eq) => eq.estadoOperativo !== 'Baja'
+          );
+          setEquiposDisponibles(activos);
+
+          if (detalleInsumo) {
+            const vinculados = Array.isArray(detalleInsumo.equiposCompatibles)
+              ? detalleInsumo.equiposCompatibles
+              : [];
+            const ids = Array.isArray(detalleInsumo.equiposAsociados)
+              ? detalleInsumo.equiposAsociados.map(Number)
+              : vinculados.map((eq) => Number(eq.idEquipo));
+
+            setEquiposVinculados(vinculados);
+            setFormData((prev) => (prev ? { ...prev, equiposAsociados: ids } : prev));
+          }
+        })
+        .finally(() => setCargandoEquipos(false));
     }
   }, [insumo, isOpen]);
+
+  // Manejador para tildar/destildar equipos compatibles en modo edición
+  const handleToggleEquipo = (idEquipo) => {
+    const idNum = Number(idEquipo);
+    setFormData((prev) => {
+      const actuales = Array.isArray(prev.equiposAsociados) ? prev.equiposAsociados : [];
+      const yaSeleccionado = actuales.includes(idNum);
+      return {
+        ...prev,
+        equiposAsociados: yaSeleccionado
+          ? actuales.filter((id) => id !== idNum)
+          : [...actuales, idNum]
+      };
+    });
+  };
 
   if (!isOpen || !insumo || !formData) return null;
 
@@ -89,17 +145,29 @@ export default function ModalDetalleInsumo({
       return;
     }
 
+    const nuevosEquiposCompatibles = equiposDisponibles
+      .filter((eq) => (formData.equiposAsociados || []).includes(Number(eq.idEquipo)))
+      .map((eq) => ({
+        idEquipo: eq.idEquipo,
+        codPatrimonial: eq.codPatrimonial,
+        marcaModelo: eq.marcaModelo,
+        tipoEquipo: eq.tipoEquipo
+      }));
+
     const payload = {
       ...formData,
       stockActual: Number(formData.stockActual),
       stockSeguridad: Number(formData.stockSeguridad),
-      fechaVencimiento: esPeriferico ? null : (formData.fechaVencimiento || null)
+      fechaVencimiento: esPeriferico ? null : (formData.fechaVencimiento || null),
+      equiposAsociados: formData.equiposAsociados || [],
+      equiposCompatibles: nuevosEquiposCompatibles
     };
 
     setIsSaving(true);
     setError('');
     try {
       await onUpdate(payload);
+      setEquiposVinculados(nuevosEquiposCompatibles);
       setIsEditing(false);
     } catch (err) {
       setError(err.message || 'Error al actualizar el insumo en el servidor.');
@@ -281,7 +349,75 @@ export default function ModalDetalleInsumo({
                     </button>
                   </div>
                 </div>
-          </div>
+              </div>
+
+              {/* Atajo de Asociación de Equipos Compatibles (Checkboxes pre-marcados) */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300">
+                    Equipos Compatibles (Opcional)
+                  </label>
+                  <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400">
+                    {(formData.equiposAsociados || []).length} seleccionados
+                  </span>
+                </div>
+                <div className="max-h-44 overflow-y-auto divide-y divide-slate-200 dark:divide-slate-700/80 bg-slate-50/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-300 dark:[&::-webkit-scrollbar-thumb]:bg-slate-600 [&::-webkit-scrollbar-thumb]:rounded-full">
+                  {cargandoEquipos ? (
+                    <p className="text-xs text-slate-400 dark:text-gray-400 py-4 text-center">
+                      Cargando equipos disponibles...
+                    </p>
+                  ) : equiposDisponibles.length === 0 ? (
+                    <p className="text-xs text-slate-400 dark:text-gray-400 py-4 text-center">
+                      No hay equipos activos disponibles para asociar.
+                    </p>
+                  ) : (
+                    equiposDisponibles.map((eq) => {
+                      const isChecked = (formData.equiposAsociados || []).includes(Number(eq.idEquipo));
+                      const esImp = (eq.tipoEquipo || '').toLowerCase().includes('impresora');
+
+                      return (
+                        <label
+                          key={eq.idEquipo}
+                          className={`flex items-center justify-between gap-3 px-3.5 py-3 text-xs cursor-pointer transition-colors select-none group ${
+                            isChecked
+                              ? 'bg-blue-50/70 dark:bg-blue-950/35 hover:bg-blue-100/60 dark:hover:bg-blue-900/40'
+                              : 'hover:bg-slate-100/80 dark:hover:bg-slate-700/30'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => handleToggleEquipo(eq.idEquipo)}
+                              className="peer sr-only accent-blue-600"
+                            />
+                            <span
+                              className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-all shrink-0 ${
+                                isChecked
+                                  ? 'bg-blue-600 border-blue-600 text-white shadow-2xs'
+                                  : 'bg-transparent border-slate-300 dark:border-slate-500 group-hover:border-blue-500 dark:group-hover:border-slate-400'
+                              }`}
+                            >
+                              {isChecked && <Check size={11} strokeWidth={3} />}
+                            </span>
+                            {esImp ? (
+                              <Printer size={14} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                            ) : (
+                              <Laptop size={14} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                            )}
+                            <span className="font-semibold text-slate-800 dark:text-slate-100 group-hover:text-slate-950 dark:group-hover:text-white truncate transition-colors">
+                              {eq.marcaModelo}
+                            </span>
+                          </div>
+                          <span className="font-mono text-[11px] text-slate-400 dark:text-slate-400 shrink-0">
+                            {eq.codPatrimonial || 'S/N'}
+                          </span>
+                        </label>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
                 <div>
@@ -452,6 +588,45 @@ export default function ModalDetalleInsumo({
                     </p>
                   </div>
                 </div>
+              </div>
+
+              {/* Sección de Solo Lectura: Equipos Compatibles */}
+              <div className="p-3.5 bg-slate-50/80 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700 rounded-xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-gray-400 tracking-wider">
+                    Equipos Compatibles
+                  </span>
+                  {equiposVinculados.length > 0 && (
+                    <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-300">
+                      {equiposVinculados.length} {equiposVinculados.length === 1 ? 'equipo' : 'equipos'}
+                    </span>
+                  )}
+                </div>
+                {cargandoEquipos && equiposVinculados.length === 0 ? (
+                  <p className="text-xs text-slate-400 dark:text-gray-400 italic">
+                    Consultando equipos compatibles...
+                  </p>
+                ) : equiposVinculados.length === 0 ? (
+                  <p className="text-xs text-slate-400 dark:text-slate-400 italic">
+                    Sin equipos asociados
+                  </p>
+                ) : (
+                  <div className="flex flex-wrap gap-1.5 pt-0.5">
+                    {equiposVinculados.map((eq) => (
+                      <span
+                        key={eq.idEquipo}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-200/80 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300/60 dark:border-slate-600"
+                      >
+                        <span>{eq.marcaModelo}</span>
+                        {eq.codPatrimonial && (
+                          <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400">
+                            ({eq.codPatrimonial})
+                          </span>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Estado para Despacho */}

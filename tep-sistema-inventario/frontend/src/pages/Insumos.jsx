@@ -89,12 +89,8 @@ export default function Insumos() {
 
   // Manejador para agregar un insumo creado en el backend (POST /api/insumos)
   const handleGuardarInsumo = async (nuevo) => {
-    const respuesta = await crearInsumo(nuevo);
-    if (respuesta && respuesta.insumo) {
-      setInsumos((prev) => [respuesta.insumo, ...prev]);
-    } else {
-      await cargarInsumos();
-    }
+    await crearInsumo(nuevo);
+    await cargarInsumos();
     mostrarToast(`Insumo ${nuevo.codigoInterno} registrado exitosamente en la base de datos.`);
   };
 

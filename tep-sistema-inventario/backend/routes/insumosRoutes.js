@@ -9,6 +9,9 @@ router.get('/pdf', authMiddleware.verificarRol(['Administrador', 'Tecnico', 'Aud
 // GET /api/insumos - Listar todos los insumos activos (Admin, Técnico y Auditor)
 router.get('/', authMiddleware.verificarRol(['Administrador', 'Tecnico', 'Auditor']), insumosController.obtenerInsumos);
 
+// GET /api/insumos/:id - Obtener un insumo específico con sus equipos compatibles (Admin, Técnico y Auditor)
+router.get('/:id', authMiddleware.verificarRol(['Administrador', 'Tecnico', 'Auditor']), insumosController.obtenerInsumoPorId);
+
 // POST /api/insumos - Registrar un nuevo insumo (Exclusivo Administrador según CDU 4.4.2)
 router.post('/', authMiddleware.verificarRol(['Administrador']), insumosController.crearInsumo);
 

@@ -43,19 +43,21 @@
    Estilos de Barra de Desplazamiento (Scrollbar Personalizado)
    ========================================================================== */
 
-/* Compatibilidad estándar moderna (Firefox y Chromium moderno) */
-html,
-body,
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
-}
+/* Compatibilidad para Firefox (sin sobrescribir ::-webkit-scrollbar en Chromium/Opera) */
+@supports not selector(::-webkit-scrollbar) {
+  html,
+  body,
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
 
-html.dark,
-html.dark *,
-.dark,
-.dark * {
-  scrollbar-color: #334155 transparent;
+  html.dark,
+  html.dark *,
+  .dark,
+  .dark * {
+    scrollbar-color: #334155 transparent;
+  }
 }
 
 /* Motores WebKit / Chromium (Chrome, Edge, Safari, Opera) */

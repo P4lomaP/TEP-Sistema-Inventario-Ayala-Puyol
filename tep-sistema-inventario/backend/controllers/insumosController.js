@@ -2,12 +2,38 @@ const PDFDocument = require('pdfkit');
 const db = require('../database');
 const { registrarAuditoria } = require('../utils/auditoriaHelper');
 
+// Helpers basados en promesas para consultas y transacciones SQL con Pool MySQL2
+const getConnection = () => new Promise((resolve, reject) => {
+    db.getConnection((err, conn) => (err ? reject(err) : resolve(conn)));
+});
+
+const beginTransaction = (conn) => new Promise((resolve, reject) => {
+    conn.beginTransaction((err) => (err ? reject(err) : resolve()));
+});
+
+const commit = (conn) => new Promise((resolve, reject) => {
+    conn.commit((err) => (err ? reject(err) : resolve()));
+});
+
+const rollback = (conn) => new Promise((resolve) => {
+    if (!conn) return resolve();
+    conn.rollback(() => resolve());
+});
+
+const executeConnQuery = (conn, sql, values = []) => new Promise((resolve, reject) => {
+    conn.query(sql, values, (err, results) => (err ? reject(err) : resolve(results)));
+});
+
+const executeQuery = (sql, values = []) => new Promise((resolve, reject) => {
+    db.query(sql, values, (err, results) => (err ? reject(err) : resolve(results)));
+});
+
 /**
- * Obtener todos los insumos activos (estadoActivo = 1)
+ * Obtener todos los insumos activos (estadoActivo = 1) junto con sus equipos compatibles
  * GET /api/insumos
  */
-const obtenerInsumos = (req, res) => {
-    const query = `
+const obtenerInsumos = async (req, res) => {
+    const queryInsumos = `
         SELECT 
             idInsumo,
             codigoInterno,
@@ -24,16 +50,112 @@ const obtenerInsumos = (req, res) => {
         ORDER BY descripcion ASC
     `;
 
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('Error al listar insumos:', err);
-            return res.status(500).json({ 
-                message: 'Error interno al consultar los insumos.' 
+    const queryCompat = `
+        SELECT 
+            m.idInsumo,
+            e.idEquipo,
+            e.codPatrimonial,
+            e.marcaModelo,
+            e.tipoEquipo
+        FROM matriz_compatibilidad m
+        JOIN Equipos e ON m.idEquipo = e.idEquipo
+        WHERE e.estadoOperativo != 'Baja'
+        ORDER BY e.marcaModelo ASC
+    `;
+
+    try {
+        const [insumos, compatibilidades] = await Promise.all([
+            executeQuery(queryInsumos),
+            executeQuery(queryCompat)
+        ]);
+
+        const mapaCompat = {};
+        for (const row of compatibilidades) {
+            if (!mapaCompat[row.idInsumo]) {
+                mapaCompat[row.idInsumo] = [];
+            }
+            mapaCompat[row.idInsumo].push({
+                idEquipo: row.idEquipo,
+                codPatrimonial: row.codPatrimonial,
+                marcaModelo: row.marcaModelo,
+                tipoEquipo: row.tipoEquipo
             });
         }
 
-        return res.status(200).json(results);
-    });
+        const resultado = insumos.map((ins) => {
+            const vinculados = mapaCompat[ins.idInsumo] || [];
+            return {
+                ...ins,
+                equiposCompatibles: vinculados,
+                equiposAsociados: vinculados.map((eq) => eq.idEquipo)
+            };
+        });
+
+        return res.status(200).json(resultado);
+    } catch (err) {
+        console.error('Error al listar insumos:', err);
+        return res.status(500).json({ 
+            message: 'Error interno al consultar los insumos.' 
+        });
+    }
+};
+
+/**
+ * Obtener un insumo específico junto con el array de equipos vinculados en matriz_compatibilidad
+ * GET /api/insumos/:id
+ */
+const obtenerInsumoPorId = async (req, res) => {
+    const { id } = req.params;
+    const idInsumo = parseInt(id, 10);
+
+    if (isNaN(idInsumo)) {
+        return res.status(400).json({ message: 'ID de insumo inválido.' });
+    }
+
+    try {
+        const [insumo] = await executeQuery(
+            `SELECT 
+                idInsumo,
+                codigoInterno,
+                descripcion,
+                categoria,
+                stockActual,
+                stockSeguridad,
+                estadoActivo,
+                ubicacionFila,
+                ubicacionColumna,
+                DATE_FORMAT(fechaVencimiento, '%Y-%m-%d') AS fechaVencimiento
+             FROM Insumos
+             WHERE idInsumo = ?`,
+            [idInsumo]
+        );
+
+        if (!insumo) {
+            return res.status(404).json({ message: 'Insumo no encontrado.' });
+        }
+
+        const equiposCompatibles = await executeQuery(
+            `SELECT 
+                e.idEquipo,
+                e.codPatrimonial,
+                e.marcaModelo,
+                e.tipoEquipo
+             FROM matriz_compatibilidad m
+             JOIN Equipos e ON m.idEquipo = e.idEquipo
+             WHERE m.idInsumo = ? AND e.estadoOperativo != 'Baja'
+             ORDER BY e.marcaModelo ASC`,
+            [idInsumo]
+        );
+
+        return res.status(200).json({
+            ...insumo,
+            equiposCompatibles,
+            equiposAsociados: equiposCompatibles.map((eq) => eq.idEquipo)
+        });
+    } catch (err) {
+        console.error('Error al obtener detalle del insumo:', err);
+        return res.status(500).json({ message: 'Error interno al obtener el insumo.' });
+    }
 };
 
 /**
@@ -49,7 +171,8 @@ const crearInsumo = (req, res) => {
         stockSeguridad,
         ubicacionFila,
         ubicacionColumna,
-        fechaVencimiento
+        fechaVencimiento,
+        equiposAsociados
     } = req.body;
 
     // Validaciones de campos obligatorios
@@ -110,29 +233,67 @@ const crearInsumo = (req, res) => {
             });
         }
 
+        const nuevoIdInsumo = result.insertId;
+        const nuevoInsumoObj = {
+            idInsumo: nuevoIdInsumo,
+            codigoInterno: codigoInterno.trim(),
+            descripcion: descripcion.trim(),
+            categoria: categoria.trim(),
+            stockActual: stockAct,
+            stockSeguridad: stockSeg,
+            estadoActivo: 1,
+            ubicacionFila: fila,
+            ubicacionColumna: columna,
+            fechaVencimiento: fecha
+        };
+
+        // Si se enviaron equiposAsociados, insertar las relaciones en matriz_compatibilidad con Promesas
+        if (Array.isArray(equiposAsociados) && equiposAsociados.length > 0) {
+            const idsValidos = [...new Set(
+                equiposAsociados
+                    .map((idEq) => parseInt(idEq, 10))
+                    .filter((idEq) => !isNaN(idEq) && idEq > 0)
+            )];
+
+            const insertPromesas = idsValidos.map((idEquipo) => {
+                return new Promise((resolve, reject) => {
+                    db.query(
+                        'INSERT INTO matriz_compatibilidad (idInsumo, idEquipo) VALUES (?, ?)',
+                        [nuevoIdInsumo, idEquipo],
+                        (errCompat) => (errCompat ? reject(errCompat) : resolve())
+                    );
+                });
+            });
+
+            return Promise.all(insertPromesas)
+                .then(() => {
+                    return res.status(201).json({
+                        message: 'Insumo creado y equipos asociados exitosamente.',
+                        insumo: nuevoInsumoObj,
+                        equiposAsociados: idsValidos
+                    });
+                })
+                .catch((errCompat) => {
+                    console.error('Error al asociar equipos en matriz_compatibilidad:', errCompat);
+                    return res.status(201).json({
+                        message: 'Insumo creado, pero ocurrió un error al vincular algunos equipos compatibles.',
+                        insumo: nuevoInsumoObj
+                    });
+                });
+        }
+
         return res.status(201).json({
             message: 'Insumo creado exitosamente.',
-            insumo: {
-                idInsumo: result.insertId,
-                codigoInterno: codigoInterno.trim(),
-                descripcion: descripcion.trim(),
-                categoria: categoria.trim(),
-                stockActual: stockAct,
-                stockSeguridad: stockSeg,
-                estadoActivo: 1,
-                ubicacionFila: fila,
-                ubicacionColumna: columna,
-                fechaVencimiento: fecha
-            }
+            insumo: nuevoInsumoObj
         });
     });
 };
 
 /**
- * Actualizar datos de un insumo específico
+ * Actualizar datos de un insumo específico y sincronizar matriz_compatibilidad en una transacción SQL
  * PUT /api/insumos/:id
  */
-const actualizarInsumo = (req, res) => {
+const actualizarInsumo = async (req, res) => {
     const { id } = req.params;
     const {
         codigoInterno,
@@ -142,7 +303,8 @@ const actualizarInsumo = (req, res) => {
         stockSeguridad,
         ubicacionFila,
         ubicacionColumna,
-        fechaVencimiento
+        fechaVencimiento,
+        equiposAsociados
     } = req.body;
 
     if (!id) {
@@ -196,41 +358,76 @@ const actualizarInsumo = (req, res) => {
         }
     }
 
-    if (campos.length === 0) {
+    if (campos.length === 0 && !Array.isArray(equiposAsociados)) {
         return res.status(400).json({ 
             message: 'No se enviaron campos válidos para actualizar.' 
         });
     }
 
-    values.push(id);
-    const query = `UPDATE Insumos SET ${campos.join(', ')} WHERE idInsumo = ? AND estadoActivo = 1`;
+    let conn;
+    try {
+        conn = await getConnection();
+        await beginTransaction(conn);
 
-    db.query(query, values, (err, result) => {
-        if (err) {
-            console.error('Error al actualizar insumo:', err);
+        if (campos.length > 0) {
+            const updateValues = [...values, id];
+            const query = `UPDATE Insumos SET ${campos.join(', ')} WHERE idInsumo = ? AND estadoActivo = 1`;
+            const result = await executeConnQuery(conn, query, updateValues);
 
-            if (err.code === 'ER_DUP_ENTRY') {
-                return res.status(409).json({ 
-                    message: `El código interno "${codigoInterno}" ya está en uso por otro insumo.` 
+            if (result.affectedRows === 0) {
+                await rollback(conn);
+                return res.status(404).json({ 
+                    message: 'Insumo no encontrado o dado de baja.' 
                 });
             }
-
-            return res.status(500).json({ 
-                message: 'Error interno al actualizar el insumo.' 
-            });
         }
 
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ 
-                message: 'Insumo no encontrado o dado de baja.' 
-            });
+        // Si viene el array equiposAsociados, reemplazar las relaciones en matriz_compatibilidad
+        if (Array.isArray(equiposAsociados)) {
+            await executeConnQuery(
+                conn,
+                'DELETE FROM matriz_compatibilidad WHERE idInsumo = ?',
+                [Number(id)]
+            );
+
+            const idsValidos = [...new Set(
+                equiposAsociados
+                    .map((idEq) => parseInt(idEq, 10))
+                    .filter((idEq) => !isNaN(idEq) && idEq > 0)
+            )];
+
+            for (const idEquipo of idsValidos) {
+                await executeConnQuery(
+                    conn,
+                    'INSERT INTO matriz_compatibilidad (idInsumo, idEquipo) VALUES (?, ?)',
+                    [Number(id), idEquipo]
+                );
+            }
         }
+
+        await commit(conn);
 
         return res.status(200).json({
             message: 'Insumo actualizado exitosamente.',
-            idInsumo: Number(id)
+            idInsumo: Number(id),
+            equiposAsociados: Array.isArray(equiposAsociados) ? equiposAsociados.map(Number) : undefined
         });
-    });
+    } catch (err) {
+        await rollback(conn);
+        console.error('Error al actualizar insumo:', err);
+
+        if (err.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({ 
+                message: `El código interno "${codigoInterno}" ya está en uso por otro insumo.` 
+            });
+        }
+
+        return res.status(500).json({ 
+            message: 'Error interno al actualizar el insumo.' 
+        });
+    } finally {
+        if (conn) conn.release();
+    }
 };
 
 /**
@@ -425,6 +622,7 @@ const exportarPDFInsumos = async (req, res) => {
 
 module.exports = {
     obtenerInsumos,
+    obtenerInsumoPorId,
     crearInsumo,
     actualizarInsumo,
     darDeBajaInsumo,

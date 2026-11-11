@@ -1,10 +1,14 @@
-import { useState } from 'react';
-import { X, PlusCircle, AlertCircle, Info, MapPin, Grid } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, PlusCircle, AlertCircle, Info, MapPin, Grid, Laptop, Printer, Check } from 'lucide-react';
 import ModalSelectorEstante from './ModalSelectorEstante';
 import { parsearUbicacion } from '../utils/shelfHelper';
+import { listarEquipos } from '../services/equiposService';
 
 export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
+  const [equiposDisponibles, setEquiposDisponibles] = useState([]);
+  const [cargandoEquipos, setCargandoEquipos] = useState(false);
+
   // 1. ZONA JAVASCRIPT: Estados vinculados a las columnas de la tabla 'insumos'
   const [formData, setFormData] = useState({
     codigoInterno: '',
@@ -15,11 +19,45 @@ export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
     ubicacionFila: '',
     ubicacionColumna: '',
     fechaVencimiento: '',
-    estadoActivo: 1
+    estadoActivo: 1,
+    equiposAsociados: []
   });
 
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch de equipos disponibles al abrir el modal
+  useEffect(() => {
+    if (isOpen) {
+      setCargandoEquipos(true);
+      listarEquipos()
+        .then((data) => {
+          const activos = (Array.isArray(data) ? data : []).filter(
+            (eq) => eq.estadoOperativo !== 'Baja'
+          );
+          setEquiposDisponibles(activos);
+        })
+        .catch((err) => {
+          console.error('Error al cargar equipos para asociar:', err);
+          setEquiposDisponibles([]);
+        })
+        .finally(() => setCargandoEquipos(false));
+    }
+  }, [isOpen]);
+
+  // Manejador para tildar/destildar equipos compatibles
+  const handleToggleEquipo = (idEquipo) => {
+    const idNum = Number(idEquipo);
+    setFormData((prev) => {
+      const yaSeleccionado = prev.equiposAsociados.includes(idNum);
+      return {
+        ...prev,
+        equiposAsociados: yaSeleccionado
+          ? prev.equiposAsociados.filter((id) => id !== idNum)
+          : [...prev.equiposAsociados, idNum]
+      };
+    });
+  };
 
   if (!isOpen) return null;
 
@@ -63,7 +101,8 @@ export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
         stockActual: Number(formData.stockActual),
         stockSeguridad: Number(formData.stockSeguridad),
         // Si es periférico el valor enviado es null; si es insumo y no se ingresó fecha también es null
-        fechaVencimiento: esPeriferico ? null : (formData.fechaVencimiento || null)
+        fechaVencimiento: esPeriferico ? null : (formData.fechaVencimiento || null),
+        equiposAsociados: formData.equiposAsociados
       });
       setFormData({
         codigoInterno: '',
@@ -74,7 +113,8 @@ export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
         ubicacionFila: '',
         ubicacionColumna: '',
         fechaVencimiento: '',
-        estadoActivo: 1
+        estadoActivo: 1,
+        equiposAsociados: []
       });
       onClose();
     } catch (err) {
@@ -233,6 +273,74 @@ export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
             </div>
           </div>
 
+          {/* Fila 4.5: Atajo de Asociación de Equipos Compatibles (Checkboxes) */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-semibold text-slate-600 dark:text-gray-300">
+                Equipos Compatibles (Opcional)
+              </label>
+              <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400">
+                {formData.equiposAsociados.length} seleccionados
+              </span>
+            </div>
+            <div className="max-h-44 overflow-y-auto divide-y divide-slate-200 dark:divide-slate-700/80 bg-slate-50/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-300 dark:[&::-webkit-scrollbar-thumb]:bg-slate-600 [&::-webkit-scrollbar-thumb]:rounded-full">
+              {cargandoEquipos ? (
+                <p className="text-xs text-slate-400 dark:text-gray-400 py-4 text-center">
+                  Cargando equipos disponibles...
+                </p>
+              ) : equiposDisponibles.length === 0 ? (
+                <p className="text-xs text-slate-400 dark:text-gray-400 py-4 text-center">
+                  No hay equipos activos disponibles para asociar.
+                </p>
+              ) : (
+                equiposDisponibles.map((eq) => {
+                  const isChecked = formData.equiposAsociados.includes(Number(eq.idEquipo));
+                  const esImp = (eq.tipoEquipo || '').toLowerCase().includes('impresora');
+
+                  return (
+                    <label
+                      key={eq.idEquipo}
+                      className={`flex items-center justify-between gap-3 px-3.5 py-3 text-xs cursor-pointer transition-colors select-none group ${
+                        isChecked
+                          ? 'bg-blue-50/70 dark:bg-blue-950/35 hover:bg-blue-100/60 dark:hover:bg-blue-900/40'
+                          : 'hover:bg-slate-100/80 dark:hover:bg-slate-700/30'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => handleToggleEquipo(eq.idEquipo)}
+                          className="peer sr-only accent-blue-600"
+                        />
+                        <span
+                          className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-all shrink-0 ${
+                            isChecked
+                              ? 'bg-blue-600 border-blue-600 text-white shadow-2xs'
+                              : 'bg-transparent border-slate-300 dark:border-slate-500 group-hover:border-blue-500 dark:group-hover:border-slate-400'
+                          }`}
+                        >
+                          {isChecked && <Check size={11} strokeWidth={3} />}
+                        </span>
+                        {esImp ? (
+                          <Printer size={14} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                        ) : (
+                          <Laptop size={14} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                        )}
+                        <span className="font-semibold text-slate-800 dark:text-slate-100 group-hover:text-slate-950 dark:group-hover:text-white truncate transition-colors">
+                          {eq.marcaModelo}
+                        </span>
+                      </div>
+                      <span className="font-mono text-[11px] text-slate-400 dark:text-slate-400 shrink-0">
+                        {eq.codPatrimonial || 'S/N'}
+                      </span>
+                    </label>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
           {/* Fila 5: Vencimiento y Estado Activo */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center pt-1">
             <div>
@@ -261,7 +369,7 @@ export default function ModalNuevoInsumo({ isOpen, onClose, onSave }) {
                 name="estadoActivo"
                 checked={formData.estadoActivo === 1}
                 onChange={handleChange}
-                className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:placeholder-gray-400"
+                className="w-4 h-4 accent-blue-600 text-blue-600 rounded-sm border-slate-300 focus:ring-blue-500 cursor-pointer dark:bg-slate-700 dark:text-white dark:border-slate-600"
               />
               <label htmlFor="estadoActivo" className="text-xs font-medium text-slate-700 dark:text-gray-200 cursor-pointer select-none">
                 Insumo Activo para Despacho

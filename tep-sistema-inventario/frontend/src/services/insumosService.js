@@ -19,6 +19,21 @@ export async function listarInsumos() {
 }
 
 /**
+ * Obtener detalle de un insumo específico con sus equipos vinculados
+ * GET /api/insumos/:id
+ */
+export async function obtenerInsumoPorId(idInsumo) {
+  const response = await authFetch(`${BASE_URL}/${idInsumo}`);
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || 'Error al obtener el detalle del insumo.');
+  }
+
+  return data;
+}
+
+/**
  * Registrar un nuevo insumo en la base de datos
  * POST /api/insumos
  * @param {Object} insumoData
@@ -33,7 +48,8 @@ export async function crearInsumo(insumoData) {
     stockSeguridad: Number(insumoData.stockSeguridad ?? 0),
     ubicacionFila: insumoData.ubicacionFila?.trim() || '',
     ubicacionColumna: insumoData.ubicacionColumna?.trim() || '',
-    fechaVencimiento: esPeriferico ? null : (insumoData.fechaVencimiento || null)
+    fechaVencimiento: esPeriferico ? null : (insumoData.fechaVencimiento || null),
+    equiposAsociados: Array.isArray(insumoData.equiposAsociados) ? insumoData.equiposAsociados : []
   };
 
   const response = await authFetch(BASE_URL, {
@@ -66,7 +82,8 @@ export async function actualizarInsumo(idInsumo, insumoData) {
     stockSeguridad: Number(insumoData.stockSeguridad ?? 0),
     ubicacionFila: insumoData.ubicacionFila?.trim() || '',
     ubicacionColumna: insumoData.ubicacionColumna?.trim() || '',
-    fechaVencimiento: esPeriferico ? null : (insumoData.fechaVencimiento || null)
+    fechaVencimiento: esPeriferico ? null : (insumoData.fechaVencimiento || null),
+    equiposAsociados: Array.isArray(insumoData.equiposAsociados) ? insumoData.equiposAsociados : []
   };
 
   const response = await authFetch(`${BASE_URL}/${idInsumo}`, {
