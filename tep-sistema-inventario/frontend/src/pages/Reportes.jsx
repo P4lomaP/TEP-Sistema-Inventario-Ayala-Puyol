@@ -207,15 +207,6 @@ export default function Reportes() {
     mostrarToast('✓ Reporte exportado en formato CSV compatible con Excel.');
   };
 
-  // Exportar / Imprimir reporte en PDF
-  const handleImprimirPDF = () => {
-    if (transacciones.length === 0) {
-      mostrarToast('No hay datos para generar el documento imprimible.');
-      return;
-    }
-    window.print();
-  };
-
   // Paginación de la tabla de transacciones
   const totalPaginas = Math.ceil(transacciones.length / registrosPorPagina) || 1;
   const transaccionesPaginadas = useMemo(() => {
@@ -280,15 +271,6 @@ export default function Reportes() {
             >
               <FileSpreadsheet size={14} />
               <span>Exportar Excel</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleImprimirPDF}
-              className="flex items-center gap-2 px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl shadow-xs transition cursor-pointer"
-            >
-              <Printer size={14} />
-              <span>Imprimir / PDF</span>
             </button>
           </div>
         </div>

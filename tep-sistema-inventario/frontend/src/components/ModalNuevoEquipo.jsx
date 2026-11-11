@@ -79,7 +79,7 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!formData.marcaModelo.trim() || !formData.numeroSerie.trim()) {
@@ -138,8 +138,12 @@ export default function ModalNuevoEquipo({ isOpen, onClose, onSave, sectores = [
     };
 
     setError('');
-    onSave(equipoNormalizado);
-    onClose();
+    try {
+      await onSave(equipoNormalizado);
+      onClose();
+    } catch (err) {
+      setError(err?.response?.data?.message || err?.message || 'Error al registrar el equipo.');
+    }
   };
 
   return (

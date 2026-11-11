@@ -39,6 +39,7 @@ export default function ModalDetalleEquipo({
   const [formData, setFormData] = useState(null);
   const [historial, setHistorial] = useState([]);
   const [cargandoHistorial, setCargandoHistorial] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
     if (equipo) {
@@ -46,6 +47,7 @@ export default function ModalDetalleEquipo({
       setIsEditing(false);
       setShowBajaConfirm(false);
       setMotivoBajaInput('');
+      setErrorMsg('');
 
       if (equipo.idEquipo) {
         setCargandoHistorial(true);
@@ -81,8 +83,7 @@ export default function ModalDetalleEquipo({
   });
 
   const esImpresora = 
-    formData.tipoEquipo === 'impresora' || 
-    formData.tipoEquipo === 'Impresora' ||
+    (formData.tipoEquipo || '').toLowerCase().includes('impresora') || 
     formData.marcaModelo.toLowerCase().includes('laserjet') || 
     formData.marcaModelo.toLowerCase().includes('impresora') || 
     formData.marcaModelo.toLowerCase().includes('brother') ||
@@ -92,6 +93,7 @@ export default function ModalDetalleEquipo({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (errorMsg) setErrorMsg('');
     if (name === 'idSector') {
       const sec = sectores.find((s) => String(s.idSector) === String(value));
       setFormData((prev) => ({
@@ -111,30 +113,42 @@ export default function ModalDetalleEquipo({
   // Guardar cambios de edición
   const handleSaveEdit = async (e) => {
     e.preventDefault();
+    setErrorMsg('');
+
     if (codPatEnUso) {
-      alert(`Código patrimonial duplicado: El código "${formData.codPatrimonial}" ya pertenece al equipo "${codPatEnUso.marcaModelo}" (ID: ${codPatEnUso.idEquipo}). Cada bien patrimonial del TEP debe tener un código único.`);
+      setErrorMsg(`Código patrimonial duplicado: El código "${formData.codPatrimonial}" ya pertenece al equipo "${codPatEnUso.marcaModelo}" (ID: ${codPatEnUso.idEquipo}). Cada bien patrimonial del TEP debe tener un código único.`);
       return;
     }
     if (ipEnUso && formData.estadoOperativo !== 'Baja') {
-      alert(`Conflicto de red: La dirección IP "${formData.ipFija}" ya está asignada al equipo "${ipEnUso.marcaModelo}" (${ipEnUso.tipoEquipo}). Dos dispositivos activos en la red no pueden compartir la misma IP.`);
+      setErrorMsg(`Conflicto de red: La dirección IP "${formData.ipFija}" ya está asignada al equipo "${ipEnUso.marcaModelo}" (${ipEnUso.tipoEquipo}). Dos dispositivos activos en la red no pueden compartir la misma IP.`);
       return;
     }
-    await onUpdate(formData);
 
-    setIsEditing(false);
+    try {
+      await onUpdate(formData);
+      setIsEditing(false);
 
-    // Recargar historial del equipo de inmediato para reflejar traslados o cambios
-    if (equipo?.idEquipo) {
-      setCargandoHistorial(true);
-      obtenerHistorialEquipo(equipo.idEquipo)
-        .then((data) => setHistorial(Array.isArray(data) ? data : []))
-        .catch(() => setHistorial([]))
-        .finally(() => setCargandoHistorial(false));
+      // Recargar historial del equipo de inmediato para reflejar traslados o cambios
+      if (equipo?.idEquipo) {
+        setCargandoHistorial(true);
+        obtenerHistorialEquipo(equipo.idEquipo)
+          .then((data) => setHistorial(Array.isArray(data) ? data : []))
+          .catch(() => setHistorial([]))
+          .finally(() => setCargandoHistorial(false));
+      }
+    } catch (error) {
+      const msg =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        'Error al actualizar los datos del equipo.';
+      setErrorMsg(msg);
     }
   };
 
   // Acción rápida: Cambiar estado operativo
   const handleCambiarEstado = async (nuevoEstado) => {
+    setErrorMsg('');
     const motivo = nuevoEstado === 'En Mantenimiento'
       ? 'Envío a mantenimiento técnico / reparación'
       : nuevoEstado === 'Operativo'
@@ -147,15 +161,25 @@ export default function ModalDetalleEquipo({
       estado: nuevoEstado.toUpperCase(),
       motivoBaja: motivo
     };
-    setFormData(actualizado);
-    await onUpdate(actualizado);
 
-    if (equipo?.idEquipo) {
-      setCargandoHistorial(true);
-      obtenerHistorialEquipo(equipo.idEquipo)
-        .then((data) => setHistorial(Array.isArray(data) ? data : []))
-        .catch(() => setHistorial([]))
-        .finally(() => setCargandoHistorial(false));
+    try {
+      await onUpdate(actualizado);
+      setFormData(actualizado);
+
+      if (equipo?.idEquipo) {
+        setCargandoHistorial(true);
+        obtenerHistorialEquipo(equipo.idEquipo)
+          .then((data) => setHistorial(Array.isArray(data) ? data : []))
+          .catch(() => setHistorial([]))
+          .finally(() => setCargandoHistorial(false));
+      }
+    } catch (error) {
+      const msg =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        'Error al modificar el estado del equipo.';
+      setErrorMsg(msg);
     }
   };
 
@@ -178,7 +202,7 @@ export default function ModalDetalleEquipo({
         <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/70 dark:bg-slate-800">
           <div className="flex items-center gap-3">
             <div className={`p-2.5 rounded-xl ${
-              esImpresora ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'
+              esImpresora ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300'
             }`}>
               {esImpresora ? <Printer size={20} /> : <Laptop size={20} />}
             </div>
@@ -187,7 +211,7 @@ export default function ModalDetalleEquipo({
                 <h3 className="text-base font-bold text-slate-800 dark:text-gray-100">
                   {isEditing ? 'Editar Equipo Patrimonial' : 'Ficha Técnica de Equipo'}
                 </h3>
-                <span className="bg-slate-200/80 text-slate-700 dark:text-gray-200 text-[10px] font-mono font-bold px-2 py-0.5 rounded">
+                <span className="bg-slate-200/80 dark:bg-slate-700 text-slate-700 dark:text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded border border-transparent dark:border-slate-600">
                   {formData.codPatrimonial || 'S/N Patrimonial'}
                 </span>
               </div>
@@ -199,7 +223,7 @@ export default function ModalDetalleEquipo({
           <button 
             type="button" 
             onClick={onClose}
-            className="text-slate-400 dark:text-gray-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/60 transition cursor-pointer"
+            className="text-slate-400 dark:text-gray-400 hover:text-slate-600 dark:hover:text-gray-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/60 transition cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -207,6 +231,21 @@ export default function ModalDetalleEquipo({
 
         {/* CONTENIDO SCROLLEABLE */}
         <div className="p-6 overflow-y-auto space-y-4">
+          {errorMsg && (
+            <div className="p-3.5 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-200 rounded-xl text-xs flex items-start justify-between gap-2 animate-fadeIn">
+              <div className="flex items-start gap-2">
+                <AlertTriangle size={16} className="text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                <span className="font-medium leading-relaxed">{errorMsg}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setErrorMsg('')}
+                className="text-rose-400 hover:text-rose-600 dark:hover:text-rose-200 p-0.5 rounded cursor-pointer shrink-0"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          )}
           
           {/* AVISO DE CONFIRMACIÓN DE BAJA CON JUSTIFICACIÓN RN-02 */}
           {showBajaConfirm && (
@@ -265,15 +304,15 @@ export default function ModalDetalleEquipo({
                     value={formData.codPatrimonial}
                     onChange={handleChange}
                     required
-                    className={`w-full px-3 py-2 text-xs border rounded-xl font-mono focus:outline-none transition ${
+                    className={`w-full px-3 py-2 text-xs border rounded-xl font-mono focus:outline-none transition dark:bg-slate-700 dark:text-white ${
                       codPatEnUso 
-                        ? 'border-amber-400 bg-amber-50/50 text-amber-900 focus:border-amber-500' 
-                        : 'border-slate-200 focus:border-blue-600'
+                        ? 'border-rose-400 dark:border-rose-500 bg-rose-50/50 dark:bg-rose-950/30 text-rose-900 dark:text-rose-200 focus:border-rose-500' 
+                        : 'border-slate-200 dark:border-slate-700 focus:border-blue-600'
                     }`}
                   />
                   {codPatEnUso && (
-                    <p className="text-[10px] text-amber-700 font-semibold mt-1 flex items-center gap-1">
-                      <AlertTriangle size={12} className="shrink-0 text-amber-600" />
+                    <p className="text-[10px] text-rose-600 dark:text-rose-400 font-semibold mt-1 flex items-center gap-1">
+                      <AlertTriangle size={12} className="shrink-0 text-rose-600 dark:text-rose-400" />
                       <span>Conflicto: Ya asignado a {codPatEnUso.marcaModelo}</span>
                     </p>
                   )}
@@ -417,15 +456,15 @@ export default function ModalDetalleEquipo({
                   value={formData.ipFija || ''}
                   onChange={handleChange}
                   placeholder="Ej. 192.168.10.202"
-                  className={`w-full px-3 py-2 text-xs border rounded-xl font-mono focus:outline-none transition ${
+                  className={`w-full px-3 py-2 text-xs border rounded-xl font-mono focus:outline-none transition dark:bg-slate-700 dark:text-white ${
                     ipEnUso 
-                      ? 'border-amber-400 bg-amber-50/50 text-amber-900 focus:border-amber-500' 
-                      : 'border-slate-200 focus:border-blue-600'
+                      ? 'border-rose-400 dark:border-rose-500 bg-rose-50/50 dark:bg-rose-950/30 text-rose-900 dark:text-rose-200 focus:border-rose-500' 
+                      : 'border-slate-200 dark:border-slate-700 focus:border-blue-600'
                   }`}
                 />
                 {ipEnUso && (
-                  <p className="text-[10px] text-amber-700 font-semibold mt-1 flex items-center gap-1">
-                    <AlertTriangle size={12} className="shrink-0 text-amber-600" />
+                  <p className="text-[10px] text-rose-600 dark:text-rose-400 font-semibold mt-1 flex items-center gap-1">
+                    <AlertTriangle size={12} className="shrink-0 text-rose-600 dark:text-rose-400" />
                     <span>Conflicto: Ya asignada a {ipEnUso.marcaModelo} ({ipEnUso.tipoEquipo})</span>
                   </p>
                 )}
@@ -586,10 +625,10 @@ export default function ModalDetalleEquipo({
               <div className="p-4 bg-slate-50 dark:bg-slate-700/50 border border-slate-200/80 dark:border-slate-700 rounded-2xl space-y-2.5">
                 <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-gray-200">
                   <div className="flex items-center gap-1.5">
-                    <History size={14} className="text-blue-600" />
+                    <History size={14} className="text-blue-600 dark:text-blue-400" />
                     <span>Trazabilidad e Historial del Equipo (RN-02)</span>
                   </div>
-                  <span className="text-[10px] bg-slate-200/70 text-slate-600 dark:text-gray-300 font-mono px-2 py-0.5 rounded-full font-bold">
+                  <span className="text-[10px] bg-slate-200/70 dark:bg-slate-700 text-slate-600 dark:text-white font-mono px-2 py-0.5 rounded-full font-bold border border-transparent dark:border-slate-600">
                     {historial.length} eventos
                   </span>
                 </div>
@@ -632,8 +671,12 @@ export default function ModalDetalleEquipo({
             <>
               <button
                 type="button"
-                onClick={() => setIsEditing(false)}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-gray-300 hover:bg-slate-200/60 rounded-xl transition flex items-center gap-1.5 cursor-pointer"
+                onClick={() => {
+                  setIsEditing(false);
+                  setErrorMsg('');
+                  setFormData({ ...equipo });
+                }}
+                className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-gray-300 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 rounded-xl transition flex items-center gap-1.5 cursor-pointer"
               >
                 <RotateCcw size={14} />
                 <span>Cancelar</span>

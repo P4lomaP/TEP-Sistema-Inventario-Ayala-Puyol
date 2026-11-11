@@ -30,9 +30,7 @@ export async function listarEquipos() {
  * @param {Object} equipoData
  */
 export async function crearEquipo(equipoData) {
-  const esImpresora = 
-    equipoData.tipoEquipo === 'impresora' || 
-    equipoData.tipoEquipo === 'Impresora';
+  const esImpresora = (equipoData.tipoEquipo || '').toLowerCase().includes('impresora');
 
   const payload = {
     codPatrimonial: equipoData.codPatrimonial?.trim() || null,
@@ -84,9 +82,7 @@ export async function crearEquipo(equipoData) {
  * @param {Object} equipoData
  */
 export async function actualizarEquipo(idEquipo, equipoData) {
-  const esImpresora = 
-    equipoData.tipoEquipo === 'impresora' || 
-    equipoData.tipoEquipo === 'Impresora';
+  const esImpresora = (equipoData.tipoEquipo || '').toLowerCase().includes('impresora');
 
   const payload = {
     codPatrimonial: equipoData.codPatrimonial?.trim() || null,
@@ -128,7 +124,9 @@ export async function actualizarEquipo(idEquipo, equipoData) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data.message || 'Error al actualizar el equipo.');
+    const error = new Error(data.message || data.error || 'Error al actualizar el equipo.');
+    error.response = { data, status: response.status };
+    throw error;
   }
 
   return data;

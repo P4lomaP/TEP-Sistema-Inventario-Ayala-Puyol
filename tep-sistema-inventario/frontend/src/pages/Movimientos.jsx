@@ -345,8 +345,8 @@ export default function Movimientos() {
 
     // 2. Si no está en la matriz, comprobar si es una incoherencia de tipo evidente
     const tipoEq = (equipoSeleccionado.tipoEquipo || '').toLowerCase();
-    const esPc = tipoEq === 'computadora' || (!equipoSeleccionado.tipoEquipo && Boolean(equipoSeleccionado.procesador));
-    const esImp = tipoEq === 'impresora' || (!equipoSeleccionado.tipoEquipo && Boolean(equipoSeleccionado.tecnologiaImpresion));
+    const esPc = tipoEq.includes('computadora') || (!equipoSeleccionado.tipoEquipo && Boolean(equipoSeleccionado.procesador));
+    const esImp = tipoEq.includes('impresora') || (!equipoSeleccionado.tipoEquipo && Boolean(equipoSeleccionado.tecnologiaImpresion));
 
     const catIns = (insumoSeleccionado.categoria || '').toLowerCase();
     const descIns = (insumoSeleccionado.descripcion || '').toLowerCase();
@@ -583,7 +583,7 @@ export default function Movimientos() {
                       Equipos Disponibles ({sugerenciasEquipos.length})
                     </div>
                     {sugerenciasEquipos.map((eq) => {
-                      const esImp = eq.tipoEquipo?.toLowerCase() === 'impresora';
+                      const esImp = (eq.tipoEquipo || '').toLowerCase().includes('impresora');
                       return (
                         <button
                           key={eq.idEquipo}

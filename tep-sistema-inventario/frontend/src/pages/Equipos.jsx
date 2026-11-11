@@ -130,7 +130,8 @@ export default function Equipos() {
       mostrarToast(`Equipo ${nuevo.codPatrimonial || nuevo.marcaModelo} registrado exitosamente.`);
       await cargarDatos();
     } catch (err) {
-      alert(err.message || 'Error al guardar el equipo.');
+      mostrarToast(err?.response?.data?.message || err.message || 'Error al guardar el equipo.');
+      throw err;
     }
   };
 
@@ -141,7 +142,8 @@ export default function Equipos() {
       mostrarToast(`Equipo ${actualizado.codPatrimonial || actualizado.marcaModelo} actualizado.`);
       await cargarDatos();
     } catch (err) {
-      alert(err.message || 'Error al actualizar el equipo.');
+      mostrarToast(err?.response?.data?.message || err.message || 'Error al actualizar el equipo.');
+      throw err;
     }
   };
 
@@ -152,7 +154,7 @@ export default function Equipos() {
       mostrarToast('Equipo dado de baja patrimonial.');
       await cargarDatos();
     } catch (err) {
-      alert(err.message || 'Error al procesar la baja del equipo.');
+      mostrarToast(err?.response?.data?.message || err.message || 'Error al procesar la baja del equipo.');
     }
   };
 
@@ -173,7 +175,7 @@ export default function Equipos() {
       mostrarToast(`Equipo ${item.codPatrimonial || item.marcaModelo} cambiado a ${nuevoEstado}.`);
       await cargarDatos();
     } catch (err) {
-      alert(err.message || 'Error al modificar estado del equipo.');
+      mostrarToast(err?.response?.data?.message || err.message || 'Error al modificar estado del equipo.');
     }
   };
 
@@ -212,7 +214,7 @@ export default function Equipos() {
       const dataSectores = await listarSectores();
       setSectores(dataSectores);
     } catch (err) {
-      alert(err.message || 'Error al registrar el sector.');
+      mostrarToast(err?.response?.data?.message || err.message || 'Error al registrar el sector.');
     }
   };
 
@@ -224,7 +226,7 @@ export default function Equipos() {
       await descargarReporteEquiposPDF();
       mostrarToast('Reporte PDF descargado con éxito.');
     } catch (err) {
-      alert(err.message || 'Error al generar el reporte en PDF.');
+      mostrarToast(err?.response?.data?.message || err.message || 'Error al generar el reporte en PDF.');
     } finally {
       setExportando(false);
     }
@@ -237,7 +239,7 @@ export default function Equipos() {
       mostrarToast('Por favor habilite las ventanas emergentes para generar el documento.');
       return;
     }
-    const esImp = (equipo.tipoEquipo || '').toLowerCase() === 'impresora';
+    const esImp = (equipo.tipoEquipo || '').toLowerCase().includes('impresora');
     const htmlContent = `
       <!DOCTYPE html>
       <html lang="es">
@@ -325,10 +327,11 @@ export default function Equipos() {
         (item.nombreSector || '').toLowerCase().includes(texto) ||
         (item.ipFija || '').toLowerCase().includes(texto);
 
+      const tipoEq = (item.tipoEquipo || '').toLowerCase();
       const coincideTipo = 
         filtroTipo === 'todos' || 
-        (filtroTipo === 'computadora' && item.tipoEquipo?.toLowerCase() === 'computadora') ||
-        (filtroTipo === 'impresora' && item.tipoEquipo?.toLowerCase() === 'impresora');
+        (filtroTipo === 'computadora' && tipoEq.includes('computadora')) ||
+        (filtroTipo === 'impresora' && tipoEq.includes('impresora'));
 
       const coincideEstado = 
         filtroEstado === 'todos' || item.estadoOperativo === filtroEstado;
@@ -400,7 +403,7 @@ export default function Equipos() {
 
   // Renderizador de Icono según Tipo de Equipo
   const renderTipoIcono = (tipo) => {
-    if (tipo?.toLowerCase() === 'impresora') {
+    if ((tipo || '').toLowerCase().includes('impresora')) {
       return (
         <span className="p-1.5 bg-amber-50 text-amber-600 rounded-lg shrink-0">
           <Printer size={15} />
@@ -844,16 +847,16 @@ export default function Equipos() {
 
                 {/* Tarjeta de Dispositivo (Reemplazo moderno y limpio de la imagen de stock) */}
                 <div className={`w-full py-5 rounded-2xl flex flex-col items-center justify-center border shadow-xs transition-all ${
-                  equipoCicloVida.tipoEquipo?.toLowerCase() === 'impresora'
+                  (equipoCicloVida.tipoEquipo || '').toLowerCase().includes('impresora')
                     ? 'bg-gradient-to-b from-amber-50/80 to-amber-100/40 border-amber-200/80 text-amber-700'
                     : 'bg-gradient-to-b from-blue-50/80 to-blue-100/40 border-blue-200/80 text-blue-700'
                 }`}>
                   <div className={`p-3.5 rounded-2xl shadow-sm mb-2.5 ${
-                    equipoCicloVida.tipoEquipo?.toLowerCase() === 'impresora'
+                    (equipoCicloVida.tipoEquipo || '').toLowerCase().includes('impresora')
                       ? 'bg-white text-amber-600 border border-amber-100'
                       : 'bg-white text-blue-600 border border-blue-100'
                   }`}>
-                    {equipoCicloVida.tipoEquipo?.toLowerCase() === 'impresora' ? (
+                    {(equipoCicloVida.tipoEquipo || '').toLowerCase().includes('impresora') ? (
                       <Printer size={32} />
                     ) : (
                       <Laptop size={32} />

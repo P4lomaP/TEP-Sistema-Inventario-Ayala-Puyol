@@ -147,8 +147,8 @@ export default function Compatibilidad() {
   const verificarIncompatibilidadLogica = (equipo, insumo) => {
     if (!equipo || !insumo) return null;
     const tipoEq = (equipo.tipoEquipo || '').toLowerCase();
-    const esPc = tipoEq === 'computadora' || (!equipo.tipoEquipo && Boolean(equipo.procesador));
-    const esImp = tipoEq === 'impresora' || (!equipo.tipoEquipo && Boolean(equipo.tecnologiaImpresion));
+    const esPc = tipoEq.includes('computadora') || (!equipo.tipoEquipo && Boolean(equipo.procesador));
+    const esImp = tipoEq.includes('impresora') || (!equipo.tipoEquipo && Boolean(equipo.tecnologiaImpresion));
 
     const catIns = (insumo.categoria || '').toLowerCase();
     const descIns = (insumo.descripcion || '').toLowerCase();
@@ -268,8 +268,9 @@ export default function Compatibilidad() {
       const sec = (eq.nombreSector || eq.nombreOficina || '').toLowerCase();
       const matchText = marca.includes(q) || cod.includes(q) || serie.includes(q) || sec.includes(q);
 
-      const esComputadora = eq.tipoEquipo?.toLowerCase() === 'computadora' || (!eq.tipoEquipo && Boolean(eq.procesador));
-      const esImpresora = eq.tipoEquipo?.toLowerCase() === 'impresora' || (!eq.tipoEquipo && Boolean(eq.tecnologiaImpresion));
+      const tipoEq = (eq.tipoEquipo || '').toLowerCase();
+      const esComputadora = tipoEq.includes('computadora') || (!eq.tipoEquipo && Boolean(eq.procesador));
+      const esImpresora = tipoEq.includes('impresora') || (!eq.tipoEquipo && Boolean(eq.tecnologiaImpresion));
 
       if (filtroTipoEquipo === 'impresora') {
         return matchText && esImpresora;
@@ -328,8 +329,9 @@ export default function Compatibilidad() {
 
       const matchTexto = !q || marca.includes(q) || cod.includes(q) || serie.includes(q) || sec.includes(q) || insumosMatch;
 
-      const esComputadora = eq.tipoEquipo?.toLowerCase() === 'computadora' || (!eq.tipoEquipo && Boolean(eq.procesador));
-      const esImpresora = eq.tipoEquipo?.toLowerCase() === 'impresora' || (!eq.tipoEquipo && Boolean(eq.tecnologiaImpresion));
+      const tipoEq = (eq.tipoEquipo || '').toLowerCase();
+      const esComputadora = tipoEq.includes('computadora') || (!eq.tipoEquipo && Boolean(eq.procesador));
+      const esImpresora = tipoEq.includes('impresora') || (!eq.tipoEquipo && Boolean(eq.tecnologiaImpresion));
 
       if (filtroTablaTipo === 'computadora' && !esComputadora) return false;
       if (filtroTablaTipo === 'impresora' && !esImpresora) return false;
@@ -679,8 +681,9 @@ export default function Compatibilidad() {
               ) : (
                 equiposFiltrados.map((eq) => {
                   const isCompatible = equiposCompatiblesIds.has(Number(eq.idEquipo));
-                  const esComputadora = eq.tipoEquipo?.toLowerCase() === 'computadora' || (!eq.tipoEquipo && Boolean(eq.procesador));
-                  const esImpresora = eq.tipoEquipo?.toLowerCase() === 'impresora' || (!eq.tipoEquipo && Boolean(eq.tecnologiaImpresion));
+                  const tipoEq = (eq.tipoEquipo || '').toLowerCase();
+                  const esComputadora = tipoEq.includes('computadora') || (!eq.tipoEquipo && Boolean(eq.procesador));
+                  const esImpresora = tipoEq.includes('impresora') || (!eq.tipoEquipo && Boolean(eq.tecnologiaImpresion));
                   const tipoEtiqueta = esImpresora ? 'Impresora' : (esComputadora ? 'Computadora' : (eq.tipoEquipo || 'Equipo'));
 
                   // Validación lógica preventiva
@@ -933,8 +936,9 @@ export default function Compatibilidad() {
                   </tr>
                 ) : (
                   equiposTablaFiltrados.map((eq) => {
-                    const esComputadora = eq.tipoEquipo?.toLowerCase() === 'computadora' || (!eq.tipoEquipo && Boolean(eq.procesador));
-                    const esImpresora = eq.tipoEquipo?.toLowerCase() === 'impresora' || (!eq.tipoEquipo && Boolean(eq.tecnologiaImpresion));
+                    const tipoEq = (eq.tipoEquipo || '').toLowerCase();
+                    const esComputadora = tipoEq.includes('computadora') || (!eq.tipoEquipo && Boolean(eq.procesador));
+                    const esImpresora = tipoEq.includes('impresora') || (!eq.tipoEquipo && Boolean(eq.tecnologiaImpresion));
                     const tipoEtiqueta = esImpresora ? 'Impresora' : (esComputadora ? 'Computadora' : (eq.tipoEquipo || 'Equipo'));
 
                     return (
@@ -1179,7 +1183,7 @@ export default function Compatibilidad() {
               <div className="flex items-start justify-between pb-3 border-b border-slate-100 dark:border-slate-700">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-blue-50 text-blue-700 rounded-xl">
-                    {modalEquipo.tipoEquipo?.toLowerCase() === 'impresora' ? <Printer size={22} /> : <Laptop size={22} />}
+                    {(modalEquipo.tipoEquipo || '').toLowerCase().includes('impresora') ? <Printer size={22} /> : <Laptop size={22} />}
                   </div>
                   <div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600">
@@ -1230,7 +1234,7 @@ export default function Compatibilidad() {
               </div>
 
               {/* Especificaciones según tipo */}
-              {(modalEquipo.tipoEquipo?.toLowerCase() === 'computadora' || Boolean(modalEquipo.procesador)) && (
+              {((modalEquipo.tipoEquipo || '').toLowerCase().includes('computadora') || Boolean(modalEquipo.procesador)) && (
                 <div className="p-3 bg-blue-50/50 border border-blue-100 rounded-xl space-y-2 text-xs">
                   <p className="font-bold text-blue-900 text-[11px] uppercase tracking-wider">Hardware de Computadora</p>
                   <div className="grid grid-cols-2 gap-2 text-slate-700 dark:text-gray-200">
@@ -1242,7 +1246,7 @@ export default function Compatibilidad() {
                 </div>
               )}
 
-              {(modalEquipo.tipoEquipo?.toLowerCase() === 'impresora' || Boolean(modalEquipo.tecnologiaImpresion)) && (
+              {((modalEquipo.tipoEquipo || '').toLowerCase().includes('impresora') || Boolean(modalEquipo.tecnologiaImpresion)) && (
                 <div className="p-3 bg-amber-50/50 border border-amber-100 rounded-xl space-y-2 text-xs">
                   <p className="font-bold text-amber-900 text-[11px] uppercase tracking-wider">Parámetros de Impresión</p>
                   <div className="grid grid-cols-2 gap-2 text-slate-700 dark:text-gray-200">
