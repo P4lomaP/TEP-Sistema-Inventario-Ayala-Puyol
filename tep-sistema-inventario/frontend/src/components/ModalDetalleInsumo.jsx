@@ -231,7 +231,7 @@ export default function ModalDetalleInsumo({
         </div>
 
         {/* CONTENIDO SCROLLEABLE */}
-        <div className="p-6 overflow-y-auto space-y-5">
+        <div className="relative flex-1 min-h-0 p-6 overflow-y-auto space-y-5">
           {error && (
             <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-600 dark:text-rose-300 rounded-xl text-xs flex items-center gap-2">
               <AlertCircle size={16} />
@@ -361,7 +361,7 @@ export default function ModalDetalleInsumo({
                     {(formData.equiposAsociados || []).length} seleccionados
                   </span>
                 </div>
-                <div className="max-h-48 overflow-y-auto divide-y divide-slate-200 dark:divide-slate-700/80 bg-slate-50/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-300 dark:[&::-webkit-scrollbar-thumb]:bg-slate-600 [&::-webkit-scrollbar-thumb]:rounded-full">
+                <div className="relative max-h-48 overflow-y-auto divide-y divide-slate-200 dark:divide-slate-700/80 bg-slate-50/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-300 dark:[&::-webkit-scrollbar-thumb]:bg-slate-600 [&::-webkit-scrollbar-thumb]:rounded-full">
                   {cargandoEquipos ? (
                     <p className="text-xs text-slate-400 dark:text-gray-400 py-4 text-center">
                       Cargando equipos disponibles...
@@ -411,21 +411,17 @@ export default function ModalDetalleInsumo({
                               const esImp = (eq.tipoEquipo || '').toLowerCase().includes('impresora');
 
                               return (
-                                <label
+                                <button
                                   key={eq.idEquipo}
-                                  className={`flex items-center justify-between gap-3 px-3.5 py-3 text-xs cursor-pointer transition-colors select-none group ${
+                                  type="button"
+                                  onClick={() => handleToggleEquipo(eq.idEquipo)}
+                                  className={`w-full text-left flex items-center justify-between gap-3 px-3.5 py-2.5 text-xs cursor-pointer transition-colors select-none group ${
                                     isChecked
                                       ? 'bg-blue-50/70 dark:bg-blue-950/35 hover:bg-blue-100/60 dark:hover:bg-blue-900/40'
                                       : 'hover:bg-slate-100/80 dark:hover:bg-slate-700/30'
                                   }`}
                                 >
                                   <div className="flex items-center gap-3 min-w-0">
-                                    <input
-                                      type="checkbox"
-                                      checked={isChecked}
-                                      onChange={() => handleToggleEquipo(eq.idEquipo)}
-                                      className="peer sr-only accent-blue-600"
-                                    />
                                     <span
                                       className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-all shrink-0 ${
                                         isChecked
@@ -447,7 +443,7 @@ export default function ModalDetalleInsumo({
                                   <span className="font-mono text-[11px] text-slate-400 dark:text-slate-400 shrink-0">
                                     {eq.codPatrimonial || 'S/N'}
                                   </span>
-                                </label>
+                                </button>
                               );
                             })
                           )}
